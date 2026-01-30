@@ -1,0 +1,18 @@
+{
+  "name": "Ganadería La Vega",
+  "short_name": "La Vega",
+  "description": "Sistema de Gestión Ganadería La Vega",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#15803d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
