@@ -1,701 +1,206 @@
-import React, { useState, useEffect } from 'react';
-import { PlusCircle, Search, Filter, Download, TrendingUp, DollarSign, Calendar, Building2, Tag, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, ArrowUpRight, ArrowDownRight, Menu, Home, Receipt, Beef, Users, Settings, ChevronDown, Upload } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { PlusCircle, Search, Filter, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
+import { GASTOS_HISTORICOS } from './gastos-historicos';
 
-// Datos iniciales basados en tu archivo real
-const CATEGORIAS = [
-  'Alimentacion ganado', 'Caja menor', 'Genetica', 'Impuestos', 
-  'Mano de obra', 'Mantenimiento potreros', 'Montaje finca', 
-  'Otros gastos', 'Reparaciones', 'Sanidad animal', 
-  'Servicios publicos', 'Transporte ganado'
-];
+const formatCurrency = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v);
+const formatDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
+const ITEMS_PER_PAGE = 50;
+const centroColor = (c) => ({ 'La Vega': 'bg-green-100 text-green-800', 'Bariloche': 'bg-blue-100 text-blue-800', 'Global': 'bg-purple-100 text-purple-800' }[c] || 'bg-gray-100 text-gray-800');
+const centroBarColor = (c) => ({ 'La Vega': 'bg-green-500', 'Bariloche': 'bg-blue-500', 'Global': 'bg-purple-500' }[c] || 'bg-gray-500');
 
-const CENTROS_COSTOS = ['La Vega', 'Bariloche', 'Global'];
-
-const PROVEEDORES_CATEGORIA = {
-  'Celsia': { categoria: 'Servicios publicos', centro: 'La Vega' },
-  'Proditel': { categoria: 'Servicios publicos', centro: 'La Vega' },
-  'Distriservicios SAS ESP': { categoria: 'Servicios publicos', centro: 'Bariloche' },
-  'Clemente Molina': { categoria: 'Mano de obra', centro: 'Global' },
-  'Fernando Vargas': { categoria: 'Mano de obra', centro: 'La Vega' },
-  'DIAN': { categoria: 'Impuestos', centro: 'Global' },
-  'Central Pecuaria': { categoria: 'Sanidad animal', centro: 'La Vega' },
-  'Serviarroz': { categoria: 'Sanidad animal', centro: 'La Vega' },
-  'Distrimangueras': { categoria: 'Montaje finca', centro: 'Bariloche' },
-  'Constructora MAG': { categoria: 'Otros gastos', centro: 'La Vega' },
-  'Sergio Ayala': { categoria: 'Alimentacion ganado', centro: 'La Vega' },
-  'Carlos Gongora': { categoria: 'Transporte ganado', centro: 'La Vega' },
-  'Comité Ganaderos del Tolima': { categoria: 'Sanidad animal', centro: 'La Vega' },
-  'Embriogenex': { categoria: 'Genetica', centro: 'La Vega' },
-  'Agralba': { categoria: 'Mantenimiento potreros', centro: 'La Vega' },
-};
-
-// Datos de ejemplo basados en tu archivo 2025
-const GASTOS_INICIALES = [
-  { id: 1, fecha: '2025-01-03', monto: 560000, proveedor: 'Distrimangueras', tipo: 'costo', comentarios: 'Materiales riego', centro: 'Bariloche', categoria: 'Mantenimiento potreros', estado: 'aprobado' },
-  { id: 2, fecha: '2025-01-08', monto: 701827, proveedor: 'Serviarroz', tipo: 'costo', comentarios: 'Fertilizantes potreros', centro: 'La Vega', categoria: 'Mantenimiento potreros', estado: 'aprobado' },
-  { id: 3, fecha: '2025-01-08', monto: 701827, proveedor: 'Serviarroz', tipo: 'costo', comentarios: 'Fertilizantes potreros', centro: 'Bariloche', categoria: 'Mantenimiento potreros', estado: 'aprobado' },
-  { id: 4, fecha: '2025-01-09', monto: 47554, proveedor: 'Celsia', tipo: 'costo', comentarios: 'Luz finca', centro: 'La Vega', categoria: 'Servicios publicos', estado: 'aprobado' },
-  { id: 5, fecha: '2025-01-09', monto: 34410, proveedor: 'Distriservicios SAS ESP', tipo: 'gasto', comentarios: 'Gas finca', centro: 'Bariloche', categoria: 'Servicios publicos', estado: 'aprobado' },
-  { id: 6, fecha: '2025-01-10', monto: 10000000, proveedor: 'Constructora MAG', tipo: 'gasto', comentarios: 'Abono a prestamo', centro: 'La Vega', categoria: 'Otros gastos', estado: 'aprobado' },
-  { id: 7, fecha: '2025-01-10', monto: 250000, proveedor: 'Clemente Molina', tipo: 'costo', comentarios: 'Caja menor', centro: 'Global', categoria: 'Caja menor', estado: 'aprobado' },
-  { id: 8, fecha: '2025-01-10', monto: 200000, proveedor: 'Carlos Gongora', tipo: 'costo', comentarios: 'Transporte ganado de La Vega a Bariloche', centro: 'La Vega', categoria: 'Transporte ganado', estado: 'aprobado' },
-  { id: 9, fecha: '2025-01-28', monto: 185000, proveedor: 'Central Pecuaria', tipo: 'costo', comentarios: 'Compra medicamentos', centro: 'La Vega', categoria: 'Sanidad animal', estado: 'pendiente' },
-  { id: 10, fecha: '2025-01-29', monto: 1500000, proveedor: 'Clemente Molina', tipo: 'costo', comentarios: 'Pago quincena', centro: 'Global', categoria: 'Mano de obra', estado: 'pendiente' },
-];
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(value);
-};
-
-const formatDate = (dateStr) => {
-  const date = new Date(dateStr + 'T00:00:00');
-  return date.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
-};
-
-// Componente principal
 export default function GanaderiaApp() {
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [gastos, setGastos] = useState(GASTOS_INICIALES);
+  const [view, setView] = useState('dashboard');
+  const [gastos, setGastos] = useState(GASTOS_HISTORICOS);
   const [showForm, setShowForm] = useState(false);
-  const [editingGasto, setEditingGasto] = useState(null);
-  const [filtros, setFiltros] = useState({ mes: '', año: '', centro: '', categoria: '' });
+  const [editGasto, setEditGasto] = useState(null);
+  const [filtros, setFiltros] = useState({ mes: '', año: '2025', centro: '', categoria: '', busqueda: '' });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [page, setPage] = useState(1);
 
-  const gastosFiltered = gastos.filter(g => {
+  const años = useMemo(() => [...new Set(gastos.map(g => g.fecha.split('-')[0]))].sort().reverse(), [gastos]);
+  
+  const filtered = useMemo(() => gastos.filter(g => {
     const [año, mes] = g.fecha.split('-');
     if (filtros.año && año !== filtros.año) return false;
     if (filtros.mes && mes !== filtros.mes) return false;
     if (filtros.centro && g.centro !== filtros.centro) return false;
     if (filtros.categoria && g.categoria !== filtros.categoria) return false;
+    if (filtros.busqueda && !g.proveedor.toLowerCase().includes(filtros.busqueda.toLowerCase()) && !g.comentarios.toLowerCase().includes(filtros.busqueda.toLowerCase())) return false;
     return true;
-  });
+  }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)), [gastos, filtros]);
 
-  const totales = {
-    total: gastosFiltered.reduce((sum, g) => sum + g.monto, 0),
-    costos: gastosFiltered.filter(g => g.tipo === 'costo').reduce((sum, g) => sum + g.monto, 0),
-    gastos: gastosFiltered.filter(g => g.tipo === 'gasto').reduce((sum, g) => sum + g.monto, 0),
-    pendientes: gastos.filter(g => g.estado === 'pendiente').length
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  
+  const totales = useMemo(() => ({
+    total: filtered.reduce((s, g) => s + g.monto, 0),
+    costos: filtered.filter(g => g.tipo === 'Costo').reduce((s, g) => s + g.monto, 0),
+    gastos: filtered.filter(g => g.tipo === 'Gasto').reduce((s, g) => s + g.monto, 0),
+    pendientes: gastos.filter(g => g.estado === 'pendiente').length,
+    registros: filtered.length
+  }), [filtered, gastos]);
+
+  const porCategoria = useMemo(() => {
+    const cats = {};
+    filtered.forEach(g => { cats[g.categoria] = (cats[g.categoria] || 0) + g.monto; });
+    return Object.entries(cats).map(([c, t]) => ({ categoria: c, total: t })).sort((a, b) => b.total - a.total).slice(0, 8);
+  }, [filtered]);
+
+  const porCentro = useMemo(() => {
+    const c = {};
+    filtered.forEach(g => { c[g.centro] = (c[g.centro] || 0) + g.monto; });
+    return CENTROS_COSTOS.map(centro => ({ centro, total: c[centro] || 0 })).filter(x => x.total > 0);
+  }, [filtered]);
+
+  const updateFiltros = (f) => { setFiltros(f); setPage(1); };
+  const approve = (id) => setGastos(gastos.map(g => g.id === id ? {...g, estado: 'aprobado'} : g));
+  const del = (id) => { if(confirm('¿Eliminar?')) setGastos(gastos.filter(g => g.id !== id)); };
+  const save = (g) => {
+    if (editGasto) setGastos(gastos.map(x => x.id === editGasto.id ? {...g, id: editGasto.id} : x));
+    else setGastos([{...g, id: Math.max(...gastos.map(x => x.id)) + 1, estado: 'pendiente'}, ...gastos]);
+    setShowForm(false); setEditGasto(null);
   };
-
-  const porCategoria = CATEGORIAS.map(cat => ({
-    categoria: cat,
-    total: gastosFiltered.filter(g => g.categoria === cat).reduce((sum, g) => sum + g.monto, 0)
-  })).filter(c => c.total > 0).sort((a, b) => b.total - a.total);
-
-  const porCentro = CENTROS_COSTOS.map(centro => ({
-    centro,
-    total: gastosFiltered.filter(g => g.centro === centro).reduce((sum, g) => sum + g.monto, 0)
-  }));
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-green-700 to-green-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 hover:bg-green-600 rounded-lg">
-                <Menu size={24} />
-              </button>
-              <div className="flex items-center gap-2">
-                <Beef className="h-8 w-8" />
-                <div>
-                  <h1 className="text-xl font-bold">Ganadería La Vega</h1>
-                  <p className="text-green-200 text-sm">Sistema de Gestión</p>
-                </div>
-              </div>
-            </div>
-            <div className="hidden lg:flex items-center gap-2 bg-green-600/50 px-4 py-2 rounded-full">
-              <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
-              <span className="text-sm">En línea</span>
+      <header className="bg-gradient-to-r from-green-700 to-green-600 text-white shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 hover:bg-white/10 rounded-lg"><Menu size={24}/></button>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🐄</span>
+              <div><h1 className="text-xl font-bold">Ganadería La Vega</h1><p className="text-xs text-green-200 hidden sm:block">Sistema de Gestión</p></div>
             </div>
           </div>
+          <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{totales.registros.toLocaleString()} registros</span>
         </div>
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
-        <aside className={`${menuOpen ? 'block' : 'hidden'} lg:block w-64 bg-white shadow-lg min-h-screen fixed lg:relative z-50`}>
-          <nav className="p-4 space-y-2">
-            <NavItem icon={Home} label="Dashboard" active={currentView === 'dashboard'} onClick={() => { setCurrentView('dashboard'); setMenuOpen(false); }} />
-            <NavItem icon={Receipt} label="Costos y Gastos" active={currentView === 'gastos'} onClick={() => { setCurrentView('gastos'); setMenuOpen(false); }} />
-            <NavItem icon={Beef} label="Nacimientos" active={currentView === 'nacimientos'} onClick={() => { setCurrentView('nacimientos'); setMenuOpen(false); }} badge="Próximo" />
-            <NavItem icon={Upload} label="Importar Datos" active={currentView === 'importar'} onClick={() => { setCurrentView('importar'); setMenuOpen(false); }} badge="Próximo" />
-            <NavItem icon={Users} label="Usuarios" active={currentView === 'usuarios'} onClick={() => { setCurrentView('usuarios'); setMenuOpen(false); }} badge="Próximo" />
-            <NavItem icon={Settings} label="Configuración" active={currentView === 'config'} onClick={() => { setCurrentView('config'); setMenuOpen(false); }} badge="Próximo" />
+        <aside className={`${menuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transition-transform pt-16 lg:pt-0`}>
+          <nav className="p-4 space-y-1">
+            {[{id:'dashboard',icon:Home,label:'Dashboard'},{id:'costos',icon:Receipt,label:'Costos y Gastos'},{id:'nacimientos',icon:Beef,label:'Nacimientos',badge:'Pronto'}].map(item => (
+              <button key={item.id} onClick={() => {setView(item.id);setMenuOpen(false);}} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${view===item.id?'bg-green-50 text-green-700 font-medium':'text-gray-600 hover:bg-gray-50'}`}>
+                <item.icon size={20}/><span>{item.label}</span>
+                {item.badge && <span className="ml-auto text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">{item.badge}</span>}
+              </button>
+            ))}
           </nav>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 p-4 lg:p-6 max-w-6xl">
-          {currentView === 'dashboard' && (
-            <Dashboard 
-              totales={totales} 
-              porCategoria={porCategoria} 
-              porCentro={porCentro}
-              gastosPendientes={gastos.filter(g => g.estado === 'pendiente')}
-              onVerGastos={() => setCurrentView('gastos')}
-              onAprobar={(id) => setGastos(gastos.map(g => g.id === id ? {...g, estado: 'aprobado'} : g))}
-            />
-          )}
-          
-          {currentView === 'gastos' && (
-            <GastosView 
-              gastos={gastosFiltered}
-              filtros={filtros}
-              setFiltros={setFiltros}
-              onAdd={() => { setEditingGasto(null); setShowForm(true); }}
-              onEdit={(g) => { setEditingGasto(g); setShowForm(true); }}
-              onDelete={(id) => setGastos(gastos.filter(g => g.id !== id))}
-              onAprobar={(id) => setGastos(gastos.map(g => g.id === id ? {...g, estado: 'aprobado'} : g))}
-              totales={totales}
-            />
-          )}
-
-          {currentView === 'nacimientos' && <ProximoModulo titulo="Módulo de Nacimientos" />}
-          {currentView === 'importar' && <ProximoModulo titulo="Importar desde Software Ganadero" />}
-          {currentView === 'usuarios' && <ProximoModulo titulo="Gestión de Usuarios" />}
-          {currentView === 'config' && <ProximoModulo titulo="Configuración" />}
+        <main className="flex-1 p-4 lg:p-6 max-w-7xl">
+          {view === 'dashboard' && <Dashboard totales={totales} porCategoria={porCategoria} porCentro={porCentro} pendientes={gastos.filter(g=>g.estado==='pendiente').slice(0,5)} onApprove={approve} filtros={filtros} setFiltros={updateFiltros} años={años}/>}
+          {view === 'costos' && <Costos gastos={paginated} total={filtered.length} totales={totales} filtros={filtros} setFiltros={updateFiltros} onNew={()=>setShowForm(true)} onEdit={g=>{setEditGasto(g);setShowForm(true);}} onDel={del} onApprove={approve} page={page} pages={totalPages} setPage={setPage} años={años}/>}
+          {view === 'nacimientos' && <div className="bg-white rounded-2xl p-8 text-center"><span className="text-6xl block mb-4">🐮</span><h2 className="text-2xl font-bold text-gray-800 mb-2">Módulo de Nacimientos</h2><p className="text-gray-600">Próximamente</p></div>}
         </main>
       </div>
 
-      {/* Modal de Formulario */}
-      {showForm && (
-        <GastoForm 
-          gasto={editingGasto}
-          onSave={(gasto) => {
-            if (editingGasto) {
-              setGastos(gastos.map(g => g.id === editingGasto.id ? {...gasto, id: editingGasto.id} : g));
-            } else {
-              setGastos([...gastos, { ...gasto, id: Date.now(), estado: 'aprobado' }]);
-            }
-            setShowForm(false);
-            setEditingGasto(null);
-          }}
-          onCancel={() => { setShowForm(false); setEditingGasto(null); }}
-        />
-      )}
-
-      {/* Overlay para menú móvil */}
-      {menuOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setMenuOpen(false)} />}
+      {showForm && <Form gasto={editGasto} onSave={save} onClose={()=>{setShowForm(false);setEditGasto(null);}}/>}
+      {menuOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={()=>setMenuOpen(false)}/>}
     </div>
   );
 }
 
-// Componente de navegación
-function NavItem({ icon: Icon, label, active, onClick, badge }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
-        active 
-          ? 'bg-green-100 text-green-700 font-medium' 
-          : 'text-gray-600 hover:bg-gray-100'
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        <Icon size={20} />
-        <span>{label}</span>
-      </div>
-      {badge && (
-        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full">{badge}</span>
-      )}
-    </button>
-  );
-}
-
-// Dashboard
-function Dashboard({ totales, porCategoria, porCentro, gastosPendientes, onVerGastos, onAprobar }) {
+function Dashboard({totales, porCategoria, porCentro, pendientes, onApprove, filtros, setFiltros, años}) {
+  const maxCat = Math.max(...porCategoria.map(c=>c.total));
+  const maxCen = Math.max(...porCentro.map(c=>c.total));
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
-          <p className="text-gray-500">Resumen de Enero 2025</p>
-        </div>
+      <div className="flex items-center gap-4">
+        <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
+        <select value={filtros.año} onChange={e=>setFiltros({...filtros,año:e.target.value})} className="px-4 py-2 border rounded-xl">
+          <option value="">Todos</option>{años.map(a=><option key={a} value={a}>{a}</option>)}
+        </select>
       </div>
-
-      {/* Tarjetas de resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard 
-          title="Total Egresos" 
-          value={formatCurrency(totales.total)} 
-          icon={DollarSign}
-          color="blue"
-        />
-        <StatCard 
-          title="Costos" 
-          value={formatCurrency(totales.costos)} 
-          icon={TrendingUp}
-          color="green"
-          subtitle="Producción"
-        />
-        <StatCard 
-          title="Gastos" 
-          value={formatCurrency(totales.gastos)} 
-          icon={Receipt}
-          color="orange"
-          subtitle="Administración"
-        />
-        <StatCard 
-          title="Pendientes" 
-          value={totales.pendientes} 
-          icon={FileText}
-          color="red"
-          subtitle="Por aprobar"
-          onClick={onVerGastos}
-        />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card title="Total Egresos" value={formatCurrency(totales.total)} icon={DollarSign} color="from-green-500 to-green-600"/>
+        <Card title="Costos" value={formatCurrency(totales.costos)} icon={TrendingUp} color="from-blue-500 to-blue-600"/>
+        <Card title="Gastos" value={formatCurrency(totales.gastos)} icon={Receipt} color="from-purple-500 to-purple-600"/>
+        <Card title="Pendientes" value={totales.pendientes} icon={FileText} color="from-orange-500 to-orange-600" sub="por aprobar"/>
       </div>
-
-      {/* Pendientes de aprobar */}
-      {gastosPendientes.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-amber-800 mb-4 flex items-center gap-2">
-            <FileText size={20} />
-            Gastos Pendientes de Aprobación
-          </h3>
-          <div className="space-y-3">
-            {gastosPendientes.map(g => (
-              <div key={g.id} className="bg-white rounded-xl p-4 flex items-center justify-between shadow-sm">
-                <div>
-                  <p className="font-medium text-gray-800">{g.proveedor}</p>
-                  <p className="text-sm text-gray-500">{g.comentarios} • {formatDate(g.fecha)}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-bold text-gray-800">{formatCurrency(g.monto)}</span>
-                  <button 
-                    onClick={() => onAprobar(g.id)}
-                    className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
-                  >
-                    <Check size={18} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Por Categoría */}
+      <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <PieChart size={20} className="text-green-600" />
-            Por Categoría
-          </h3>
-          <div className="space-y-3">
-            {porCategoria.slice(0, 6).map((item, i) => (
-              <div key={item.categoria} className="flex items-center gap-3">
-                <div className="w-32 text-sm text-gray-600 truncate">{item.categoria}</div>
-                <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full"
-                    style={{ width: `${(item.total / totales.total) * 100}%` }}
-                  />
-                </div>
-                <div className="w-28 text-right text-sm font-medium">{formatCurrency(item.total)}</div>
-              </div>
-            ))}
-          </div>
+          <div className="flex items-center gap-2 mb-4"><BarChart3 className="text-green-600" size={20}/><h3 className="font-semibold">Por Categoría</h3></div>
+          <div className="space-y-3">{porCategoria.map(({categoria,total})=>(<div key={categoria}><div className="flex justify-between text-sm mb-1"><span className="text-gray-600 truncate">{categoria}</span><span className="font-medium">{formatCurrency(total)}</span></div><div className="h-2 bg-gray-100 rounded-full"><div className="h-full bg-green-500 rounded-full" style={{width:`${(total/maxCat)*100}%`}}/></div></div>))}</div>
         </div>
-
-        {/* Por Centro de Costos */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <Building2 size={20} className="text-green-600" />
-            Por Centro de Costos
-          </h3>
-          <div className="space-y-4">
-            {porCentro.map((item) => (
-              <div key={item.centro} className="bg-gray-50 rounded-xl p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-800">{item.centro}</span>
-                  <span className="text-lg font-bold text-green-700">{formatCurrency(item.total)}</span>
-                </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${
-                      item.centro === 'La Vega' ? 'bg-green-500' : 
-                      item.centro === 'Bariloche' ? 'bg-blue-500' : 'bg-purple-500'
-                    }`}
-                    style={{ width: `${totales.total > 0 ? (item.total / totales.total) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className="flex items-center gap-2 mb-4"><PieChart className="text-green-600" size={20}/><h3 className="font-semibold">Por Centro</h3></div>
+          <div className="space-y-3">{porCentro.map(({centro,total})=>(<div key={centro}><div className="flex justify-between text-sm mb-1"><span className={`px-2 py-0.5 rounded-full text-xs ${centroColor(centro)}`}>{centro}</span><span className="font-medium">{formatCurrency(total)}</span></div><div className="h-2 bg-gray-100 rounded-full"><div className={`h-full rounded-full ${centroBarColor(centro)}`} style={{width:`${(total/maxCen)*100}%`}}/></div></div>))}</div>
         </div>
       </div>
+      {pendientes.length>0 && <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <div className="flex justify-between mb-4"><h3 className="font-semibold">Pendientes</h3><span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">{pendientes.length}</span></div>
+        <div className="space-y-2">{pendientes.map(g=>(<div key={g.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl"><div><div className="flex items-center gap-2"><span className="font-medium">{g.proveedor}</span><span className={`text-xs px-2 py-0.5 rounded-full ${centroColor(g.centro)}`}>{g.centro}</span></div><p className="text-sm text-gray-500">{formatDate(g.fecha)} • {g.categoria}</p></div><div className="flex items-center gap-3"><span className="font-semibold text-green-700">{formatCurrency(g.monto)}</span><button onClick={()=>onApprove(g.id)} className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"><Check size={16}/></button></div></div>))}</div>
+      </div>}
     </div>
   );
 }
 
-// Tarjeta de estadística
-function StatCard({ title, value, icon: Icon, color, subtitle, onClick }) {
-  const colors = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-green-500 to-green-600',
-    orange: 'from-orange-500 to-orange-600',
-    red: 'from-red-500 to-red-600'
-  };
-
-  return (
-    <div 
-      onClick={onClick}
-      className={`bg-white rounded-2xl p-6 shadow-sm ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-gray-500 text-sm">{title}</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">{value}</p>
-          {subtitle && <p className="text-xs text-gray-400 mt-1">{subtitle}</p>}
-        </div>
-        <div className={`p-3 rounded-xl bg-gradient-to-br ${colors[color]} text-white`}>
-          <Icon size={24} />
-        </div>
-      </div>
-    </div>
-  );
+function Card({title,value,icon:Icon,color,sub}) {
+  return <div className={`bg-gradient-to-br ${color} rounded-2xl p-4 text-white shadow-lg`}><div className="flex justify-between"><div><p className="text-white/80 text-sm">{title}</p><p className="text-2xl font-bold mt-1">{value}</p>{sub&&<p className="text-white/60 text-xs mt-1">{sub}</p>}</div><div className="p-2 bg-white/20 rounded-xl"><Icon size={24}/></div></div></div>;
 }
 
-// Vista de Gastos
-function GastosView({ gastos, filtros, setFiltros, onAdd, onEdit, onDelete, onAprobar, totales }) {
+function Costos({gastos,total,totales,filtros,setFiltros,onNew,onEdit,onDel,onApprove,page,pages,setPage,años}) {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Costos y Gastos</h2>
-          <p className="text-gray-500">{gastos.length} registros • Total: {formatCurrency(totales.total)}</p>
-        </div>
-        <button
-          onClick={onAdd}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl hover:shadow-lg transition-all font-medium"
-        >
-          <PlusCircle size={20} />
-          Nuevo Registro
-        </button>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div><h2 className="text-2xl font-bold text-gray-800">Costos y Gastos</h2><p className="text-gray-500 text-sm">{total.toLocaleString()} registros • {formatCurrency(totales.total)}</p></div>
+        <button onClick={onNew} className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-500 text-white px-4 py-2 rounded-xl shadow-lg"><PlusCircle size={20}/><span>Nuevo</span></button>
       </div>
-
-      {/* Filtros */}
       <div className="bg-white rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center gap-2 mb-3 text-gray-600">
-          <Filter size={18} />
-          <span className="font-medium">Filtros</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <select 
-            value={filtros.año} 
-            onChange={(e) => setFiltros({...filtros, año: e.target.value})}
-            className="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="">Todos los años</option>
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-          </select>
-          <select 
-            value={filtros.mes} 
-            onChange={(e) => setFiltros({...filtros, mes: e.target.value})}
-            className="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="">Todos los meses</option>
-            <option value="01">Enero</option>
-            <option value="02">Febrero</option>
-            <option value="03">Marzo</option>
-            <option value="04">Abril</option>
-            <option value="05">Mayo</option>
-            <option value="06">Junio</option>
-            <option value="07">Julio</option>
-            <option value="08">Agosto</option>
-            <option value="09">Septiembre</option>
-            <option value="10">Octubre</option>
-            <option value="11">Noviembre</option>
-            <option value="12">Diciembre</option>
-          </select>
-          <select 
-            value={filtros.centro} 
-            onChange={(e) => setFiltros({...filtros, centro: e.target.value})}
-            className="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="">Todos los centros</option>
-            {CENTROS_COSTOS.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <select 
-            value={filtros.categoria} 
-            onChange={(e) => setFiltros({...filtros, categoria: e.target.value})}
-            className="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="">Todas las categorías</option>
-            {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+        <div className="flex items-center gap-2 mb-3 text-gray-600"><Filter size={18}/><span className="font-medium">Filtros</span></div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <select value={filtros.año} onChange={e=>setFiltros({...filtros,año:e.target.value})} className="px-3 py-2 border rounded-xl text-sm"><option value="">Año</option>{años.map(a=><option key={a} value={a}>{a}</option>)}</select>
+          <select value={filtros.mes} onChange={e=>setFiltros({...filtros,mes:e.target.value})} className="px-3 py-2 border rounded-xl text-sm"><option value="">Mes</option>{['01','02','03','04','05','06','07','08','09','10','11','12'].map((m,i)=><option key={m} value={m}>{['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][i]}</option>)}</select>
+          <select value={filtros.centro} onChange={e=>setFiltros({...filtros,centro:e.target.value})} className="px-3 py-2 border rounded-xl text-sm"><option value="">Centro</option>{CENTROS_COSTOS.map(c=><option key={c} value={c}>{c}</option>)}</select>
+          <select value={filtros.categoria} onChange={e=>setFiltros({...filtros,categoria:e.target.value})} className="px-3 py-2 border rounded-xl text-sm"><option value="">Categoría</option>{CATEGORIAS.map(c=><option key={c} value={c}>{c}</option>)}</select>
+          <div className="col-span-2 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18}/><input type="text" placeholder="Buscar..." value={filtros.busqueda} onChange={e=>setFiltros({...filtros,busqueda:e.target.value})} className="w-full pl-10 pr-4 py-2 border rounded-xl text-sm"/></div>
         </div>
       </div>
-
-      {/* Lista de gastos */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Fecha</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Proveedor</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 hidden md:table-cell">Concepto</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 hidden lg:table-cell">Centro</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 hidden lg:table-cell">Categoría</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Monto</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Estado</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {gastos.map((g) => (
-                <tr key={g.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3 text-sm text-gray-600">{formatDate(g.fecha)}</td>
-                  <td className="px-4 py-3">
-                    <span className="font-medium text-gray-800">{g.proveedor}</span>
-                    <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${g.tipo === 'costo' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                      {g.tipo}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">{g.comentarios}</td>
-                  <td className="px-4 py-3 hidden lg:table-cell">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      g.centro === 'La Vega' ? 'bg-green-100 text-green-700' :
-                      g.centro === 'Bariloche' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                    }`}>
-                      {g.centro}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">{g.categoria}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-gray-800">{formatCurrency(g.monto)}</td>
-                  <td className="px-4 py-3 text-center">
-                    {g.estado === 'pendiente' ? (
-                      <button 
-                        onClick={() => onAprobar(g.id)}
-                        className="text-xs px-3 py-1 bg-amber-100 text-amber-700 rounded-full hover:bg-amber-200 transition-colors"
-                      >
-                        Pendiente
-                      </button>
-                    ) : (
-                      <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full">
-                        Aprobado
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-1">
-                      <button 
-                        onClick={() => onEdit(g)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button 
-                        onClick={() => onDelete(g.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            <thead className="bg-gray-50 border-b"><tr><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Fecha</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Proveedor</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 hidden md:table-cell">Comentarios</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Centro</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 hidden lg:table-cell">Categoría</th><th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">Monto</th><th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Acciones</th></tr></thead>
+            <tbody className="divide-y">{gastos.map(g=>(<tr key={g.id} className={`hover:bg-gray-50 ${g.estado==='pendiente'?'bg-orange-50':''}`}><td className="px-4 py-3 text-sm whitespace-nowrap">{formatDate(g.fecha)}</td><td className="px-4 py-3"><div className="font-medium text-sm">{g.proveedor}</div><div className="text-xs text-gray-500 md:hidden truncate max-w-[150px]">{g.comentarios}</div></td><td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell truncate max-w-xs">{g.comentarios}</td><td className="px-4 py-3"><span className={`text-xs px-2 py-1 rounded-full ${centroColor(g.centro)}`}>{g.centro}</span></td><td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">{g.categoria}</td><td className="px-4 py-3 text-right font-semibold text-sm">{formatCurrency(g.monto)}</td><td className="px-4 py-3"><div className="flex justify-center gap-1">{g.estado==='pendiente'&&<button onClick={()=>onApprove(g.id)} className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg"><Check size={16}/></button>}<button onClick={()=>onEdit(g)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={16}/></button><button onClick={()=>onDel(g.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16}/></button></div></td></tr>))}</tbody>
           </table>
         </div>
+        {pages>1&&<div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50"><p className="text-sm text-gray-600">Pág {page} de {pages}</p><div className="flex gap-2"><button onClick={()=>setPage(page-1)} disabled={page===1} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50"><ChevronLeft size={20}/></button><button onClick={()=>setPage(page+1)} disabled={page===pages} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50"><ChevronRight size={20}/></button></div></div>}
       </div>
     </div>
   );
 }
 
-// Formulario de Gasto
-function GastoForm({ gasto, onSave, onCancel }) {
-  const [form, setForm] = useState(gasto || {
-    fecha: new Date().toISOString().split('T')[0],
-    monto: '',
-    proveedor: '',
-    tipo: 'costo',
-    comentarios: '',
-    centro: 'La Vega',
-    categoria: ''
-  });
-
-  const [sugerencias, setSugerencias] = useState([]);
-
-  const handleProveedorChange = (value) => {
-    setForm({ ...form, proveedor: value });
-    
-    // Auto-completar categoría y centro si existe el proveedor
-    if (PROVEEDORES_CATEGORIA[value]) {
-      setForm(prev => ({
-        ...prev,
-        proveedor: value,
-        categoria: PROVEEDORES_CATEGORIA[value].categoria,
-        centro: PROVEEDORES_CATEGORIA[value].centro
-      }));
-    }
-
-    // Mostrar sugerencias
-    if (value.length > 1) {
-      const matches = Object.keys(PROVEEDORES_CATEGORIA).filter(p => 
-        p.toLowerCase().includes(value.toLowerCase())
-      );
-      setSugerencias(matches);
-    } else {
-      setSugerencias([]);
-    }
+function Form({gasto,onSave,onClose}) {
+  const [f, setF] = useState(gasto || {fecha:new Date().toISOString().split('T')[0],monto:'',proveedor:'',tipo:'Costo',centro:'La Vega',categoria:'',comentarios:''});
+  const [sug, setSug] = useState([]);
+  const handleProv = (v) => {
+    setF({...f,proveedor:v});
+    if(v.length>=2) setSug(Object.keys(PROVEEDORES_CONOCIDOS).filter(p=>p.toLowerCase().includes(v.toLowerCase())).slice(0,5));
+    else setSug([]);
+    if(PROVEEDORES_CONOCIDOS[v]) { setF(x=>({...x,proveedor:v,categoria:PROVEEDORES_CONOCIDOS[v].categoria,centro:PROVEEDORES_CONOCIDOS[v].centro})); setSug([]); }
   };
-
-  const selectSugerencia = (proveedor) => {
-    handleProveedorChange(proveedor);
-    setSugerencias([]);
-  };
-
+  const selSug = (p) => { setF({...f,proveedor:p,categoria:PROVEEDORES_CONOCIDOS[p].categoria,centro:PROVEEDORES_CONOCIDOS[p].centro}); setSug([]); };
+  const submit = (e) => { e.preventDefault(); if(!f.fecha||!f.monto||!f.proveedor||!f.categoria){alert('Complete todos los campos');return;} onSave({...f,monto:parseFloat(f.monto)}); };
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-xl font-bold text-gray-800">
-            {gasto ? 'Editar Registro' : 'Nuevo Registro'}
-          </h3>
-        </div>
-        
-        <div className="p-6 space-y-4">
+        <div className="p-6 border-b flex justify-between"><h3 className="text-lg font-semibold">{gasto?'Editar':'Nuevo'} Registro</h3><button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20}/></button></div>
+        <form onSubmit={submit} className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-              <input
-                type="date"
-                value={form.fecha}
-                onChange={(e) => setForm({...form, fecha: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Monto</label>
-              <input
-                type="number"
-                value={form.monto}
-                onChange={(e) => setForm({...form, monto: parseInt(e.target.value) || 0})}
-                placeholder="0"
-                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
+            <div><label className="block text-sm font-medium mb-1">Fecha *</label><input type="date" value={f.fecha} onChange={e=>setF({...f,fecha:e.target.value})} className="w-full px-3 py-2 border rounded-xl" required/></div>
+            <div><label className="block text-sm font-medium mb-1">Monto *</label><input type="number" value={f.monto} onChange={e=>setF({...f,monto:e.target.value})} className="w-full px-3 py-2 border rounded-xl" required/></div>
           </div>
-
-          <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
-            <input
-              type="text"
-              value={form.proveedor}
-              onChange={(e) => handleProveedorChange(e.target.value)}
-              placeholder="Escriba el nombre del proveedor"
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-            {sugerencias.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
-                {sugerencias.map(s => (
-                  <button
-                    key={s}
-                    onClick={() => selectSugerencia(s)}
-                    className="w-full px-4 py-2 text-left hover:bg-green-50 text-sm"
-                  >
-                    {s}
-                    <span className="text-gray-400 ml-2">→ {PROVEEDORES_CATEGORIA[s]?.categoria}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
+          <div className="relative"><label className="block text-sm font-medium mb-1">Proveedor *</label><input type="text" value={f.proveedor} onChange={e=>handleProv(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required/>{sug.length>0&&<div className="absolute z-10 w-full bg-white border rounded-xl mt-1 shadow-lg">{sug.map(s=><button key={s} type="button" onClick={()=>selSug(s)} className="w-full px-4 py-2 text-left hover:bg-green-50">{s}<span className="text-xs text-gray-500 ml-2">{PROVEEDORES_CONOCIDOS[s]?.categoria}</span></button>)}</div>}</div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-              <select
-                value={form.tipo}
-                onChange={(e) => setForm({...form, tipo: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                <option value="costo">Costo</option>
-                <option value="gasto">Gasto</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Centro de Costos</label>
-              <select
-                value={form.centro}
-                onChange={(e) => setForm({...form, centro: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                {CENTROS_COSTOS.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
+            <div><label className="block text-sm font-medium mb-1">Tipo</label><select value={f.tipo} onChange={e=>setF({...f,tipo:e.target.value})} className="w-full px-3 py-2 border rounded-xl"><option>Costo</option><option>Gasto</option></select></div>
+            <div><label className="block text-sm font-medium mb-1">Centro *</label><select value={f.centro} onChange={e=>setF({...f,centro:e.target.value})} className="w-full px-3 py-2 border rounded-xl">{CENTROS_COSTOS.map(c=><option key={c}>{c}</option>)}</select></div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-            <select
-              value={form.categoria}
-              onChange={(e) => setForm({...form, categoria: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="">Seleccione una categoría</option>
-              {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Comentarios</label>
-            <textarea
-              value={form.comentarios}
-              onChange={(e) => setForm({...form, comentarios: e.target.value})}
-              placeholder="Descripción del gasto"
-              rows={2}
-              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div className="p-6 border-t border-gray-100 flex gap-3 justify-end">
-          <button
-            onClick={onCancel}
-            className="px-6 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={() => onSave(form)}
-            disabled={!form.proveedor || !form.monto || !form.categoria}
-            className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {gasto ? 'Guardar Cambios' : 'Crear Registro'}
-          </button>
-        </div>
+          <div><label className="block text-sm font-medium mb-1">Categoría *</label><select value={f.categoria} onChange={e=>setF({...f,categoria:e.target.value})} className="w-full px-3 py-2 border rounded-xl" required><option value="">Seleccione</option>{CATEGORIAS.map(c=><option key={c}>{c}</option>)}</select></div>
+          <div><label className="block text-sm font-medium mb-1">Comentarios</label><textarea value={f.comentarios} onChange={e=>setF({...f,comentarios:e.target.value})} className="w-full px-3 py-2 border rounded-xl" rows={3}/></div>
+          <div className="flex gap-3 pt-4"><button type="button" onClick={onClose} className="flex-1 px-4 py-2 border rounded-xl hover:bg-gray-50">Cancelar</button><button type="submit" className="flex-1 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">{gasto?'Guardar':'Crear'}</button></div>
+        </form>
       </div>
-    </div>
-  );
-}
-
-// Módulo próximo
-function ProximoModulo({ titulo }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-96 text-center">
-      <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-        <Settings size={40} className="text-gray-400" />
-      </div>
-      <h3 className="text-xl font-bold text-gray-800 mb-2">{titulo}</h3>
-      <p className="text-gray-500 max-w-md">
-        Este módulo estará disponible próximamente. Estamos trabajando para traerte la mejor experiencia.
-      </p>
     </div>
   );
 }
