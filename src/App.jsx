@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { PlusCircle, Search, Filter, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight } from 'lucide-react';
+import { PlusCircle, Search, Filter, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, ArrowUpDown, ArrowDownAZ, ArrowDown10 } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 
@@ -44,7 +44,7 @@ export default function GanaderiaApp() {
   const porCategoria = useMemo(() => {
     const cats = {};
     filtered.forEach(g => { cats[g.categoria] = (cats[g.categoria] || 0) + g.monto; });
-    return Object.entries(cats).map(([c, t]) => ({ categoria: c, total: t })).sort((a, b) => b.total - a.total).slice(0, 8);
+    return Object.entries(cats).map(([c, t]) => ({ categoria: c, total: t }));
   }, [filtered]);
 
   const porCentro = useMemo(() => {
@@ -103,8 +103,53 @@ export default function GanaderiaApp() {
 }
 
 function Dashboard({totales, porCategoria, porCentro, pendientes, onApprove, filtros, setFiltros, años}) {
-  const maxCat = Math.max(...porCategoria.map(c=>c.total));
-  const maxCen = Math.max(...porCentro.map(c=>c.total));
+  // Estados para ordenamiento
+  const [sortCat, setSortCat] = useState('monto-desc'); // monto-desc, monto-asc, alfa-asc, alfa-desc
+  const [sortCentro, setSortCentro] = useState('monto-desc');
+
+  // Ordenar categorías
+  const categoriasOrdenadas = useMemo(() => {
+    const sorted = [...porCategoria];
+    switch(sortCat) {
+      case 'monto-desc': return sorted.sort((a,b) => b.total - a.total);
+      case 'monto-asc': return sorted.sort((a,b) => a.total - b.total);
+      case 'alfa-asc': return sorted.sort((a,b) => a.categoria.localeCompare(b.categoria));
+      case 'alfa-desc': return sorted.sort((a,b) => b.categoria.localeCompare(a.categoria));
+      default: return sorted;
+    }
+  }, [porCategoria, sortCat]);
+
+  // Ordenar centros
+  const centrosOrdenados = useMemo(() => {
+    const sorted = [...porCentro];
+    switch(sortCentro) {
+      case 'monto-desc': return sorted.sort((a,b) => b.total - a.total);
+      case 'monto-asc': return sorted.sort((a,b) => a.total - b.total);
+      case 'alfa-asc': return sorted.sort((a,b) => a.centro.localeCompare(b.centro));
+      case 'alfa-desc': return sorted.sort((a,b) => b.centro.localeCompare(a.centro));
+      default: return sorted;
+    }
+  }, [porCentro, sortCentro]);
+
+  const maxCat = Math.max(...categoriasOrdenadas.map(c=>c.total), 1);
+  const maxCen = Math.max(...centrosOrdenados.map(c=>c.total), 1);
+
+  // Botón de ordenamiento
+  const SortButton = ({ current, onChange, label }) => (
+    <div className="flex items-center gap-1">
+      <select 
+        value={current} 
+        onChange={(e) => onChange(e.target.value)}
+        className="text-xs bg-gray-100 border-0 rounded-lg px-2 py-1 cursor-pointer hover:bg-gray-200"
+      >
+        <option value="monto-desc">Mayor a menor</option>
+        <option value="monto-asc">Menor a mayor</option>
+        <option value="alfa-asc">A → Z</option>
+        <option value="alfa-desc">Z → A</option>
+      </select>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -120,19 +165,83 @@ function Dashboard({totales, porCategoria, porCentro, pendientes, onApprove, fil
         <Card title="Pendientes" value={totales.pendientes} icon={FileText} color="from-orange-500 to-orange-600" sub="por aprobar"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-6">
+        {/* Por Categoría */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4"><BarChart3 className="text-green-600" size={20}/><h3 className="font-semibold">Por Categoría</h3></div>
-          <div className="space-y-3">{porCategoria.map(({categoria,total})=>(<div key={categoria}><div className="flex justify-between text-sm mb-1"><span className="text-gray-600 truncate">{categoria}</span><span className="font-medium">{formatCurrency(total)}</span></div><div className="h-2 bg-gray-100 rounded-full"><div className="h-full bg-green-500 rounded-full" style={{width:`${(total/maxCat)*100}%`}}/></div></div>))}</div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="text-green-600" size={20}/>
+              <h3 className="font-semibold">Por Categoría</h3>
+            </div>
+            <SortButton current={sortCat} onChange={setSortCat} />
+          </div>
+          <div className="space-y-3">
+            {categoriasOrdenadas.slice(0, 10).map(({categoria,total})=>(
+              <div key={categoria}>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600 truncate">{categoria}</span>
+                  <span className="font-medium">{formatCurrency(total)}</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full">
+                  <div className="h-full bg-green-500 rounded-full transition-all duration-300" style={{width:`${(total/maxCat)*100}%`}}/>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Por Centro */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4"><PieChart className="text-green-600" size={20}/><h3 className="font-semibold">Por Centro</h3></div>
-          <div className="space-y-3">{porCentro.map(({centro,total})=>(<div key={centro}><div className="flex justify-between text-sm mb-1"><span className={`px-2 py-0.5 rounded-full text-xs ${centroColor(centro)}`}>{centro}</span><span className="font-medium">{formatCurrency(total)}</span></div><div className="h-2 bg-gray-100 rounded-full"><div className={`h-full rounded-full ${centroBarColor(centro)}`} style={{width:`${(total/maxCen)*100}%`}}/></div></div>))}</div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <PieChart className="text-green-600" size={20}/>
+              <h3 className="font-semibold">Por Centro</h3>
+            </div>
+            <SortButton current={sortCentro} onChange={setSortCentro} />
+          </div>
+          <div className="space-y-3">
+            {centrosOrdenados.map(({centro,total})=>(
+              <div key={centro}>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${centroColor(centro)}`}>{centro}</span>
+                  <span className="font-medium">{formatCurrency(total)}</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full">
+                  <div className={`h-full rounded-full transition-all duration-300 ${centroBarColor(centro)}`} style={{width:`${(total/maxCen)*100}%`}}/>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      {pendientes.length>0 && <div className="bg-white rounded-2xl p-6 shadow-sm">
-        <div className="flex justify-between mb-4"><h3 className="font-semibold">Pendientes</h3><span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">{pendientes.length}</span></div>
-        <div className="space-y-2">{pendientes.map(g=>(<div key={g.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl"><div><div className="flex items-center gap-2"><span className="font-medium">{g.proveedor}</span><span className={`text-xs px-2 py-0.5 rounded-full ${centroColor(g.centro)}`}>{g.centro}</span></div><p className="text-sm text-gray-500">{formatDate(g.fecha)} • {g.categoria}</p></div><div className="flex items-center gap-3"><span className="font-semibold text-green-700">{formatCurrency(g.monto)}</span><button onClick={()=>onApprove(g.id)} className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"><Check size={16}/></button></div></div>))}</div>
-      </div>}
+
+      {/* Pendientes */}
+      {pendientes.length>0 && (
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex justify-between mb-4">
+            <h3 className="font-semibold">Pendientes</h3>
+            <span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">{pendientes.length}</span>
+          </div>
+          <div className="space-y-2">
+            {pendientes.map(g=>(
+              <div key={g.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{g.proveedor}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${centroColor(g.centro)}`}>{g.centro}</span>
+                  </div>
+                  <p className="text-sm text-gray-500">{formatDate(g.fecha)} • {g.categoria}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-semibold text-green-700">{formatCurrency(g.monto)}</span>
+                  <button onClick={()=>onApprove(g.id)} className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                    <Check size={16}/>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
