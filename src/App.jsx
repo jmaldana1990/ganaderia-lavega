@@ -312,18 +312,4 @@ function Form({gasto,onSave,onClose}) {
       </div>
     </div>
   );
-}target.value})} className="w-full px-3 py-2 border rounded-xl" required/></div>
-          </div>
-          <div className="relative"><label className="block text-sm font-medium mb-1">Proveedor *</label><input type="text" value={f.proveedor} onChange={e=>handleProv(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required/>{sug.length>0&&<div className="absolute z-10 w-full bg-white border rounded-xl mt-1 shadow-lg">{sug.map(s=><button key={s} type="button" onClick={()=>selSug(s)} className="w-full px-4 py-2 text-left hover:bg-green-50">{s}<span className="text-xs text-gray-500 ml-2">{PROVEEDORES_CONOCIDOS[s]?.categoria}</span></button>)}</div>}</div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium mb-1">Tipo</label><select value={f.tipo} onChange={e=>setF({...f,tipo:e.target.value})} className="w-full px-3 py-2 border rounded-xl"><option>Costo</option><option>Gasto</option></select></div>
-            <div><label className="block text-sm font-medium mb-1">Centro *</label><select value={f.centro} onChange={e=>setF({...f,centro:e.target.value})} className="w-full px-3 py-2 border rounded-xl">{CENTROS_COSTOS.map(c=><option key={c}>{c}</option>)}</select></div>
-          </div>
-          <div><label className="block text-sm font-medium mb-1">Categoría *</label><select value={f.categoria} onChange={e=>setF({...f,categoria:e.target.value})} className="w-full px-3 py-2 border rounded-xl" required><option value="">Seleccione</option>{CATEGORIAS.map(c=><option key={c}>{c}</option>)}</select></div>
-          <div><label className="block text-sm font-medium mb-1">Comentarios</label><textarea value={f.comentarios} onChange={e=>setF({...f,comentarios:e.target.value})} className="w-full px-3 py-2 border rounded-xl" rows={3}/></div>
-          <div className="flex gap-3 pt-4"><button type="button" onClick={onClose} className="flex-1 px-4 py-2 border rounded-xl hover:bg-gray-50">Cancelar</button><button type="submit" className="flex-1 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">{gasto?'Guardar':'Crear'}</button></div>
-        </form>
-      </div>
-    </div>
-  );
 }
