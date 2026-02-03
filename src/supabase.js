@@ -1,0 +1,211 @@
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://dzykvitmgkrucicxvicz.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6eWt2aXRtZ2tydWNpY3h2aWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDU4MTksImV4cCI6MjA4NTcyMTgxOX0.lE2a1jj34r_NRZ3uEuPinllG6VOQBE4TQbtbwXngHg4'
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// ==================== NACIMIENTOS ====================
+export async function getNacimientos() {
+  const { data, error } = await supabase
+    .from('nacimientos')
+    .select('*')
+    .order('fecha', { ascending: false })
+  
+  if (error) throw error
+  
+  return data.map(n => ({
+    id: n.id,
+    cria: n.cria,
+    fecha: n.fecha,
+    año: n.año,
+    mes: n.mes,
+    sexo: n.sexo,
+    madre: n.madre,
+    padre: n.padre,
+    pesoNacer: n.peso_nacer,
+    pesoDestete: n.peso_destete,
+    fechaDestete: n.fecha_destete,
+    añoDestete: n.año_destete,
+    edadDestete: n.edad_destete,
+    grDiaVida: n.gr_dia_vida,
+    estado: n.estado,
+    comentario: n.comentario
+  }))
+}
+
+export async function upsertNacimientos(registros) {
+  const dbRecords = registros.map(r => ({
+    cria: r.cria,
+    fecha: r.fecha,
+    año: r.año,
+    mes: r.mes,
+    sexo: r.sexo,
+    madre: r.madre,
+    padre: r.padre,
+    peso_nacer: r.pesoNacer,
+    peso_destete: r.pesoDestete,
+    fecha_destete: r.fechaDestete,
+    año_destete: r.añoDestete,
+    edad_destete: r.edadDestete,
+    gr_dia_vida: r.grDiaVida,
+    estado: r.estado,
+    comentario: r.comentario
+  }))
+
+  const { data, error } = await supabase
+    .from('nacimientos')
+    .upsert(dbRecords, { onConflict: 'cria' })
+    .select()
+  
+  if (error) throw error
+  return data
+}
+
+// ==================== INVENTARIO ====================
+export async function getInventario() {
+  const { data, error } = await supabase
+    .from('inventario')
+    .select('*')
+    .order('año', { ascending: false })
+    .order('mes', { ascending: false })
+  
+  if (error) throw error
+  
+  return data.map(i => ({
+    id: i.id,
+    año: i.año,
+    mes: i.mes,
+    finca: i.finca,
+    VP: i.vp,
+    VH: i.vh,
+    NAS: i.nas,
+    CH: i.ch,
+    CM: i.cm,
+    HL: i.hl,
+    ML: i.ml,
+    TOTAL: i.total,
+    TOROS: i.toros,
+    CABALLOS: i.caballos
+  }))
+}
+
+export async function upsertInventario(registros) {
+  const dbRecords = registros.map(r => ({
+    año: r.año,
+    mes: r.mes,
+    finca: r.finca || 'La Vega',
+    vp: r.VP || r.vp || 0,
+    vh: r.VH || r.vh || 0,
+    nas: r.NAS || r.nas || 0,
+    ch: r.CH || r.ch || 0,
+    cm: r.CM || r.cm || 0,
+    hl: r.HL || r.hl || 0,
+    ml: r.ML || r.ml || 0,
+    total: r.TOTAL || r.total || 0,
+    toros: r.TOROS || r.toros || 0,
+    caballos: r.CABALLOS || r.caballos || 0
+  }))
+
+  const { data, error } = await supabase
+    .from('inventario')
+    .upsert(dbRecords, { onConflict: 'año,mes,finca' })
+    .select()
+  
+  if (error) throw error
+  return data
+}
+
+// ==================== COSTOS ====================
+export async function getCostos() {
+  const { data, error } = await supabase
+    .from('costos')
+    .select('*')
+    .order('fecha', { ascending: false })
+  
+  if (error) throw error
+  return data
+}
+
+export async function insertCosto(registro) {
+  const { data, error } = await supabase
+    .from('costos')
+    .insert(registro)
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data
+}
+
+export async function updateCosto(id, updates) {
+  const { data, error } = await supabase
+    .from('costos')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data
+}
+
+export async function deleteCosto(id) {
+  const { error } = await supabase
+    .from('costos')
+    .delete()
+    .eq('id', id)
+  
+  if (error) throw error
+}
+
+// ==================== LOG DE CARGAS ====================
+export async function logCarga(tipo, nombre, procesados, nuevos, actualizados, email) {
+  const { error } = await supabase
+    .from('cargas_log')
+    .insert({
+      tipo_archivo: tipo,
+      nombre_archivo: nombre,
+      registros_procesados: procesados,
+      registros_nuevos: nuevos,
+      registros_actualizados: actualizados,
+      usuario_email: email
+    })
+  
+  if (error) console.error('Error logging carga:', error)
+}
+
+// ==================== AUTENTICACIÓN ====================
+export async function signIn(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+  
+  if (error) throw error
+  return data
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
+}
+
+export async function getSession() {
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
+}
+
+export function onAuthStateChange(callback) {
+  return supabase.auth.onAuthStateChange(callback)
+}
+
+// ==================== VERIFICAR CONEXIÓN ====================
+export async function checkConnection() {
+  try {
+    const { error } = await supabase.from('nacimientos').select('id').limit(1)
+    return !error
+  } catch {
+    return false
+  }
+}
