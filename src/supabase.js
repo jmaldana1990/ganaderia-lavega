@@ -14,6 +14,7 @@ export async function getNacimientos() {
   
   if (error) throw error
   
+  // Transformar nombres de campos para compatibilidad con el código existente
   return data.map(n => ({
     id: n.id,
     cria: n.cria,
@@ -35,6 +36,7 @@ export async function getNacimientos() {
 }
 
 export async function upsertNacimientos(registros) {
+  // Transformar a formato de base de datos
   const dbRecords = registros.map(r => ({
     cria: r.cria,
     fecha: r.fecha,
@@ -72,6 +74,7 @@ export async function getInventario() {
   
   if (error) throw error
   
+  // Transformar a formato compatible
   return data.map(i => ({
     id: i.id,
     año: i.año,
