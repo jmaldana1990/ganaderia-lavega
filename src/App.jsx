@@ -70,7 +70,7 @@ export default function GanaderiaApp() {
 }
 
 function Nacimientos() {
-  const [filtros, setFiltros] = useState({ año: '2025', sexo: '', padre: '', busqueda: '' });
+  const [filtros, setFiltros] = useState({ año: '2025', sexo: '', padre: '', busqueda: '', estado: 'Activo' });
   const [detalle, setDetalle] = useState(null);
   const años = [...new Set(NACIMIENTOS_LA_VEGA.map(n => n.año))].sort().reverse();
   const padres = ['477-375', '854-476', '509-0', '595-1'];
@@ -79,18 +79,33 @@ function Nacimientos() {
     if (filtros.año && n.año !== parseInt(filtros.año)) return false;
     if (filtros.sexo && n.sexo !== filtros.sexo) return false;
     if (filtros.padre && n.padre !== filtros.padre) return false;
+    if (filtros.estado && n.estado !== filtros.estado) return false;
     if (filtros.busqueda) { const b = filtros.busqueda.toLowerCase(); if (!n.cria.toLowerCase().includes(b) && !n.madre.toLowerCase().includes(b) && !n.padre.toLowerCase().includes(b)) return false; }
     return true;
   }), [filtros]);
 
+  // Para estadísticas de destete, usar solo activos
+  const activos = useMemo(() => NACIMIENTOS_LA_VEGA.filter(n => {
+    if (filtros.año && n.año !== parseInt(filtros.año)) return false;
+    return n.estado === 'Activo';
+  }), [filtros.año]);
+
   const stats = useMemo(() => {
-    const m = filtered.filter(n => n.sexo === 'M'), h = filtered.filter(n => n.sexo === 'H');
-    const pn = filtered.filter(n => n.pesoNacer), dm = m.filter(n => n.pesoDestete), dh = h.filter(n => n.pesoDestete);
+    const base = filtros.estado ? filtered : activos;
+    const m = base.filter(n => n.sexo === 'M'), h = base.filter(n => n.sexo === 'H');
+    const pn = base.filter(n => n.pesoNacer);
+    // Para peso destete, siempre usar activos
+    const activosM = activos.filter(n => n.sexo === 'M' && n.pesoDestete);
+    const activosH = activos.filter(n => n.sexo === 'H' && n.pesoDestete);
     return { total: filtered.length, machos: m.length, hembras: h.length,
       pesoNacer: pn.length ? (pn.reduce((s,n) => s + n.pesoNacer, 0) / pn.length).toFixed(1) : '-',
-      pesoDesteteM: dm.length ? (dm.reduce((s,n) => s + n.pesoDestete, 0) / dm.length).toFixed(1) : '-',
-      pesoDesteteH: dh.length ? (dh.reduce((s,n) => s + n.pesoDestete, 0) / dh.length).toFixed(1) : '-' };
-  }, [filtered]);
+      pesoDesteteM: activosM.length ? (activosM.reduce((s,n) => s + n.pesoDestete, 0) / activosM.length).toFixed(1) : '-',
+      pesoDesteteH: activosH.length ? (activosH.reduce((s,n) => s + n.pesoDestete, 0) / activosH.length).toFixed(1) : '-',
+      totalActivos: activos.length,
+      totalVendidos: NACIMIENTOS_LA_VEGA.filter(n => (!filtros.año || n.año === parseInt(filtros.año)) && n.estado === 'Vendido').length,
+      totalMuertos: NACIMIENTOS_LA_VEGA.filter(n => (!filtros.año || n.año === parseInt(filtros.año)) && n.estado === 'Muerto').length
+    };
+  }, [filtered, activos, filtros]);
 
   const porMes = useMemo(() => { const d = {}; filtered.forEach(n => { const k = `${n.año}-${String(n.mes).padStart(2,'0')}`; d[k] = (d[k]||0) + 1; }); return Object.entries(d).sort().slice(-12); }, [filtered]);
   const porPadre = useMemo(() => { const d = {}; filtered.forEach(n => { const p = padres.includes(n.padre) ? n.padre : 'Otros'; d[p] = (d[p]||0) + 1; }); return Object.entries(d).sort((a,b) => b[1] - a[1]); }, [filtered]);
@@ -98,7 +113,8 @@ function Nacimientos() {
   const detalleMadre = useMemo(() => {
     if (!detalle || detalle.tipo !== 'madre') return null;
     const crias = NACIMIENTOS_LA_VEGA.filter(n => n.madre === detalle.id);
-    const m = crias.filter(n => n.sexo === 'M' && n.pesoDestete), h = crias.filter(n => n.sexo === 'H' && n.pesoDestete);
+    const criasActivas = crias.filter(n => n.estado === 'Activo');
+    const m = criasActivas.filter(n => n.sexo === 'M' && n.pesoDestete), h = criasActivas.filter(n => n.sexo === 'H' && n.pesoDestete);
     const fechas = crias.map(n => new Date(n.fecha)).sort((a,b) => a-b);
     let iep = 0, c = 0; for (let i = 1; i < fechas.length; i++) { const d = (fechas[i] - fechas[i-1]) / 86400000; if (d > 200 && d < 800) { iep += d; c++; } }
     return { id: detalle.id, partos: crias.length, pesoM: m.length ? (m.reduce((s,n)=>s+n.pesoDestete,0)/m.length).toFixed(1) : '-', pesoH: h.length ? (h.reduce((s,n)=>s+n.pesoDestete,0)/h.length).toFixed(1) : '-', iep: c ? Math.round(iep/c) : '-', crias };
@@ -107,8 +123,10 @@ function Nacimientos() {
   const detallePadre = useMemo(() => {
     if (!detalle || detalle.tipo !== 'padre') return null;
     const crias = NACIMIENTOS_LA_VEGA.filter(n => n.padre === detalle.id);
-    const m = crias.filter(n => n.sexo === 'M'), h = crias.filter(n => n.sexo === 'H');
-    const pn = crias.filter(n => n.pesoNacer), dm = m.filter(n => n.pesoDestete), dh = h.filter(n => n.pesoDestete);
+    const criasActivas = crias.filter(n => n.estado === 'Activo');
+    const m = criasActivas.filter(n => n.sexo === 'M'), h = criasActivas.filter(n => n.sexo === 'H');
+    const pn = crias.filter(n => n.pesoNacer);
+    const dm = m.filter(n => n.pesoDestete), dh = h.filter(n => n.pesoDestete);
     return { id: detalle.id, total: crias.length, machos: m.length, hembras: h.length, pesoNacer: pn.length ? (pn.reduce((s,n)=>s+n.pesoNacer,0)/pn.length).toFixed(1) : '-', pesoM: dm.length ? (dm.reduce((s,n)=>s+n.pesoDestete,0)/dm.length).toFixed(1) : '-', pesoH: dh.length ? (dh.reduce((s,n)=>s+n.pesoDestete,0)/dh.length).toFixed(1) : '-', crias };
   }, [detalle]);
 
@@ -120,12 +138,16 @@ function Nacimientos() {
       <div className="flex items-center gap-4 flex-wrap">
         <h2 className="text-2xl font-bold text-gray-800">🐮 Nacimientos - La Vega</h2>
         <select value={filtros.año} onChange={e => setFiltros({...filtros, año: e.target.value})} className="px-4 py-2 border rounded-xl"><option value="">Todos</option>{años.map(a => <option key={a} value={a}>{a}</option>)}</select>
+        <select value={filtros.estado} onChange={e => setFiltros({...filtros, estado: e.target.value})} className="px-4 py-2 border rounded-xl">
+          <option value="">Todos</option><option value="Activo">Activos</option><option value="Vendido">Vendidos</option><option value="Muerto">Muertos</option>
+        </select>
+        <span className="text-sm text-gray-500">({stats.totalActivos} activos, {stats.totalVendidos} vendidos, {stats.totalMuertos} muertos)</span>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-4 text-white shadow-lg"><div className="flex justify-between"><div><p className="text-white/80 text-sm">Total Nacimientos</p><p className="text-3xl font-bold mt-1">{stats.total}</p></div><Baby size={32} className="opacity-50"/></div></div>
         <div className="bg-gradient-to-br from-blue-500 to-pink-500 rounded-2xl p-4 text-white shadow-lg"><div className="flex justify-between"><div><p className="text-white/80 text-sm">Machos / Hembras</p><p className="text-2xl font-bold mt-1">♂{stats.machos} / ♀{stats.hembras}</p></div><Users size={32} className="opacity-50"/></div></div>
         <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl p-4 text-white shadow-lg"><div className="flex justify-between"><div><p className="text-white/80 text-sm">Peso Nacer Prom.</p><p className="text-3xl font-bold mt-1">{stats.pesoNacer}<span className="text-lg ml-1">kg</span></p></div><Scale size={32} className="opacity-50"/></div></div>
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4 text-white shadow-lg"><div className="flex justify-between"><div><p className="text-white/80 text-sm">Peso Destete</p><p className="text-lg font-bold">♂ {stats.pesoDesteteM} kg</p><p className="text-lg font-bold">♀ {stats.pesoDesteteH} kg</p></div><TrendingUp size={32} className="opacity-50"/></div></div>
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4 text-white shadow-lg"><div className="flex justify-between"><div><p className="text-white/80 text-sm">Peso Destete (activos)</p><p className="text-lg font-bold">♂ {stats.pesoDesteteM} kg</p><p className="text-lg font-bold">♀ {stats.pesoDesteteH} kg</p></div><TrendingUp size={32} className="opacity-50"/></div></div>
       </div>
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm lg:col-span-2">
@@ -155,12 +177,12 @@ function Nacimientos() {
           <div className="relative flex-1 min-w-[200px]"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18}/><input type="text" placeholder="Buscar..." value={filtros.busqueda} onChange={e => setFiltros({...filtros, busqueda: e.target.value})} className="w-full pl-10 pr-4 py-2 border rounded-xl text-sm"/></div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full"><thead className="bg-gray-50 border-b"><tr><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Cría</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Fecha</th><th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Sexo</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Madre</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Padre</th><th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">P.Nacer</th><th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">P.Destete</th></tr></thead>
-          <tbody className="divide-y">{filtered.slice(0,50).map(n => (<tr key={n.id} className="hover:bg-gray-50"><td className="px-4 py-3 font-medium text-sm">{n.cria}</td><td className="px-4 py-3 text-sm">{formatDate(n.fecha)}</td><td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium ${n.sexo==='M'?'bg-blue-100 text-blue-700':'bg-pink-100 text-pink-700'}`}>{n.sexo==='M'?'♂':'♀'}</span></td><td className="px-4 py-3 text-sm"><button onClick={() => setDetalle({tipo:'madre',id:n.madre})} className="text-blue-600 hover:underline">{n.madre}</button></td><td className="px-4 py-3 text-sm"><button onClick={() => setDetalle({tipo:'padre',id:n.padre})} className="text-blue-600 hover:underline">{n.padre}</button></td><td className="px-4 py-3 text-sm text-right">{n.pesoNacer || '-'}</td><td className="px-4 py-3 text-sm text-right font-medium">{n.pesoDestete || '-'}</td></tr>))}</tbody></table>
+          <table className="w-full"><thead className="bg-gray-50 border-b"><tr><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Cría</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Fecha</th><th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Sexo</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Madre</th><th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Padre</th><th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">P.Nacer</th><th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">P.Destete</th><th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Estado</th></tr></thead>
+          <tbody className="divide-y">{filtered.slice(0,50).map(n => (<tr key={n.id} className={`hover:bg-gray-50 ${n.estado !== 'Activo' ? 'bg-red-50' : ''}`}><td className="px-4 py-3 font-medium text-sm">{n.cria}</td><td className="px-4 py-3 text-sm">{formatDate(n.fecha)}</td><td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium ${n.sexo==='M'?'bg-blue-100 text-blue-700':'bg-pink-100 text-pink-700'}`}>{n.sexo==='M'?'♂':'♀'}</span></td><td className="px-4 py-3 text-sm"><button onClick={() => setDetalle({tipo:'madre',id:n.madre})} className="text-blue-600 hover:underline">{n.madre}</button></td><td className="px-4 py-3 text-sm"><button onClick={() => setDetalle({tipo:'padre',id:n.padre})} className="text-blue-600 hover:underline">{n.padre}</button></td><td className="px-4 py-3 text-sm text-right">{n.pesoNacer || '-'}</td><td className="px-4 py-3 text-sm text-right font-medium">{n.pesoDestete || '-'}</td><td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium ${n.estado==='Activo'?'bg-green-100 text-green-700':n.estado==='Vendido'?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700'}`}>{n.estado}</span></td></tr>))}</tbody></table>
         </div>
         {filtered.length > 50 && <div className="p-4 text-center text-sm text-gray-500">Mostrando 50 de {filtered.length}</div>}
       </div>
-      {detalle && (<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setDetalle(null)}><div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}><div className="p-6 border-b flex justify-between"><h3 className="text-lg font-semibold">{detalle.tipo === 'madre' ? `🐄 Madre: ${detalle.id}` : `🐂 Padre: ${detalle.id}`}</h3><button onClick={() => setDetalle(null)} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20}/></button></div><div className="p-6">{detalle.tipo === 'madre' && detalleMadre && (<><div className="grid grid-cols-4 gap-4 mb-6"><div className="bg-green-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-green-700">{detalleMadre.partos}</p><p className="text-sm text-gray-600">Partos</p></div><div className="bg-blue-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-blue-700">{detalleMadre.pesoM}</p><p className="text-sm text-gray-600">Destete ♂</p></div><div className="bg-pink-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-pink-700">{detalleMadre.pesoH}</p><p className="text-sm text-gray-600">Destete ♀</p></div><div className="bg-amber-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-amber-700">{detalleMadre.iep}</p><p className="text-sm text-gray-600">IEP días</p></div></div><h4 className="font-medium mb-3">Crías</h4><div className="space-y-2 max-h-60 overflow-y-auto">{detalleMadre.crias.sort((a,b) => new Date(b.fecha)-new Date(a.fecha)).map(c => (<div key={c.id} className="flex justify-between p-3 bg-gray-50 rounded-xl"><div><span className="font-medium">{c.cria}</span><span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${c.sexo==='M'?'bg-blue-100 text-blue-700':'bg-pink-100 text-pink-700'}`}>{c.sexo==='M'?'♂':'♀'}</span></div><span className="text-sm text-gray-500">{formatDate(c.fecha)} • {c.pesoNacer||'-'}kg → {c.pesoDestete||'-'}kg</span></div>))}</div></>)}{detalle.tipo === 'padre' && detallePadre && (<><div className="grid grid-cols-3 gap-4 mb-6"><div className="bg-green-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-green-700">{detallePadre.total}</p><p className="text-sm text-gray-600">Crías</p><p className="text-xs text-gray-500">♂{detallePadre.machos} ♀{detallePadre.hembras}</p></div><div className="bg-amber-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-amber-700">{detallePadre.pesoNacer}</p><p className="text-sm text-gray-600">Peso Nacer</p></div><div className="bg-purple-50 rounded-xl p-4 text-center"><p className="text-lg font-bold text-blue-700">♂{detallePadre.pesoM}</p><p className="text-lg font-bold text-pink-700">♀{detallePadre.pesoH}</p><p className="text-sm text-gray-600">Destete</p></div></div><h4 className="font-medium mb-3">Últimas crías</h4><div className="space-y-2 max-h-60 overflow-y-auto">{detallePadre.crias.sort((a,b) => new Date(b.fecha)-new Date(a.fecha)).slice(0,20).map(c => (<div key={c.id} className="flex justify-between p-3 bg-gray-50 rounded-xl"><div><span className="font-medium">{c.cria}</span><span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${c.sexo==='M'?'bg-blue-100 text-blue-700':'bg-pink-100 text-pink-700'}`}>{c.sexo==='M'?'♂':'♀'}</span><span className="ml-2 text-sm text-gray-500">Madre: {c.madre}</span></div><span className="text-sm text-gray-500">{formatDate(c.fecha)}</span></div>))}</div></>)}</div></div></div>)}
+      {detalle && (<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setDetalle(null)}><div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}><div className="p-6 border-b flex justify-between"><h3 className="text-lg font-semibold">{detalle.tipo === 'madre' ? `🐄 Madre: ${detalle.id}` : `🐂 Padre: ${detalle.id}`}</h3><button onClick={() => setDetalle(null)} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20}/></button></div><div className="p-6">{detalle.tipo === 'madre' && detalleMadre && (<><div className="grid grid-cols-4 gap-4 mb-6"><div className="bg-green-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-green-700">{detalleMadre.partos}</p><p className="text-sm text-gray-600">Partos</p></div><div className="bg-blue-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-blue-700">{detalleMadre.pesoM}</p><p className="text-sm text-gray-600">Destete ♂</p></div><div className="bg-pink-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-pink-700">{detalleMadre.pesoH}</p><p className="text-sm text-gray-600">Destete ♀</p></div><div className="bg-amber-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-amber-700">{detalleMadre.iep}</p><p className="text-sm text-gray-600">IEP días</p></div></div><h4 className="font-medium mb-3">Crías</h4><div className="space-y-2 max-h-60 overflow-y-auto">{detalleMadre.crias.sort((a,b) => new Date(b.fecha)-new Date(a.fecha)).map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-xl ${c.estado !== 'Activo' ? 'bg-red-50' : 'bg-gray-50'}`}><div><span className="font-medium">{c.cria}</span><span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${c.sexo==='M'?'bg-blue-100 text-blue-700':'bg-pink-100 text-pink-700'}`}>{c.sexo==='M'?'♂':'♀'}</span>{c.estado !== 'Activo' && <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700">{c.estado}</span>}</div><span className="text-sm text-gray-500">{formatDate(c.fecha)} • {c.pesoNacer||'-'}kg → {c.pesoDestete||'-'}kg</span></div>))}</div></>)}{detalle.tipo === 'padre' && detallePadre && (<><div className="grid grid-cols-3 gap-4 mb-6"><div className="bg-green-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-green-700">{detallePadre.total}</p><p className="text-sm text-gray-600">Crías</p><p className="text-xs text-gray-500">♂{detallePadre.machos} ♀{detallePadre.hembras}</p></div><div className="bg-amber-50 rounded-xl p-4 text-center"><p className="text-2xl font-bold text-amber-700">{detallePadre.pesoNacer}</p><p className="text-sm text-gray-600">Peso Nacer</p></div><div className="bg-purple-50 rounded-xl p-4 text-center"><p className="text-lg font-bold text-blue-700">♂{detallePadre.pesoM}</p><p className="text-lg font-bold text-pink-700">♀{detallePadre.pesoH}</p><p className="text-sm text-gray-600">Destete</p></div></div><h4 className="font-medium mb-3">Últimas crías</h4><div className="space-y-2 max-h-60 overflow-y-auto">{detallePadre.crias.sort((a,b) => new Date(b.fecha)-new Date(a.fecha)).slice(0,20).map(c => (<div key={c.id} className={`flex justify-between p-3 rounded-xl ${c.estado !== 'Activo' ? 'bg-red-50' : 'bg-gray-50'}`}><div><span className="font-medium">{c.cria}</span><span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${c.sexo==='M'?'bg-blue-100 text-blue-700':'bg-pink-100 text-pink-700'}`}>{c.sexo==='M'?'♂':'♀'}</span>{c.estado !== 'Activo' && <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700">{c.estado}</span>}<span className="ml-2 text-sm text-gray-500">Madre: {c.madre}</span></div><span className="text-sm text-gray-500">{formatDate(c.fecha)}</span></div>))}</div></>)}</div></div></div>)}
     </div>
   );
 }

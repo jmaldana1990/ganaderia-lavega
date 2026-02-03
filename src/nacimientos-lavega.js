@@ -8,12 +8,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "527",
     "padre": "M444-18",
-    "numPartos": 4,
-    "pesoNacer": 26.0,
-    "fechaDestete": "2022-10-14",
-    "pesoDestete": 193.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 26,
+    "pesoDestete": 281,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 2,
@@ -24,12 +22,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "308",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 24.0,
-    "fechaDestete": "2022-10-14",
-    "pesoDestete": 170.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 24,
+    "pesoDestete": 243,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 3,
@@ -40,12 +36,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "322006613",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 18.0,
-    "fechaDestete": null,
+    "pesoNacer": 18,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 4,
@@ -56,12 +50,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "158-04-7",
     "padre": "Desconocido",
-    "numPartos": 1,
-    "pesoNacer": 22.0,
-    "fechaDestete": null,
+    "pesoNacer": 22,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 5,
@@ -72,12 +64,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "200",
     "padre": "Desconocido",
-    "numPartos": 1,
-    "pesoNacer": 18.0,
-    "fechaDestete": null,
+    "pesoNacer": 18,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 6,
@@ -88,12 +78,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "233-02-16",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Sociedad con Armando"
+    "estado": "Activo",
+    "comentario": "Sociedad con Armando"
   },
   {
     "id": 7,
@@ -104,12 +92,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "23-11-15",
     "padre": "Desconocido",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 8,
@@ -120,12 +106,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "21095",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": null,
+    "pesoNacer": 30,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 9,
@@ -136,12 +120,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "193-05-7",
     "padre": "Desconocido",
-    "numPartos": 1,
-    "pesoNacer": 18.0,
-    "fechaDestete": null,
+    "pesoNacer": 18,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 10,
@@ -152,12 +134,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "184-05-7",
     "padre": "Desconocido",
-    "numPartos": 1,
-    "pesoNacer": 21.0,
-    "fechaDestete": null,
+    "pesoNacer": 21,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 11,
@@ -168,12 +148,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "175-01-16",
     "padre": "Desconocido",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 12,
@@ -184,12 +162,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "092-8",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 205.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 254,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 13,
@@ -200,12 +176,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "110-9",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 206.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 252,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 14,
@@ -216,12 +190,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9936",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 185.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 15,
@@ -232,12 +204,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "078-8",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 235.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 16,
@@ -248,12 +218,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91024",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 22.0,
-    "fechaDestete": null,
+    "pesoNacer": 22,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Gemelo - Se vendio para carne, no creció"
+    "estado": "Vendido",
+    "comentario": "Gemelo - Se vendio para carne, no creció"
   },
   {
     "id": 17,
@@ -264,12 +232,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91024",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 22.0,
-    "fechaDestete": null,
+    "pesoNacer": 22,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Gemelo - Murio"
+    "estado": "Muerto",
+    "comentario": "Gemelo - Murio"
   },
   {
     "id": 18,
@@ -280,12 +246,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "391-12-8",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 232.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 19,
@@ -296,12 +260,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "08-35",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 150.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 30,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 20,
@@ -312,12 +274,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0144",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 170.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 21,
@@ -328,12 +288,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "088-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 192.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 246,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 22,
@@ -344,12 +302,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9820",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 198.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 23,
@@ -360,12 +316,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1130",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 216.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 241,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 24,
@@ -376,12 +330,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9925",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2023-01-11",
-    "pesoDestete": 211.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 241,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 25,
@@ -392,12 +344,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "068-8",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2023-02-03",
-    "pesoDestete": 222.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 262,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 26,
@@ -408,12 +358,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "094-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-02-03",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 261,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 27,
@@ -424,12 +372,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9814",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 26.0,
-    "fechaDestete": null,
+    "pesoNacer": 26,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 28,
@@ -440,12 +386,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "100-9",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-02-03",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 29,
@@ -456,12 +400,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9932",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2023-02-03",
-    "pesoDestete": 184.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 30,
@@ -472,12 +414,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1147",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-02-03",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 239,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 31,
@@ -488,12 +428,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "082-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-02-03",
-    "pesoDestete": 193.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 32,
@@ -504,12 +442,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "074-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-02-03",
-    "pesoDestete": 218.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 33,
@@ -520,12 +456,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "064-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-02-24",
-    "pesoDestete": 198.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 255,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 34,
@@ -536,12 +470,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "320",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Sociedad con Armando"
+    "estado": "Activo",
+    "comentario": "Sociedad con Armando"
   },
   {
     "id": 35,
@@ -552,12 +484,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "621",
     "padre": "298",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-03-03",
-    "pesoDestete": 184.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 255,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 36,
@@ -568,12 +498,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "379",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 21.0,
-    "fechaDestete": "2023-03-03",
-    "pesoDestete": 134.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 21,
+    "pesoDestete": 255,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 37,
@@ -584,12 +512,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "77",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2023-03-29",
-    "pesoDestete": 187.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 280,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 38,
@@ -600,12 +526,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "553-9",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 26.0,
-    "fechaDestete": null,
+    "pesoNacer": 26,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Sociedad con Armando"
+    "estado": "Activo",
+    "comentario": "Sociedad con Armando"
   },
   {
     "id": 39,
@@ -616,12 +540,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "284-11-7",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": null,
+    "pesoNacer": 30,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Sociedad con Armando"
+    "estado": "Activo",
+    "comentario": "Sociedad con Armando"
   },
   {
     "id": 40,
@@ -632,12 +554,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9917",
     "padre": "298",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-03-17",
-    "pesoDestete": 168.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 30,
+    "pesoDestete": 263,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 41,
@@ -648,12 +568,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "348-04-8",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Sociedad con Armando"
+    "estado": "Activo",
+    "comentario": "Sociedad con Armando"
   },
   {
     "id": 42,
@@ -664,12 +582,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "405",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-03-29",
-    "pesoDestete": 115.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Descartar madre"
+    "pesoNacer": 27,
+    "pesoDestete": 269,
+    "estado": "Activo",
+    "comentario": "Descartar madre"
   },
   {
     "id": 43,
@@ -680,12 +596,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91114",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-03-29",
-    "pesoDestete": 147.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 30,
+    "pesoDestete": 268,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 44,
@@ -696,12 +610,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "412",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": null,
+    "pesoNacer": 30,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 45,
@@ -712,12 +624,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "505",
     "padre": "Desconocido",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-03-29",
-    "pesoDestete": 205.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 258,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 46,
@@ -728,12 +638,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "080-8",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-03-29",
-    "pesoDestete": 185.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 47,
@@ -744,12 +652,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9803",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-03-29",
-    "pesoDestete": 154.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 27,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 48,
@@ -760,12 +666,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "457",
     "padre": "298",
-    "numPartos": 4,
-    "pesoNacer": 30.0,
-    "fechaDestete": null,
+    "pesoNacer": 30,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Sociedad con Armando"
+    "estado": "Activo",
+    "comentario": "Sociedad con Armando"
   },
   {
     "id": 49,
@@ -776,12 +680,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "351",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 169.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 257,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 50,
@@ -792,12 +694,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "801-04-12",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Sociedad con Armando"
+    "estado": "Activo",
+    "comentario": "Sociedad con Armando"
   },
   {
     "id": 51,
@@ -808,12 +708,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9812",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 144.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Hembra coja"
+    "pesoNacer": 29,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": "Hembra coja"
   },
   {
     "id": 52,
@@ -824,12 +722,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9901",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 177.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 255,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 53,
@@ -840,12 +736,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91138",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-04-22",
-    "pesoDestete": 193.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 54,
@@ -856,12 +750,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9928",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 148.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 28,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 55,
@@ -872,12 +764,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "911144",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 159.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 30,
+    "pesoDestete": 250,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 56,
@@ -888,12 +778,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91023",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 183.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 57,
@@ -904,12 +792,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91125",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 203.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 248,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 58,
@@ -920,12 +806,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9839",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 185.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 248,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 59,
@@ -936,12 +820,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91155",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 31.0,
-    "fechaDestete": "2023-04-19",
-    "pesoDestete": 215.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 31,
+    "pesoDestete": 245,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 60,
@@ -952,12 +834,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "304",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Sociedad con Armando"
+    "estado": "Activo",
+    "comentario": "Sociedad con Armando"
   },
   {
     "id": 61,
@@ -968,12 +848,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91205",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-06-05",
-    "pesoDestete": 204.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 265,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 62,
@@ -984,12 +862,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9941",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-06-23",
-    "pesoDestete": 187.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 258,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 63,
@@ -1000,12 +876,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9937",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-07-29",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 260,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 64,
@@ -1016,12 +890,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91119",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-07-29",
-    "pesoDestete": 219.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 257,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 65,
@@ -1032,12 +904,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9834",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-07-29",
-    "pesoDestete": 207.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 66,
@@ -1048,12 +918,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "369",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-07-26",
-    "pesoDestete": 164.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 248,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 67,
@@ -1064,12 +932,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0226",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-07-29",
-    "pesoDestete": 216.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 68,
@@ -1080,12 +946,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0151",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-07-26",
-    "pesoDestete": 164.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 241,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 69,
@@ -1096,12 +960,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0232",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-07-26",
-    "pesoDestete": 212.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 241,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 70,
@@ -1112,12 +974,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "361",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 188.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 261,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 71,
@@ -1128,12 +988,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0131",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 218.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 260,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 72,
@@ -1144,12 +1002,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "501",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 73,
@@ -1160,12 +1016,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9851",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": null,
+    "pesoNacer": 30,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 74,
@@ -1176,12 +1030,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9927",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 233.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 254,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 75,
@@ -1192,12 +1044,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0113",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 185.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 252,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 76,
@@ -1208,12 +1058,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91120",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 228.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 77,
@@ -1224,12 +1072,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "4064",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 192.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 78,
@@ -1240,12 +1086,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91013",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 184.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 79,
@@ -1256,12 +1100,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "516",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 17.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 180.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Gemelo"
+    "pesoNacer": 17,
+    "pesoDestete": 241,
+    "estado": "Activo",
+    "comentario": "Gemelo"
   },
   {
     "id": 80,
@@ -1272,12 +1114,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "516",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 17.0,
-    "fechaDestete": null,
+    "pesoNacer": 17,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Gemelo - Murio"
+    "estado": "Muerto",
+    "comentario": "Gemelo - Murio"
   },
   {
     "id": 81,
@@ -1288,12 +1128,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91017",
     "padre": "298",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 147.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 28,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 82,
@@ -1304,12 +1142,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0144",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 156.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 28,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 83,
@@ -1320,12 +1156,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0210",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 215.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 84,
@@ -1336,12 +1170,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0209",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 172.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 232,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 85,
@@ -1352,12 +1184,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9910",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 233.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 231,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 86,
@@ -1368,12 +1198,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91130",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 220.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 230,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 87,
@@ -1384,12 +1212,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "386",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 299,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 88,
@@ -1400,12 +1226,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0143",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 205.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 299,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 89,
@@ -1416,12 +1240,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9916",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 296,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 90,
@@ -1432,12 +1254,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91016",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 230.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 296,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 91,
@@ -1448,12 +1268,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91102",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 182.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 294,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 92,
@@ -1464,12 +1282,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9838",
     "padre": "298",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 220.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 287,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 93,
@@ -1480,12 +1296,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "322900",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 241.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre descartada"
+    "pesoNacer": 30,
+    "pesoDestete": 287,
+    "estado": "Activo",
+    "comentario": "Madre descartada"
   },
   {
     "id": 94,
@@ -1496,12 +1310,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "291",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-08-26",
-    "pesoDestete": 223.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 215,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 95,
@@ -1512,12 +1324,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0109",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-08-18",
-    "pesoDestete": 190.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 202,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 96,
@@ -1528,12 +1338,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9543078",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 215.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 275,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 97,
@@ -1544,12 +1352,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "062-8",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 274,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 98,
@@ -1560,12 +1366,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "357",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 273,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 99,
@@ -1576,12 +1380,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "358",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 201.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 270,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 100,
@@ -1592,12 +1394,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91108",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 235.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 263,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 101,
@@ -1608,12 +1408,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "149",
     "padre": "Brahman",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 190.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 260,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 102,
@@ -1624,12 +1422,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91148",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 207.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 246,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 103,
@@ -1640,12 +1436,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0154",
     "padre": "298",
-    "numPartos": 2,
-    "pesoNacer": 31.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 206.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 31,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 104,
@@ -1656,12 +1450,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "911300",
     "padre": "298",
-    "numPartos": 2,
-    "pesoNacer": 31.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 241.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 31,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 105,
@@ -1672,12 +1464,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "670",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 170.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 242,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 106,
@@ -1688,12 +1478,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "381",
     "padre": "Brahman",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 170.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 107,
@@ -1704,12 +1492,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "3220066",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 173.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre descartada"
+    "pesoNacer": 28,
+    "pesoDestete": 237,
+    "estado": "Activo",
+    "comentario": "Madre descartada"
   },
   {
     "id": 108,
@@ -1720,12 +1506,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0212",
     "padre": "298",
-    "numPartos": 2,
-    "pesoNacer": 40.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 175.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 40,
+    "pesoDestete": 236,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 109,
@@ -1736,12 +1520,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "104-9",
     "padre": "298",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 223.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 110,
@@ -1752,12 +1534,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0209",
     "padre": "298",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 204.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 233,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 111,
@@ -1768,12 +1548,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9849",
     "padre": "298",
-    "numPartos": 2,
-    "pesoNacer": 31.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 230.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 31,
+    "pesoDestete": 233,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 112,
@@ -1784,12 +1562,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "541",
     "padre": "Brahman",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2023-11-17",
-    "pesoDestete": 195.0,
-    "tipoGanado": "F1 Brahbon",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 250,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 113,
@@ -1800,12 +1576,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "463",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2023-11-17",
-    "pesoDestete": 235.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 246,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 114,
@@ -1816,12 +1590,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "070-8",
     "padre": "298",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-01-13",
-    "pesoDestete": 188.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 299,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 115,
@@ -1832,12 +1604,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91012",
     "padre": "298",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-01-13",
-    "pesoDestete": 222.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 284,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 116,
@@ -1848,12 +1618,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0145",
     "padre": "298",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2023-10-30",
-    "pesoDestete": 220.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 209,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 117,
@@ -1864,12 +1632,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "109 (Gasmar)",
     "padre": "Desconocido",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 136.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 27,
+    "pesoDestete": 287,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 118,
@@ -1880,12 +1646,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0222",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 243.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 266,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 119,
@@ -1896,12 +1660,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9817",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 280.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 265,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 120,
@@ -1912,12 +1674,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91124",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 213.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 264,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 121,
@@ -1928,12 +1688,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "074-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 261,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 122,
@@ -1944,12 +1702,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "094-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 217.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 123,
@@ -1960,12 +1716,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "457",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 182.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 29,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 124,
@@ -1976,12 +1730,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "08-35",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 204.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 125,
@@ -1992,12 +1744,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "527",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 193.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 28,
+    "pesoDestete": 241,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 126,
@@ -2008,12 +1758,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "110-9",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 217.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 239,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 127,
@@ -2024,12 +1772,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "029",
     "padre": "Profit Maker",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 147.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "IATF Profit Maker. Madre en observación para descarte"
+    "pesoNacer": 27,
+    "pesoDestete": 297,
+    "estado": "Activo",
+    "comentario": "IATF Profit Maker. Madre en observación para descarte"
   },
   {
     "id": 128,
@@ -2040,12 +1786,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9814",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-01-25",
-    "pesoDestete": 240.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 222,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 129,
@@ -2056,12 +1800,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0161",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 197.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 289,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 130,
@@ -2072,12 +1814,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0157",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 221.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 289,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 131,
@@ -2088,12 +1828,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "082-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 207.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 287,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 132,
@@ -2104,12 +1842,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0221",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 133,
@@ -2120,12 +1856,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "336",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 202.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 284,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 134,
@@ -2136,12 +1870,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9936",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 185.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 283,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 135,
@@ -2152,12 +1884,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "233",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 190.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 283,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 136,
@@ -2168,12 +1898,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "100-9",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 205.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 279,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 137,
@@ -2184,12 +1912,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9932",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 205.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 278,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 138,
@@ -2200,12 +1926,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9917",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 197.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 276,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 139,
@@ -2216,12 +1940,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "088-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 220.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 273,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 140,
@@ -2232,12 +1954,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "064-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 216.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 270,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 141,
@@ -2248,12 +1968,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "414",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 227.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 268,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 142,
@@ -2264,12 +1982,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "244",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 160.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Madre observacion para descarte"
+    "pesoNacer": 28,
+    "pesoDestete": 267,
+    "estado": "Activo",
+    "comentario": "Madre observacion para descarte"
   },
   {
     "id": 143,
@@ -2280,12 +1996,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0250",
     "padre": "509-0",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 267,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 144,
@@ -2296,12 +2010,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "510",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 180.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 264,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 145,
@@ -2312,12 +2024,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9809",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 262,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 146,
@@ -2328,12 +2038,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91155",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 194.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 261,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 147,
@@ -2344,12 +2052,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9820",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 220.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 258,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 148,
@@ -2360,12 +2066,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "068-8",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 204.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 257,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 149,
@@ -2376,12 +2080,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "391-12-8",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 216.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 150,
@@ -2392,12 +2094,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "992",
     "padre": "876",
-    "numPartos": 2,
-    "pesoNacer": 33.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 177.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 33,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 151,
@@ -2408,12 +2108,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "1147",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 222.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "pesoNacer": 29,
+    "pesoDestete": 248,
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 152,
@@ -2424,12 +2122,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "167",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 164.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 153,
@@ -2440,12 +2136,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9901",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-04-04",
-    "pesoDestete": 180.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 154,
@@ -2456,12 +2150,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "379",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-05-01",
-    "pesoDestete": 152.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 155,
@@ -2472,12 +2164,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "814-876",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-06-19",
-    "pesoDestete": 132.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 28,
+    "pesoDestete": 268,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 156,
@@ -2488,12 +2178,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1130",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-07-12",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 157,
@@ -2504,12 +2192,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "501",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-07-12",
-    "pesoDestete": 217.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 158,
@@ -2520,12 +2206,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91207",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-07-12",
-    "pesoDestete": 208.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 248,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 159,
@@ -2536,12 +2220,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9925",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-07-12",
-    "pesoDestete": 220.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 242,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 160,
@@ -2552,12 +2234,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "086-8",
     "padre": "509-0",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-07-12",
-    "pesoDestete": 230.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 233,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 161,
@@ -2568,12 +2248,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "080-8",
     "padre": "Soberbio",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-08-08",
-    "pesoDestete": 202.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
+    "pesoNacer": 28,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
   {
     "id": 162,
@@ -2584,12 +2262,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91016",
     "padre": "Soberbio",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-08-08",
-    "pesoDestete": 205.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
+    "pesoNacer": 29,
+    "pesoDestete": 243,
+    "estado": "Activo",
+    "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
   {
     "id": 163,
@@ -2600,12 +2276,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "757",
     "padre": "606-0",
-    "numPartos": 1,
-    "pesoNacer": 31.0,
-    "fechaDestete": "2024-08-08",
-    "pesoDestete": 188.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "Padre brahman de Bohemia. F1 con registro"
+    "pesoNacer": 31,
+    "pesoDestete": 242,
+    "estado": "Activo",
+    "comentario": "Padre brahman de Bohemia. F1 con registro"
   },
   {
     "id": 164,
@@ -2616,12 +2290,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "4064",
     "padre": "QEUED",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-08-08",
-    "pesoDestete": 194.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
+    "pesoNacer": 28,
+    "pesoDestete": 240,
+    "estado": "Activo",
+    "comentario": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
   },
   {
     "id": 165,
@@ -2632,12 +2304,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9851",
     "padre": "QEUED",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-08-08",
-    "pesoDestete": 192.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
+    "pesoNacer": 28,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
   },
   {
     "id": 166,
@@ -2648,12 +2318,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91114",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-09-29",
-    "pesoDestete": 208.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 272,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 167,
@@ -2664,12 +2332,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9916",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-09-29",
-    "pesoDestete": 193.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 270,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 168,
@@ -2680,12 +2346,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "361",
     "padre": "509-0",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-10-04",
-    "pesoDestete": 192.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 271,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 169,
@@ -2696,12 +2360,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "505",
     "padre": "509-0",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-10-04",
-    "pesoDestete": 207.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 270,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 170,
@@ -2712,12 +2374,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91119",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-09-29",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 263,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 171,
@@ -2728,12 +2388,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "516",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-10-04",
-    "pesoDestete": 163.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 261,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 172,
@@ -2744,12 +2402,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0131",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-10-04",
-    "pesoDestete": 198.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 259,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 173,
@@ -2760,12 +2416,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "092-8",
     "padre": "Soberbio",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-09-29",
-    "pesoDestete": 224.0,
-    "tipoGanado": "Comercial",
-    "comentarios": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
+    "pesoNacer": 28,
+    "pesoDestete": 254,
+    "estado": "Activo",
+    "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
   {
     "id": 174,
@@ -2776,12 +2430,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0151",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-09-29",
-    "pesoDestete": 180.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 252,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 175,
@@ -2792,12 +2444,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "104-9",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-09-29",
-    "pesoDestete": 201.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 246,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 176,
@@ -2808,12 +2458,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0113",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-09-29",
-    "pesoDestete": 207.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 241,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 177,
@@ -2824,12 +2472,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9803",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-10-04",
-    "pesoDestete": 179.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 243,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 178,
@@ -2840,12 +2486,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0210",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-09-29",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 234,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 179,
@@ -2856,12 +2500,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91024",
     "padre": "546-0",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-10-07",
-    "pesoDestete": 175.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 242,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 180,
@@ -2872,12 +2514,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "062-8",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-10-04",
-    "pesoDestete": 176.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 237,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 181,
@@ -2888,12 +2528,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0209",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-10-07",
-    "pesoDestete": 170.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 182,
@@ -2904,12 +2542,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91013",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-10-07",
-    "pesoDestete": 183.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 240,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 183,
@@ -2920,12 +2556,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91108",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-10-07",
-    "pesoDestete": 172.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 231,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 184,
@@ -2936,12 +2570,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "070-8",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2024-10-07",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 220,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 185,
@@ -2952,12 +2584,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9928",
     "padre": "Spartan",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-12-04",
-    "pesoDestete": 195.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 50-1"
+    "pesoNacer": 28,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 50-1"
   },
   {
     "id": 186,
@@ -2968,12 +2598,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "40-41",
     "padre": "Spartan",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2024-12-04",
-    "pesoDestete": 205.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 50-1"
+    "pesoNacer": 30,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 50-1"
   },
   {
     "id": 187,
@@ -2984,12 +2612,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "950-58",
     "padre": "Spartan",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2024-12-04",
-    "pesoDestete": 147.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 463-56"
+    "pesoNacer": 30,
+    "pesoDestete": 253,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 463-56"
   },
   {
     "id": 188,
@@ -3000,12 +2626,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "291",
     "padre": "Spartan",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2024-12-04",
-    "pesoDestete": 246.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 463-56"
+    "pesoNacer": 30,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 463-56"
   },
   {
     "id": 189,
@@ -3016,12 +2640,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9941",
     "padre": "546-0",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2024-12-04",
-    "pesoDestete": 181.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 242,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 190,
@@ -3032,12 +2654,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "358",
     "padre": "509-0",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 191,
@@ -3048,12 +2668,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "670",
     "padre": "509-0",
-    "numPartos": 2,
-    "pesoNacer": 26.0,
-    "fechaDestete": "2025-02-14",
-    "pesoDestete": 125.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 26,
+    "pesoDestete": 307,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 192,
@@ -3064,12 +2682,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "8-41",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-01-08",
-    "pesoDestete": 168.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 269,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 193,
@@ -3080,12 +2696,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9812",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-01-08",
-    "pesoDestete": 187.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 268,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 194,
@@ -3096,12 +2710,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "386",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-12-27",
-    "pesoDestete": 214.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 255,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 195,
@@ -3112,12 +2724,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9838",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2024-12-27",
-    "pesoDestete": 234.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 248,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 196,
@@ -3128,12 +2738,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "149",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2024-12-27",
-    "pesoDestete": 187.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 248,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 197,
@@ -3144,12 +2752,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "12-41",
     "padre": "509-0",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2024-12-29",
-    "pesoDestete": 196.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 198,
@@ -3160,12 +2766,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "747",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2025-01-15",
-    "pesoDestete": 165.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 27,
+    "pesoDestete": 263,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 199,
@@ -3176,12 +2780,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91023",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2024-12-27",
-    "pesoDestete": 236.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 242,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 200,
@@ -3192,12 +2794,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91148",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-02-14",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 268,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 201,
@@ -3208,12 +2808,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91012",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-02-14",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 255,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 202,
@@ -3224,12 +2822,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9927",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 203,
@@ -3240,12 +2836,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0221",
     "padre": "Spartan",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-02-25",
-    "pesoDestete": 213.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 992-375"
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 992-375"
   },
   {
     "id": 204,
@@ -3256,12 +2850,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "2-31",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-02-14",
-    "pesoDestete": 130.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 234,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 205,
@@ -3272,12 +2864,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91017",
     "padre": "546-0",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-02-14",
-    "pesoDestete": 140.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 230,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 206,
@@ -3288,12 +2878,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91125",
     "padre": "546-0",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-02-14",
-    "pesoDestete": 200.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 226,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 207,
@@ -3304,12 +2892,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9814",
     "padre": "Spartan",
-    "numPartos": 4,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2025-02-25",
-    "pesoDestete": 250.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 463-56"
+    "pesoNacer": 30,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 463-56"
   },
   {
     "id": 208,
@@ -3320,12 +2906,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91130",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-02-25",
-    "pesoDestete": 241.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 209,
@@ -3336,12 +2920,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9910",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-03-07",
-    "pesoDestete": 223.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 210,
@@ -3352,12 +2934,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9834",
     "padre": "546-0",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2025-02-25",
-    "pesoDestete": 211.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 234,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 211,
@@ -3368,12 +2948,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "911144",
     "padre": "546-0",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-02-14",
-    "pesoDestete": 166.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 219,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 212,
@@ -3384,12 +2962,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91205",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-03-07",
-    "pesoDestete": 213.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 240,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 213,
@@ -3400,12 +2976,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "078-8",
     "padre": "Spartan",
-    "numPartos": 3,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2025-03-18",
-    "pesoDestete": 305.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 52-1"
+    "pesoNacer": 30,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 52-1"
   },
   {
     "id": 214,
@@ -3416,12 +2990,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "510",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 215,
@@ -3432,12 +3004,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9937",
     "padre": "595-1",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2025-03-18",
-    "pesoDestete": 204.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 233,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 216,
@@ -3448,12 +3018,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91120",
     "padre": "477-375",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-03-18",
-    "pesoDestete": 232.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 231,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 217,
@@ -3464,12 +3032,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9901",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-03-18",
-    "pesoDestete": 190.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 230,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 218,
@@ -3480,12 +3046,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "094-8",
     "padre": "595-1",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-03-18",
-    "pesoDestete": 228.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 229,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 219,
@@ -3496,12 +3060,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91102",
     "padre": "595-1",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 220,
@@ -3512,12 +3074,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "911300",
     "padre": "03-2",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 221,
@@ -3528,12 +3088,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91124",
     "padre": "03-2",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-04-02",
-    "pesoDestete": 204.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 240,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 222,
@@ -3544,12 +3102,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91155",
     "padre": "595-1",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-03-18",
-    "pesoDestete": 249.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 223,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 223,
@@ -3560,12 +3116,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0250",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-04-02",
-    "pesoDestete": 255.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 226,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 224,
@@ -3576,12 +3130,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0157",
     "padre": "03-2",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 225,
@@ -3592,12 +3144,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9932",
     "padre": "03-2",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-04-28",
-    "pesoDestete": 230.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 226,
@@ -3608,12 +3158,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0222",
     "padre": "03-2",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-04-28",
-    "pesoDestete": 224.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 227,
@@ -3624,12 +3172,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "541",
     "padre": "03-2",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-04-28",
-    "pesoDestete": 180.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON Puro"
+    "pesoNacer": 28,
+    "pesoDestete": 239,
+    "estado": "Activo",
+    "comentario": "BON Puro"
   },
   {
     "id": 228,
@@ -3640,12 +3186,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9817",
     "padre": "03-2",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-04-28",
-    "pesoDestete": 227.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 239,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 229,
@@ -3656,12 +3200,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "463",
     "padre": "03-2",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-04-28",
-    "pesoDestete": 227.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON Puro"
+    "pesoNacer": 29,
+    "pesoDestete": 232,
+    "estado": "Activo",
+    "comentario": "BON Puro"
   },
   {
     "id": 230,
@@ -3672,12 +3214,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0109",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-04-28",
-    "pesoDestete": 245.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 230,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 231,
@@ -3688,12 +3228,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0154",
     "padre": "546-0",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 232,
@@ -3704,12 +3242,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9849",
     "padre": "03-2",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-04-28",
-    "pesoDestete": 230.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 224,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 233,
@@ -3720,12 +3256,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "109 (Gasmar)",
     "padre": "595-1",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 234,
@@ -3736,12 +3270,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0212",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-06-17",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 258,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 235,
@@ -3752,12 +3284,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "068-8",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-05-23",
-    "pesoDestete": 195.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 233,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 236,
@@ -3768,12 +3298,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0143",
     "padre": "546-0",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-06-06",
-    "pesoDestete": 220.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 242,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 237,
@@ -3784,12 +3312,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "621",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-06-17",
-    "pesoDestete": 224.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 253,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 238,
@@ -3800,12 +3326,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "074-8",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-06-23",
-    "pesoDestete": 236.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 259,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 239,
@@ -3816,12 +3340,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "457",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-06-06",
-    "pesoDestete": 202.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON Puro"
+    "pesoNacer": 28,
+    "pesoDestete": 240,
+    "estado": "Activo",
+    "comentario": "BON Puro"
   },
   {
     "id": 240,
@@ -3832,12 +3354,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "992",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-06-06",
-    "pesoDestete": 173.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON Puro"
+    "pesoNacer": 29,
+    "pesoDestete": 239,
+    "estado": "Activo",
+    "comentario": "BON Puro"
   },
   {
     "id": 241,
@@ -3848,12 +3368,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "48-91",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-06-06",
-    "pesoDestete": 179.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 239,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 242,
@@ -3864,12 +3382,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "379",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 243,
@@ -3880,12 +3396,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9809",
     "padre": "595-1",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-06-10",
-    "pesoDestete": 222.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 236,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 244,
@@ -3896,12 +3410,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "082-8",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-06-23",
-    "pesoDestete": 202.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 245,
@@ -3912,12 +3424,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "336",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-06-10",
-    "pesoDestete": 177.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 246,
@@ -3928,12 +3438,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "527",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-06-23",
-    "pesoDestete": 223.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 29,
+    "pesoDestete": 248,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 247,
@@ -3944,12 +3452,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "110-9",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-06-23",
-    "pesoDestete": 250.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 246,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 248,
@@ -3960,12 +3466,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0232",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-06-23",
-    "pesoDestete": 225.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 245,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 249,
@@ -3976,12 +3480,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "244",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 250,
@@ -3992,12 +3494,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "167",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 251,
@@ -4008,12 +3508,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "064-8",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2025-06-23",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 252,
@@ -4024,12 +3522,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "948",
     "padre": "Desconocido",
-    "numPartos": 1,
-    "pesoNacer": 32.0,
-    "fechaDestete": "2025-06-23",
-    "pesoDestete": 236.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 32,
+    "pesoDestete": 237,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 253,
@@ -4040,12 +3536,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0207",
     "padre": "546-0",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-06-23",
-    "pesoDestete": 218.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 254,
@@ -4056,12 +3550,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9917",
     "padre": "595-1",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-07-23",
-    "pesoDestete": 111.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 264,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 255,
@@ -4072,12 +3564,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9820",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-07-22",
-    "pesoDestete": 254.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 254,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 256,
@@ -4088,12 +3578,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "088-8",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-07-22",
-    "pesoDestete": 215.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 252,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 257,
@@ -4104,12 +3592,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "58-111",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-07-23",
-    "pesoDestete": 115.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 258,
@@ -4120,12 +3606,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "029",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 259,
@@ -4136,12 +3620,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "36-41",
     "padre": "546-0",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-07-22",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 250,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 260,
@@ -4152,12 +3634,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9851",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 261,
@@ -4168,12 +3648,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1130",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 262,
@@ -4184,12 +3662,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "251",
     "padre": "546-0",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2025-07-22",
-    "pesoDestete": 233.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 263,
@@ -4200,12 +3676,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "46-81",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": "2025-08-13",
-    "pesoDestete": 160.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 27,
+    "pesoDestete": 242,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 264,
@@ -4216,12 +3690,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "08-35",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 265,
@@ -4232,12 +3704,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9925",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-09-24",
-    "pesoDestete": 265.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 262,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 266,
@@ -4248,12 +3718,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "64",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-09-24",
-    "pesoDestete": 201.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 267,
@@ -4264,12 +3732,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "16-51",
     "padre": "509-0",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Se vendio con la mama"
+    "estado": "Vendido",
+    "comentario": "Se vendio con la mama"
   },
   {
     "id": 268,
@@ -4280,12 +3746,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "58",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2025-09-24",
-    "pesoDestete": 234.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 269,
@@ -4296,12 +3760,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "414",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 270,
@@ -4312,12 +3774,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "100-9",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-10-27",
-    "pesoDestete": 212.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 271,
@@ -4328,12 +3788,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "755",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-10-27",
-    "pesoDestete": 180.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 28,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 272,
@@ -4344,12 +3802,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "54-111",
     "padre": "Brave",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-12-09",
-    "pesoDestete": 212.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 754"
+    "pesoNacer": 28,
+    "pesoDestete": 259,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 754"
   },
   {
     "id": 273,
@@ -4360,12 +3816,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9936",
     "padre": "509-0",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-12-01",
-    "pesoDestete": 170.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 250,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 274,
@@ -4376,12 +3830,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "4064",
     "padre": "Brave",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-12-15",
-    "pesoDestete": 219.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 754"
+    "pesoNacer": 29,
+    "pesoDestete": 256,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 754"
   },
   {
     "id": 275,
@@ -4392,12 +3844,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91114",
     "padre": "Brave",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-12-15",
-    "pesoDestete": 245.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 754"
+    "pesoNacer": 28,
+    "pesoDestete": 255,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 754"
   },
   {
     "id": 276,
@@ -4408,12 +3858,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "110",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-12-09",
-    "pesoDestete": 219.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 277,
@@ -4424,12 +3872,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "391-12-8",
     "padre": "595-1",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-12-19",
-    "pesoDestete": 240.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 253,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 278,
@@ -4440,12 +3886,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "26",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-12-09",
-    "pesoDestete": 192.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 240,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 279,
@@ -4456,12 +3900,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0151",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-12-19",
-    "pesoDestete": 208.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 280,
@@ -4472,12 +3914,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91119",
     "padre": "Brave",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-12-15",
-    "pesoDestete": 172.0,
-    "tipoGanado": "Embrion F1 Angus x BON",
-    "comentarios": "Embrion de la BON 757-0"
+    "pesoNacer": 29,
+    "pesoDestete": 244,
+    "estado": "Activo",
+    "comentario": "Embrion de la BON 757-0"
   },
   {
     "id": 281,
@@ -4488,12 +3928,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0161",
     "padre": "509-0",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2025-12-19",
-    "pesoDestete": 165.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 282,
@@ -4504,12 +3942,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "814-876",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2025-12-19",
-    "pesoDestete": 190.0,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "pesoNacer": 29,
+    "pesoDestete": 236,
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 283,
@@ -4520,12 +3956,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "149",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2026-01-05",
-    "pesoDestete": 179.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 235,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 284,
@@ -4536,12 +3970,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91016",
     "padre": "595-1",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2026-01-28",
-    "pesoDestete": 214.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 258,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 285,
@@ -4552,12 +3984,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "080-8",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2026-01-24",
-    "pesoDestete": 243.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 286,
@@ -4568,12 +3998,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "501",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2026-01-24",
-    "pesoDestete": 224.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 251,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 287,
@@ -4584,12 +4012,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "20",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2026-01-24",
-    "pesoDestete": 203.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 288,
@@ -4600,12 +4026,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "16",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 30.0,
-    "fechaDestete": "2026-01-24",
-    "pesoDestete": 248.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 30,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 289,
@@ -4616,12 +4040,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91023",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2026-01-24",
-    "pesoDestete": 222.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 248,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 290,
@@ -4632,12 +4054,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0210",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2026-01-24",
-    "pesoDestete": 230.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 247,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 291,
@@ -4648,12 +4068,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1147",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2026-01-28",
-    "pesoDestete": 267.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 249,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 292,
@@ -4664,12 +4082,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91013",
     "padre": "546-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2026-01-05",
-    "pesoDestete": 189.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 226,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 293,
@@ -4680,12 +4096,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "070-8",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 294,
@@ -4696,12 +4110,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9812",
     "padre": "595-1",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2026-01-22",
-    "pesoDestete": 187.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 239,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 295,
@@ -4712,12 +4124,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91024",
     "padre": "595-1",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": "2026-01-22",
-    "pesoDestete": 197.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 29,
+    "pesoDestete": 239,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 296,
@@ -4728,12 +4138,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "8-4",
     "padre": "509-0",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2026-01-22",
-    "pesoDestete": 168.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 238,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 297,
@@ -4744,12 +4152,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "086-8",
     "padre": "509-0",
-    "numPartos": 2,
-    "pesoNacer": 28.0,
-    "fechaDestete": "2026-01-28",
-    "pesoDestete": 210.0,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "pesoNacer": 28,
+    "pesoDestete": 240,
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 298,
@@ -4760,12 +4166,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "757-0",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 299,
@@ -4776,12 +4180,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91108",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 300,
@@ -4792,12 +4194,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91124",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 301,
@@ -4808,12 +4208,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "002-80",
     "padre": "595-1",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Puro",
-    "comentarios": "Brangus Puro"
+    "estado": "Activo",
+    "comentario": "Brangus Puro"
   },
   {
     "id": 302,
@@ -4824,12 +4222,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "14",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 303,
@@ -4840,12 +4236,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9927",
     "padre": "595-1",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 304,
@@ -4856,12 +4250,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "094-8",
     "padre": "509-0",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 305,
@@ -4872,12 +4264,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "52-1",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 306,
@@ -4888,12 +4278,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "291",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 307,
@@ -4904,12 +4292,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91155",
     "padre": "509-0",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 308,
@@ -4920,12 +4306,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "104-9",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 309,
@@ -4936,12 +4320,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9838",
     "padre": "595-1",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 310,
@@ -4952,12 +4334,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9916",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 311,
@@ -4968,12 +4348,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "463",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 312,
@@ -4984,12 +4362,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0157",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 313,
@@ -5000,12 +4376,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "M1026",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 314,
@@ -5016,12 +4390,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9814",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": "Murio"
+    "estado": "Muerto",
+    "comentario": "Murio"
   },
   {
     "id": 315,
@@ -5032,12 +4404,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "510-22",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 316,
@@ -5048,12 +4418,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "747",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 317,
@@ -5064,12 +4432,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0113",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 318,
@@ -5080,12 +4446,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9932",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 319,
@@ -5096,12 +4460,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0221",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 320,
@@ -5112,12 +4474,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9910",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 321,
@@ -5128,12 +4488,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "M1004",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 322,
@@ -5144,12 +4502,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "48",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 323,
@@ -5160,12 +4516,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "457",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 324,
@@ -5176,12 +4530,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "M1248",
     "padre": "477-375",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 325,
@@ -5192,12 +4544,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "527",
     "padre": "854-476",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Puro",
-    "comentarios": "BON puro"
+    "estado": "Activo",
+    "comentario": "BON puro"
   },
   {
     "id": 326,
@@ -5208,12 +4558,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91130",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 327,
@@ -5224,12 +4572,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0250",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 328,
@@ -5240,12 +4586,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "62",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 329,
@@ -5256,12 +4600,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "58-1",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 330,
@@ -5272,12 +4614,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "508-22",
     "padre": "509-0",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 331,
@@ -5288,12 +4628,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0109",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 332,
@@ -5304,12 +4642,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91012",
     "padre": "477-375",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 333,
@@ -5320,12 +4656,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "386",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 334,
@@ -5336,12 +4670,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "M1072",
     "padre": "509-0",
-    "numPartos": 1,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 335,
@@ -5352,12 +4684,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0222",
     "padre": "509-0",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 336,
@@ -5368,12 +4698,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "078-8",
     "padre": "854-476",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 337,
@@ -5384,12 +4712,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "58",
     "padre": "854-476",
-    "numPartos": 2,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 338,
@@ -5400,12 +4726,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0232",
     "padre": "509-0",
-    "numPartos": 3,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 339,
@@ -5416,12 +4740,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9820",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 340,
@@ -5432,12 +4754,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "414",
     "padre": "595-1",
-    "numPartos": 3,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 341,
@@ -5448,12 +4768,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "088-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 342,
@@ -5464,12 +4782,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "074-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 343,
@@ -5480,12 +4796,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "082-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 344,
@@ -5496,12 +4810,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "110-9",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 345,
@@ -5512,12 +4824,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "064-8",
     "padre": "477-375",
-    "numPartos": 4,
-    "pesoNacer": 29.0,
-    "fechaDestete": null,
+    "pesoNacer": 29,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 346,
@@ -5528,12 +4838,10 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9936",
     "padre": "509-0",
-    "numPartos": 4,
-    "pesoNacer": 28.0,
-    "fechaDestete": null,
+    "pesoNacer": 28,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   },
   {
     "id": 347,
@@ -5544,11 +4852,9 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "114",
     "padre": "854-476",
-    "numPartos": 1,
-    "pesoNacer": 27.0,
-    "fechaDestete": null,
+    "pesoNacer": 27,
     "pesoDestete": null,
-    "tipoGanado": "Comercial",
-    "comentarios": ""
+    "estado": "Activo",
+    "comentario": ""
   }
 ];
