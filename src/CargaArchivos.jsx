@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, X } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, X, Info } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { supabase, logCarga } from './supabase';
 
@@ -11,11 +11,12 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [detalles, setDetalles] = useState(null);
 
   const detectarTipoArchivo = (filename) => {
     const lower = filename.toLowerCase();
-    if (lower.includes('nacimiento') || lower.includes('cria')) return 'nacimientos';
-    if (lower.includes('movimiento') || lower.includes('inventario')) return 'inventario';
+    if (lower.includes('nacimiento') && !lower.includes('movimiento')) return 'nacimientos';
+    if (lower.includes('movimiento') || lower.includes('inventario')) return 'movimientos';
     if (lower.includes('costo') || lower.includes('gasto')) return 'costos';
     return '';
   };
@@ -52,6 +53,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     setArchivo(file);
     setError(null);
     setResultado(null);
+    setDetalles(null);
     
     const tipo = detectarTipoArchivo(file.name);
     setTipoArchivo(tipo);
@@ -59,6 +61,14 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     try {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
+      
+      if (tipo === 'movimientos') {
+        setDetalles({
+          hojas: workbook.SheetNames,
+          mensaje: `Archivo con ${workbook.SheetNames.length} hojas: ${workbook.SheetNames.slice(0,5).join(', ')}${workbook.SheetNames.length > 5 ? '...' : ''}`
+        });
+      }
+      
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
@@ -67,6 +77,242 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     } catch (err) {
       setError('Error al leer el archivo: ' + err.message);
     }
+  };
+
+  const procesarMovimientos = async (workbook) => {
+    const resultados = {
+      inventario: null,
+      nacimientos: [],
+      destetes: [],
+      errores: []
+    };
+
+    let año = new Date().getFullYear();
+    let mes = new Date().getMonth() + 1;
+    
+    const primeraHoja = workbook.SheetNames[0];
+    const meses = {
+      'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4,
+      'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
+      'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
+    };
+    
+    for (const [nombreMes, numMes] of Object.entries(meses)) {
+      if (primeraHoja.toLowerCase().includes(nombreMes)) {
+        mes = numMes;
+        break;
+      }
+    }
+
+    const ws = workbook.Sheets[primeraHoja];
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    for (const row of data.slice(0, 5)) {
+      for (const cell of row) {
+        if (cell && typeof cell === 'string') {
+          const match = cell.match(/20\d{2}/);
+          if (match) {
+            año = parseInt(match[0]);
+            break;
+          }
+        }
+      }
+    }
+
+    // 1. PROCESAR INVENTARIO
+    try {
+      const inventarioData = extraerInventario(workbook, primeraHoja, año, mes);
+      if (inventarioData) {
+        const { error } = await supabase
+          .from('inventario')
+          .upsert(inventarioData, { onConflict: 'año,mes,finca' });
+        
+        if (error) throw error;
+        resultados.inventario = inventarioData;
+      }
+    } catch (err) {
+      resultados.errores.push(`Inventario: ${err.message}`);
+    }
+
+    // 2. PROCESAR NACIMIENTOS
+    if (workbook.SheetNames.includes('NACIMIENTOS')) {
+      try {
+        const nacimientos = extraerNacimientos(workbook, año);
+        if (nacimientos.length > 0) {
+          const { data, error } = await supabase
+            .from('nacimientos')
+            .upsert(nacimientos, { onConflict: 'cria' })
+            .select();
+          
+          if (error) throw error;
+          resultados.nacimientos = nacimientos;
+        }
+      } catch (err) {
+        resultados.errores.push(`Nacimientos: ${err.message}`);
+      }
+    }
+
+    // 3. PROCESAR DESTETES
+    if (workbook.SheetNames.includes('DESTETE')) {
+      try {
+        const destetes = extraerDestetes(workbook, año);
+        if (destetes.length > 0) {
+          for (const destete of destetes) {
+            await supabase
+              .from('nacimientos')
+              .update({
+                peso_destete: destete.peso_destete,
+                fecha_destete: destete.fecha_destete,
+                año_destete: destete.año_destete,
+                edad_destete: destete.edad_destete,
+                gr_dia_vida: destete.gr_dia_vida
+              })
+              .eq('cria', destete.cria);
+          }
+          resultados.destetes = destetes;
+        }
+      } catch (err) {
+        resultados.errores.push(`Destetes: ${err.message}`);
+      }
+    }
+
+    return resultados;
+  };
+
+  const extraerInventario = (workbook, sheetName, año, mes) => {
+    const ws = workbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    
+    const inventario = {
+      año: año,
+      mes: mes,
+      finca: 'La Vega',
+      vp: 0, vh: 0, nas: 0, ch: 0, cm: 0, hl: 0, ml: 0, total: 0, toros: 0, caballos: 0
+    };
+
+    for (const row of data) {
+      if (!row[0]) continue;
+      const cat = String(row[0]).trim().toUpperCase();
+      const saldoFinal = row[row.length - 1];
+      
+      if (typeof saldoFinal !== 'number') continue;
+      
+      switch(cat) {
+        case 'VP': inventario.vp = saldoFinal; break;
+        case 'VH': inventario.vh = saldoFinal; break;
+        case 'NAS': inventario.nas = saldoFinal; break;
+        case 'CH': inventario.ch = saldoFinal; break;
+        case 'CM': inventario.cm = saldoFinal; break;
+        case 'HL': inventario.hl = saldoFinal; break;
+        case 'ML': inventario.ml = saldoFinal; break;
+        case 'T': inventario.toros = saldoFinal; break;
+        case 'TOTAL': inventario.total = saldoFinal; break;
+      }
+    }
+
+    return inventario.total > 0 ? inventario : null;
+  };
+
+  const extraerNacimientos = (workbook, año) => {
+    const ws = workbook.Sheets['NACIMIENTOS'];
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    const nacimientos = [];
+
+    const parseDate = (val) => {
+      if (!val) return null;
+      try {
+        if (typeof val === 'number') {
+          const date = new Date((val - 25569) * 86400 * 1000);
+          return date.toISOString().split('T')[0];
+        }
+        if (val instanceof Date) {
+          return val.toISOString().split('T')[0];
+        }
+        return new Date(val).toISOString().split('T')[0];
+      } catch {
+        return null;
+      }
+    };
+
+    for (const row of data) {
+      const cria = row[0];
+      const sexo = row[1];
+      
+      if (!cria || !sexo || typeof cria === 'string' && 
+          (cria.includes('Software') || cria.includes('Número') || cria.includes('TOTAL'))) {
+        continue;
+      }
+      
+      if (sexo !== 'M' && sexo !== 'H') continue;
+
+      const fecha = parseDate(row[2]);
+      
+      nacimientos.push({
+        cria: String(cria).trim(),
+        sexo: sexo,
+        fecha: fecha,
+        año: año,
+        mes: fecha ? parseInt(fecha.split('-')[1]) : null,
+        madre: row[3] ? String(row[3]).trim() : null,
+        padre: row[4] ? String(row[4]).trim() : null,
+        peso_nacer: typeof row[5] === 'number' ? row[5] : null,
+        estado: 'Activo',
+        comentario: ''
+      });
+    }
+
+    return nacimientos;
+  };
+
+  const extraerDestetes = (workbook, año) => {
+    const ws = workbook.Sheets['DESTETE'];
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    const destetes = [];
+
+    const parseDate = (val) => {
+      if (!val) return null;
+      try {
+        if (typeof val === 'number') {
+          const date = new Date((val - 25569) * 86400 * 1000);
+          return date.toISOString().split('T')[0];
+        }
+        if (val instanceof Date) {
+          return val.toISOString().split('T')[0];
+        }
+        return new Date(val).toISOString().split('T')[0];
+      } catch {
+        return null;
+      }
+    };
+
+    for (const row of data) {
+      const cria = row[0];
+      const sexo = row[1];
+      
+      if (!cria || !sexo || typeof cria === 'string' && 
+          (cria.includes('Software') || cria.includes('CODANI') || cria.includes('TOTAL'))) {
+        continue;
+      }
+      
+      if (sexo !== 'M' && sexo !== 'H') continue;
+
+      const fechaDestete = parseDate(row[3]);
+      const dias = typeof row[4] === 'number' ? row[4] : null;
+      const pesoDestete = typeof row[9] === 'number' ? row[9] : null;
+      const grDia = typeof row[11] === 'number' ? row[11] : null;
+
+      if (pesoDestete) {
+        destetes.push({
+          cria: String(cria).trim(),
+          fecha_destete: fechaDestete,
+          año_destete: fechaDestete ? parseInt(fechaDestete.split('-')[0]) : año,
+          edad_destete: dias,
+          peso_destete: pesoDestete,
+          gr_dia_vida: grDia
+        });
+      }
+    }
+
+    return destetes;
   };
 
   const procesarNacimientos = async (workbook) => {
@@ -138,31 +384,12 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
 
     const { data, error } = await supabase
       .from('nacimientos')
-      .upsert(registros, { 
-        onConflict: 'cria',
-        ignoreDuplicates: false 
-      })
+      .upsert(registros, { onConflict: 'cria', ignoreDuplicates: false })
       .select();
 
     if (error) throw error;
     
-    return {
-      procesados: registros.length,
-      insertados: data?.length || 0
-    };
-  };
-
-  const procesarInventario = async (workbook) => {
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-    
-    // Por ahora, solo mostrar que se leyó
-    // La estructura de inventario es más compleja y necesita análisis específico
-    return {
-      procesados: jsonData.length,
-      mensaje: 'Archivo de movimientos leído. Procesamiento de inventario pendiente de configurar.'
-    };
+    return { procesados: registros.length, insertados: data?.length || 0 };
   };
 
   const procesarCostos = async (workbook) => {
@@ -201,17 +428,10 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       });
     }
 
-    const { data, error } = await supabase
-      .from('costos')
-      .insert(registros)
-      .select();
-
+    const { data, error } = await supabase.from('costos').insert(registros).select();
     if (error) throw error;
     
-    return {
-      procesados: registros.length,
-      insertados: data?.length || 0
-    };
+    return { procesados: registros.length, insertados: data?.length || 0 };
   };
 
   const handleSubmit = async () => {
@@ -233,8 +453,17 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
         case 'nacimientos':
           result = await procesarNacimientos(workbook);
           break;
-        case 'inventario':
-          result = await procesarInventario(workbook);
+        case 'movimientos':
+          const movResult = await procesarMovimientos(workbook);
+          result = {
+            procesados: (movResult.nacimientos?.length || 0) + (movResult.destetes?.length || 0) + (movResult.inventario ? 1 : 0),
+            detalles: {
+              inventario: movResult.inventario ? `✅ Inventario ${movResult.inventario.mes}/${movResult.inventario.año}: ${movResult.inventario.total} animales` : '⚠️ Sin datos de inventario',
+              nacimientos: `✅ ${movResult.nacimientos?.length || 0} nacimientos procesados`,
+              destetes: `✅ ${movResult.destetes?.length || 0} destetes actualizados`,
+              errores: movResult.errores
+            }
+          };
           break;
         case 'costos':
           result = await procesarCostos(workbook);
@@ -243,20 +472,10 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
           throw new Error('Tipo de archivo no soportado');
       }
 
-      await logCarga(
-        tipoArchivo,
-        archivo.name,
-        result.procesados,
-        result.insertados || 0,
-        0,
-        user?.email
-      );
-
+      await logCarga(tipoArchivo, archivo.name, result.procesados || 0, result.insertados || 0, 0, user?.email);
       setResultado(result);
       
-      if (onSuccess) {
-        setTimeout(() => onSuccess(), 2000);
-      }
+      if (onSuccess) setTimeout(() => onSuccess(), 2500);
       
     } catch (err) {
       console.error('Error procesando archivo:', err);
@@ -272,6 +491,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     setPreview(null);
     setResultado(null);
     setError(null);
+    setDetalles(null);
   };
 
   return (
@@ -282,40 +502,23 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
             <Upload size={24} className="text-green-600" />
             Cargar Archivo
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
-            <X size={20} />
-          </button>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
         </div>
 
         <div className="p-6 space-y-6">
           {!archivo && (
             <div
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                dragActive ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'
-              }`}
+              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${dragActive ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'}`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
             >
               <FileSpreadsheet size={48} className="mx-auto text-gray-400 mb-4" />
-              <p className="text-lg font-medium text-gray-700 mb-2">
-                Arrastra tu archivo Excel aquí
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                o haz clic para seleccionar
-              </p>
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleFileInput}
-                className="hidden"
-                id="file-input"
-              />
-              <label
-                htmlFor="file-input"
-                className="inline-block px-6 py-2 bg-green-600 text-white rounded-xl cursor-pointer hover:bg-green-700 transition-colors"
-              >
+              <p className="text-lg font-medium text-gray-700 mb-2">Arrastra tu archivo Excel aquí</p>
+              <p className="text-sm text-gray-500 mb-4">o haz clic para seleccionar</p>
+              <input type="file" accept=".xlsx,.xls" onChange={handleFileInput} className="hidden" id="file-input" />
+              <label htmlFor="file-input" className="inline-block px-6 py-2 bg-green-600 text-white rounded-xl cursor-pointer hover:bg-green-700 transition-colors">
                 Seleccionar archivo
               </label>
             </div>
@@ -328,44 +531,43 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
                   <FileSpreadsheet size={24} className="text-green-600" />
                   <div>
                     <p className="font-medium">{archivo.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {(archivo.size / 1024).toFixed(1)} KB
-                    </p>
+                    <p className="text-sm text-gray-500">{(archivo.size / 1024).toFixed(1)} KB</p>
                   </div>
                 </div>
-                <button onClick={resetForm} className="p-2 hover:bg-gray-200 rounded-lg">
-                  <X size={18} />
-                </button>
+                <button onClick={resetForm} className="p-2 hover:bg-gray-200 rounded-lg"><X size={18} /></button>
               </div>
 
+              {detalles && (
+                <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <Info size={20} className="text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-blue-700">Archivo de movimientos detectado</p>
+                    <p className="text-sm text-blue-600">{detalles.mensaje}</p>
+                    <p className="text-xs text-blue-500 mt-1">Se procesarán: Inventario, Nacimientos y Destetes</p>
+                  </div>
+                </div>
+              )}
+
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Tipo de archivo
-                </label>
-                <select
-                  value={tipoArchivo}
-                  onChange={(e) => setTipoArchivo(e.target.value)}
-                  className="w-full px-4 py-2 border rounded-xl"
-                >
+                <label className="block text-sm font-medium mb-2">Tipo de archivo</label>
+                <select value={tipoArchivo} onChange={(e) => setTipoArchivo(e.target.value)} className="w-full px-4 py-2 border rounded-xl">
                   <option value="">Seleccionar tipo...</option>
-                  <option value="nacimientos">📋 Nacimientos / Crías</option>
-                  <option value="inventario">📊 Movimientos / Inventario</option>
+                  <option value="nacimientos">📋 Nacimientos / Crías (archivo dedicado)</option>
+                  <option value="movimientos">📊 Movimientos Mensuales</option>
                   <option value="costos">💰 Costos y Gastos</option>
                 </select>
               </div>
 
               {preview && (
                 <div>
-                  <p className="text-sm font-medium mb-2">Vista previa:</p>
+                  <p className="text-sm font-medium mb-2">Vista previa (primera hoja):</p>
                   <div className="overflow-x-auto border rounded-xl">
                     <table className="w-full text-xs">
                       <tbody>
                         {preview.map((row, i) => (
                           <tr key={i} className={i === 0 ? 'bg-gray-100 font-medium' : ''}>
                             {row.slice(0, 8).map((cell, j) => (
-                              <td key={j} className="px-2 py-1 border-b truncate max-w-[100px]">
-                                {cell !== null ? String(cell) : ''}
-                              </td>
+                              <td key={j} className="px-2 py-1 border-b truncate max-w-[100px]">{cell !== null ? String(cell) : ''}</td>
                             ))}
                           </tr>
                         ))}
@@ -375,45 +577,34 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
                 </div>
               )}
 
-              <button
-                onClick={handleSubmit}
-                disabled={!tipoArchivo || procesando}
-                className="w-full py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {procesando ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    Procesando...
-                  </>
-                ) : (
-                  <>
-                    <Upload size={20} />
-                    Cargar y Procesar
-                  </>
-                )}
+              <button onClick={handleSubmit} disabled={!tipoArchivo || procesando} className="w-full py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                {procesando ? (<><Loader2 size={20} className="animate-spin" />Procesando...</>) : (<><Upload size={20} />Cargar y Procesar</>)}
               </button>
             </div>
           )}
 
           {resultado && (
-            <div className="text-center py-8">
+            <div className="text-center py-6">
               <CheckCircle size={64} className="mx-auto text-green-500 mb-4" />
-              <h3 className="text-xl font-semibold text-green-700 mb-2">
-                ¡Archivo procesado exitosamente!
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Se procesaron {resultado.procesados} registros
-                {resultado.insertados !== undefined && ` (${resultado.insertados} guardados)`}
-              </p>
-              {resultado.mensaje && (
-                <p className="text-sm text-gray-500">{resultado.mensaje}</p>
+              <h3 className="text-xl font-semibold text-green-700 mb-2">¡Archivo procesado exitosamente!</h3>
+              
+              {resultado.detalles ? (
+                <div className="text-left bg-gray-50 rounded-xl p-4 mt-4 space-y-2">
+                  <p className="text-sm">{resultado.detalles.inventario}</p>
+                  <p className="text-sm">{resultado.detalles.nacimientos}</p>
+                  <p className="text-sm">{resultado.detalles.destetes}</p>
+                  {resultado.detalles.errores?.length > 0 && (
+                    <div className="mt-2 pt-2 border-t">
+                      <p className="text-sm text-red-600 font-medium">Errores:</p>
+                      {resultado.detalles.errores.map((err, i) => (<p key={i} className="text-xs text-red-500">{err}</p>))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-600 mb-4">Se procesaron {resultado.procesados} registros{resultado.insertados !== undefined && ` (${resultado.insertados} guardados)`}</p>
               )}
-              <button
-                onClick={resetForm}
-                className="mt-4 px-6 py-2 bg-gray-100 rounded-xl hover:bg-gray-200"
-              >
-                Cargar otro archivo
-              </button>
+              
+              <button onClick={resetForm} className="mt-4 px-6 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">Cargar otro archivo</button>
             </div>
           )}
 
