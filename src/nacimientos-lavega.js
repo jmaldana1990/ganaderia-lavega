@@ -9,7 +9,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "527",
     "padre": "M444-18",
     "pesoNacer": 26,
-    "pesoDestete": 281,
+    "pesoDestete": 193,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -23,7 +23,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "308",
     "padre": "298",
     "pesoNacer": 24,
-    "pesoDestete": 243,
+    "pesoDestete": 170,
     "estado": "Activo",
     "comentario": ""
   },
@@ -80,7 +80,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "padre": "298",
     "pesoNacer": 28,
     "pesoDestete": null,
-    "estado": "Activo",
+    "estado": "Sociedad",
     "comentario": "Sociedad con Armando"
   },
   {
@@ -163,7 +163,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "092-8",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 254,
+    "pesoDestete": 205,
     "estado": "Activo",
     "comentario": ""
   },
@@ -177,7 +177,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "110-9",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 252,
+    "pesoDestete": 206,
     "estado": "Activo",
     "comentario": ""
   },
@@ -191,7 +191,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9936",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 251,
+    "pesoDestete": 185,
     "estado": "Activo",
     "comentario": ""
   },
@@ -205,7 +205,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "078-8",
     "padre": "477-375",
     "pesoNacer": 32,
-    "pesoDestete": 249,
+    "pesoDestete": 235,
     "estado": "Activo",
     "comentario": ""
   },
@@ -247,7 +247,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "391-12-8",
     "padre": "477-375",
     "pesoNacer": 32,
-    "pesoDestete": 249,
+    "pesoDestete": 232,
     "estado": "Activo",
     "comentario": ""
   },
@@ -261,7 +261,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "08-35",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 247,
+    "pesoDestete": 150,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -275,7 +275,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0144",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 170,
     "estado": "Activo",
     "comentario": ""
   },
@@ -289,7 +289,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "088-8",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 246,
+    "pesoDestete": 192,
     "estado": "Activo",
     "comentario": ""
   },
@@ -303,7 +303,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9820",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 244,
+    "pesoDestete": 198,
     "estado": "Activo",
     "comentario": ""
   },
@@ -317,7 +317,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "1130",
     "padre": "477-375",
     "pesoNacer": 32,
-    "pesoDestete": 241,
+    "pesoDestete": 216,
     "estado": "Activo",
     "comentario": ""
   },
@@ -331,7 +331,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9925",
     "padre": "477-375",
     "pesoNacer": 32,
-    "pesoDestete": 241,
+    "pesoDestete": 211,
     "estado": "Activo",
     "comentario": ""
   },
@@ -345,7 +345,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "068-8",
     "padre": "477-375",
     "pesoNacer": 32,
-    "pesoDestete": 262,
+    "pesoDestete": 222,
     "estado": "Activo",
     "comentario": ""
   },
@@ -359,7 +359,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "094-8",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 261,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -387,7 +387,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "100-9",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 256,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -401,7 +401,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9932",
     "padre": "477-375",
     "pesoNacer": 32,
-    "pesoDestete": 251,
+    "pesoDestete": 184,
     "estado": "Activo",
     "comentario": ""
   },
@@ -415,7 +415,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "1147",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 239,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -429,7 +429,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "082-8",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 238,
+    "pesoDestete": 193,
     "estado": "Activo",
     "comentario": ""
   },
@@ -443,7 +443,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "074-8",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 235,
+    "pesoDestete": 218,
     "estado": "Activo",
     "comentario": ""
   },
@@ -457,7 +457,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "064-8",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 255,
+    "pesoDestete": 198,
     "estado": "Activo",
     "comentario": ""
   },
@@ -472,7 +472,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "padre": "298",
     "pesoNacer": 29,
     "pesoDestete": null,
-    "estado": "Activo",
+    "estado": "Sociedad",
     "comentario": "Sociedad con Armando"
   },
   {
@@ -485,7 +485,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "621",
     "padre": "298",
     "pesoNacer": 30,
-    "pesoDestete": 255,
+    "pesoDestete": 184,
     "estado": "Activo",
     "comentario": ""
   },
@@ -499,7 +499,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "379",
     "padre": "477-375",
     "pesoNacer": 21,
-    "pesoDestete": 255,
+    "pesoDestete": 134,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -513,7 +513,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "77",
     "padre": "477-375",
     "pesoNacer": 32,
-    "pesoDestete": 280,
+    "pesoDestete": 187,
     "estado": "Activo",
     "comentario": ""
   },
@@ -528,7 +528,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "padre": "298",
     "pesoNacer": 26,
     "pesoDestete": null,
-    "estado": "Activo",
+    "estado": "Sociedad",
     "comentario": "Sociedad con Armando"
   },
   {
@@ -542,7 +542,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "padre": "298",
     "pesoNacer": 30,
     "pesoDestete": null,
-    "estado": "Activo",
+    "estado": "Sociedad",
     "comentario": "Sociedad con Armando"
   },
   {
@@ -555,7 +555,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9917",
     "padre": "298",
     "pesoNacer": 30,
-    "pesoDestete": 263,
+    "pesoDestete": 168,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -570,7 +570,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "padre": "298",
     "pesoNacer": 29,
     "pesoDestete": null,
-    "estado": "Activo",
+    "estado": "Sociedad",
     "comentario": "Sociedad con Armando"
   },
   {
@@ -583,7 +583,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "405",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 269,
+    "pesoDestete": 115,
     "estado": "Activo",
     "comentario": "Descartar madre"
   },
@@ -597,7 +597,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91114",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 268,
+    "pesoDestete": 147,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -625,7 +625,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "505",
     "padre": "Desconocido",
     "pesoNacer": 28,
-    "pesoDestete": 258,
+    "pesoDestete": 205,
     "estado": "Activo",
     "comentario": ""
   },
@@ -639,7 +639,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "080-8",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 251,
+    "pesoDestete": 185,
     "estado": "Activo",
     "comentario": ""
   },
@@ -653,7 +653,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9803",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 249,
+    "pesoDestete": 154,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -668,7 +668,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "padre": "298",
     "pesoNacer": 30,
     "pesoDestete": null,
-    "estado": "Activo",
+    "estado": "Sociedad",
     "comentario": "Sociedad con Armando"
   },
   {
@@ -681,7 +681,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "351",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 257,
+    "pesoDestete": 169,
     "estado": "Activo",
     "comentario": ""
   },
@@ -696,7 +696,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "padre": "477-375",
     "pesoNacer": 29,
     "pesoDestete": null,
-    "estado": "Activo",
+    "estado": "Sociedad",
     "comentario": "Sociedad con Armando"
   },
   {
@@ -709,7 +709,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9812",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 256,
+    "pesoDestete": 144,
     "estado": "Activo",
     "comentario": "Hembra coja"
   },
@@ -723,7 +723,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9901",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 255,
+    "pesoDestete": 177,
     "estado": "Activo",
     "comentario": ""
   },
@@ -737,7 +737,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91138",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 256,
+    "pesoDestete": 193,
     "estado": "Activo",
     "comentario": ""
   },
@@ -751,7 +751,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9928",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 251,
+    "pesoDestete": 148,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -765,7 +765,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "911144",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 250,
+    "pesoDestete": 159,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -779,7 +779,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91023",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 249,
+    "pesoDestete": 183,
     "estado": "Activo",
     "comentario": ""
   },
@@ -793,7 +793,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91125",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 248,
+    "pesoDestete": 203,
     "estado": "Activo",
     "comentario": ""
   },
@@ -807,7 +807,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9839",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 248,
+    "pesoDestete": 185,
     "estado": "Activo",
     "comentario": ""
   },
@@ -821,7 +821,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91155",
     "padre": "477-375",
     "pesoNacer": 31,
-    "pesoDestete": 245,
+    "pesoDestete": 215,
     "estado": "Activo",
     "comentario": ""
   },
@@ -836,7 +836,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "padre": "477-375",
     "pesoNacer": 27,
     "pesoDestete": null,
-    "estado": "Activo",
+    "estado": "Sociedad",
     "comentario": "Sociedad con Armando"
   },
   {
@@ -849,7 +849,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91205",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 265,
+    "pesoDestete": 204,
     "estado": "Activo",
     "comentario": ""
   },
@@ -863,7 +863,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9941",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 258,
+    "pesoDestete": 187,
     "estado": "Activo",
     "comentario": ""
   },
@@ -877,7 +877,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9937",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 260,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -891,7 +891,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91119",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 257,
+    "pesoDestete": 219,
     "estado": "Activo",
     "comentario": ""
   },
@@ -905,7 +905,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9834",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 256,
+    "pesoDestete": 207,
     "estado": "Activo",
     "comentario": ""
   },
@@ -919,7 +919,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "369",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 248,
+    "pesoDestete": 164,
     "estado": "Activo",
     "comentario": ""
   },
@@ -933,7 +933,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0226",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 249,
+    "pesoDestete": 216,
     "estado": "Activo",
     "comentario": ""
   },
@@ -947,7 +947,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0151",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 241,
+    "pesoDestete": 164,
     "estado": "Activo",
     "comentario": ""
   },
@@ -961,7 +961,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0232",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 241,
+    "pesoDestete": 212,
     "estado": "Activo",
     "comentario": ""
   },
@@ -975,7 +975,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "361",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 261,
+    "pesoDestete": 188,
     "estado": "Activo",
     "comentario": ""
   },
@@ -989,7 +989,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0131",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 260,
+    "pesoDestete": 218,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1031,7 +1031,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9927",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 254,
+    "pesoDestete": 233,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1045,7 +1045,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0113",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 252,
+    "pesoDestete": 185,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1059,7 +1059,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91120",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 251,
+    "pesoDestete": 228,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1073,7 +1073,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "4064",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 192,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1087,7 +1087,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91013",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 184,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1101,7 +1101,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "516",
     "padre": "477-375",
     "pesoNacer": 17,
-    "pesoDestete": 241,
+    "pesoDestete": 180,
     "estado": "Activo",
     "comentario": "Gemelo"
   },
@@ -1129,7 +1129,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91017",
     "padre": "298",
     "pesoNacer": 28,
-    "pesoDestete": 238,
+    "pesoDestete": 147,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -1143,7 +1143,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0144",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 238,
+    "pesoDestete": 156,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -1157,7 +1157,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0210",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 238,
+    "pesoDestete": 215,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1171,7 +1171,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0209",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 232,
+    "pesoDestete": 172,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1185,7 +1185,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9910",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 231,
+    "pesoDestete": 233,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1199,7 +1199,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91130",
     "padre": "477-375",
     "pesoNacer": 32,
-    "pesoDestete": 230,
+    "pesoDestete": 220,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1213,7 +1213,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "386",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 299,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1227,7 +1227,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0143",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 299,
+    "pesoDestete": 205,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1241,7 +1241,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9916",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 296,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1255,7 +1255,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91016",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 296,
+    "pesoDestete": 230,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1269,7 +1269,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91102",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 294,
+    "pesoDestete": 182,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1283,7 +1283,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9838",
     "padre": "298",
     "pesoNacer": 28,
-    "pesoDestete": 287,
+    "pesoDestete": 220,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1297,7 +1297,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "322900",
     "padre": "298",
     "pesoNacer": 30,
-    "pesoDestete": 287,
+    "pesoDestete": 241,
     "estado": "Activo",
     "comentario": "Madre descartada"
   },
@@ -1311,7 +1311,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "291",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 215,
+    "pesoDestete": 223,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1325,7 +1325,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0109",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 202,
+    "pesoDestete": 190,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1339,7 +1339,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9543078",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 275,
+    "pesoDestete": 215,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1353,7 +1353,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "062-8",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 274,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1367,7 +1367,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "357",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 273,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1381,7 +1381,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "358",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 270,
+    "pesoDestete": 201,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1395,7 +1395,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91108",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 263,
+    "pesoDestete": 235,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1409,7 +1409,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "149",
     "padre": "Brahman",
     "pesoNacer": 28,
-    "pesoDestete": 260,
+    "pesoDestete": 190,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1423,7 +1423,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91148",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 246,
+    "pesoDestete": 207,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1437,7 +1437,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0154",
     "padre": "298",
     "pesoNacer": 31,
-    "pesoDestete": 244,
+    "pesoDestete": 206,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1451,7 +1451,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "911300",
     "padre": "298",
     "pesoNacer": 31,
-    "pesoDestete": 244,
+    "pesoDestete": 241,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1465,7 +1465,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "670",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 242,
+    "pesoDestete": 170,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1479,7 +1479,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "381",
     "padre": "Brahman",
     "pesoNacer": 28,
-    "pesoDestete": 238,
+    "pesoDestete": 170,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1493,7 +1493,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "3220066",
     "padre": "298",
     "pesoNacer": 28,
-    "pesoDestete": 237,
+    "pesoDestete": 173,
     "estado": "Activo",
     "comentario": "Madre descartada"
   },
@@ -1507,7 +1507,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0212",
     "padre": "298",
     "pesoNacer": 40,
-    "pesoDestete": 236,
+    "pesoDestete": 175,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -1521,7 +1521,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "104-9",
     "padre": "298",
     "pesoNacer": 27,
-    "pesoDestete": 235,
+    "pesoDestete": 223,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1535,7 +1535,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0209",
     "padre": "298",
     "pesoNacer": 28,
-    "pesoDestete": 233,
+    "pesoDestete": 204,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1549,7 +1549,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9849",
     "padre": "298",
     "pesoNacer": 31,
-    "pesoDestete": 233,
+    "pesoDestete": 230,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1563,7 +1563,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "541",
     "padre": "Brahman",
     "pesoNacer": 27,
-    "pesoDestete": 250,
+    "pesoDestete": 195,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1577,7 +1577,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "463",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 246,
+    "pesoDestete": 235,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1591,7 +1591,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "070-8",
     "padre": "298",
     "pesoNacer": 27,
-    "pesoDestete": 299,
+    "pesoDestete": 188,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1605,7 +1605,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91012",
     "padre": "298",
     "pesoNacer": 29,
-    "pesoDestete": 284,
+    "pesoDestete": 222,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1619,7 +1619,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0145",
     "padre": "298",
     "pesoNacer": 29,
-    "pesoDestete": 209,
+    "pesoDestete": 220,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1633,7 +1633,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "109 (Gasmar)",
     "padre": "Desconocido",
     "pesoNacer": 27,
-    "pesoDestete": 287,
+    "pesoDestete": 136,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -1647,7 +1647,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0222",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 266,
+    "pesoDestete": 243,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1661,7 +1661,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9817",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 265,
+    "pesoDestete": 280,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1675,7 +1675,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91124",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 264,
+    "pesoDestete": 213,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1689,7 +1689,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "074-8",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 261,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1703,7 +1703,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "094-8",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 256,
+    "pesoDestete": 217,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1717,7 +1717,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "457",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 256,
+    "pesoDestete": 182,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -1731,7 +1731,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "08-35",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 204,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1745,7 +1745,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "527",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 241,
+    "pesoDestete": 193,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -1759,7 +1759,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "110-9",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 239,
+    "pesoDestete": 217,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1773,7 +1773,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "029",
     "padre": "Profit Maker",
     "pesoNacer": 27,
-    "pesoDestete": 297,
+    "pesoDestete": 147,
     "estado": "Activo",
     "comentario": "IATF Profit Maker. Madre en observación para descarte"
   },
@@ -1787,7 +1787,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9814",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 222,
+    "pesoDestete": 240,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1801,7 +1801,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0161",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 289,
+    "pesoDestete": 197,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1815,7 +1815,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0157",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 289,
+    "pesoDestete": 221,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1829,7 +1829,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "082-8",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 287,
+    "pesoDestete": 207,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1857,7 +1857,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "336",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 284,
+    "pesoDestete": 202,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1871,7 +1871,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9936",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 283,
+    "pesoDestete": 185,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1885,7 +1885,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "233",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 283,
+    "pesoDestete": 190,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1899,7 +1899,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "100-9",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 279,
+    "pesoDestete": 205,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1913,7 +1913,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9932",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 278,
+    "pesoDestete": 205,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1927,7 +1927,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9917",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 276,
+    "pesoDestete": 197,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1941,7 +1941,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "088-8",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 273,
+    "pesoDestete": 220,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1955,7 +1955,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "064-8",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 270,
+    "pesoDestete": 216,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1969,7 +1969,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "414",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 268,
+    "pesoDestete": 227,
     "estado": "Activo",
     "comentario": ""
   },
@@ -1983,7 +1983,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "244",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 267,
+    "pesoDestete": 160,
     "estado": "Activo",
     "comentario": "Madre observacion para descarte"
   },
@@ -1997,7 +1997,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0250",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 267,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2011,7 +2011,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "510",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 264,
+    "pesoDestete": 180,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2025,7 +2025,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9809",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 262,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2039,7 +2039,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91155",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 261,
+    "pesoDestete": 194,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2053,7 +2053,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9820",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 258,
+    "pesoDestete": 220,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2067,7 +2067,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "068-8",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 257,
+    "pesoDestete": 204,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2081,7 +2081,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "391-12-8",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 256,
+    "pesoDestete": 216,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2095,7 +2095,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "992",
     "padre": "876",
     "pesoNacer": 33,
-    "pesoDestete": 256,
+    "pesoDestete": 177,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -2109,7 +2109,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "1147",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 248,
+    "pesoDestete": 222,
     "estado": "Muerto",
     "comentario": "Murio"
   },
@@ -2123,7 +2123,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "167",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 235,
+    "pesoDestete": 164,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2137,7 +2137,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9901",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 235,
+    "pesoDestete": 180,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2151,7 +2151,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "379",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 152,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2165,7 +2165,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "814-876",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 268,
+    "pesoDestete": 132,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -2179,7 +2179,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "1130",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 251,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2193,7 +2193,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "501",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 249,
+    "pesoDestete": 217,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2207,7 +2207,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91207",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 248,
+    "pesoDestete": 208,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2221,7 +2221,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9925",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 242,
+    "pesoDestete": 220,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2235,7 +2235,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "086-8",
     "padre": "509-0",
     "pesoNacer": 29,
-    "pesoDestete": 233,
+    "pesoDestete": 230,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2249,7 +2249,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "080-8",
     "padre": "Soberbio",
     "pesoNacer": 28,
-    "pesoDestete": 244,
+    "pesoDestete": 202,
     "estado": "Activo",
     "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
@@ -2263,7 +2263,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91016",
     "padre": "Soberbio",
     "pesoNacer": 29,
-    "pesoDestete": 243,
+    "pesoDestete": 205,
     "estado": "Activo",
     "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
@@ -2277,7 +2277,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "757",
     "padre": "606-0",
     "pesoNacer": 31,
-    "pesoDestete": 242,
+    "pesoDestete": 188,
     "estado": "Activo",
     "comentario": "Padre brahman de Bohemia. F1 con registro"
   },
@@ -2291,7 +2291,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "4064",
     "padre": "QEUED",
     "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoDestete": 194,
     "estado": "Activo",
     "comentario": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
   },
@@ -2305,7 +2305,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9851",
     "padre": "QEUED",
     "pesoNacer": 28,
-    "pesoDestete": 238,
+    "pesoDestete": 192,
     "estado": "Activo",
     "comentario": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
   },
@@ -2319,7 +2319,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91114",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 272,
+    "pesoDestete": 208,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2333,7 +2333,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9916",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 270,
+    "pesoDestete": 193,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2347,7 +2347,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "361",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 271,
+    "pesoDestete": 192,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2361,7 +2361,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "505",
     "padre": "509-0",
     "pesoNacer": 29,
-    "pesoDestete": 270,
+    "pesoDestete": 207,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2375,7 +2375,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91119",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 263,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2389,7 +2389,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "516",
     "padre": "509-0",
     "pesoNacer": 27,
-    "pesoDestete": 261,
+    "pesoDestete": 163,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2403,7 +2403,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0131",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 259,
+    "pesoDestete": 198,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2417,7 +2417,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "092-8",
     "padre": "Soberbio",
     "pesoNacer": 28,
-    "pesoDestete": 254,
+    "pesoDestete": 224,
     "estado": "Activo",
     "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
@@ -2431,7 +2431,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0151",
     "padre": "546-0",
     "pesoNacer": 27,
-    "pesoDestete": 252,
+    "pesoDestete": 180,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2445,7 +2445,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "104-9",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 246,
+    "pesoDestete": 201,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2459,7 +2459,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0113",
     "padre": "546-0",
     "pesoNacer": 27,
-    "pesoDestete": 241,
+    "pesoDestete": 207,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2473,7 +2473,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9803",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 243,
+    "pesoDestete": 179,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2487,7 +2487,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0210",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 234,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2501,7 +2501,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91024",
     "padre": "546-0",
     "pesoNacer": 29,
-    "pesoDestete": 242,
+    "pesoDestete": 175,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2515,7 +2515,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "062-8",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 237,
+    "pesoDestete": 176,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2529,7 +2529,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0209",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 235,
+    "pesoDestete": 170,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2543,7 +2543,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91013",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoDestete": 183,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2557,7 +2557,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91108",
     "padre": "477-375",
     "pesoNacer": 29,
-    "pesoDestete": 231,
+    "pesoDestete": 172,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2571,7 +2571,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "070-8",
     "padre": "477-375",
     "pesoNacer": 30,
-    "pesoDestete": 220,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2585,7 +2585,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9928",
     "padre": "Spartan",
     "pesoNacer": 28,
-    "pesoDestete": 256,
+    "pesoDestete": 195,
     "estado": "Activo",
     "comentario": "Embrion de la BON 50-1"
   },
@@ -2599,7 +2599,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "40-41",
     "padre": "Spartan",
     "pesoNacer": 30,
-    "pesoDestete": 256,
+    "pesoDestete": 205,
     "estado": "Activo",
     "comentario": "Embrion de la BON 50-1"
   },
@@ -2613,7 +2613,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "950-58",
     "padre": "Spartan",
     "pesoNacer": 30,
-    "pesoDestete": 253,
+    "pesoDestete": 147,
     "estado": "Activo",
     "comentario": "Embrion de la BON 463-56"
   },
@@ -2627,7 +2627,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "291",
     "padre": "Spartan",
     "pesoNacer": 30,
-    "pesoDestete": 251,
+    "pesoDestete": 246,
     "estado": "Activo",
     "comentario": "Embrion de la BON 463-56"
   },
@@ -2641,7 +2641,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9941",
     "padre": "546-0",
     "pesoNacer": 27,
-    "pesoDestete": 242,
+    "pesoDestete": 181,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2669,7 +2669,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "670",
     "padre": "509-0",
     "pesoNacer": 26,
-    "pesoDestete": 307,
+    "pesoDestete": 125,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2683,7 +2683,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "8-41",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 269,
+    "pesoDestete": 168,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2697,7 +2697,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9812",
     "padre": "546-0",
     "pesoNacer": 29,
-    "pesoDestete": 268,
+    "pesoDestete": 187,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2711,7 +2711,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "386",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 255,
+    "pesoDestete": 214,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2725,7 +2725,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9838",
     "padre": "546-0",
     "pesoNacer": 30,
-    "pesoDestete": 248,
+    "pesoDestete": 234,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2739,7 +2739,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "149",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 248,
+    "pesoDestete": 187,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2753,7 +2753,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "12-41",
     "padre": "509-0",
     "pesoNacer": 29,
-    "pesoDestete": 247,
+    "pesoDestete": 196,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2767,7 +2767,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "747",
     "padre": "477-375",
     "pesoNacer": 27,
-    "pesoDestete": 263,
+    "pesoDestete": 165,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -2781,7 +2781,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91023",
     "padre": "546-0",
     "pesoNacer": 30,
-    "pesoDestete": 242,
+    "pesoDestete": 236,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2795,7 +2795,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91148",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 268,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2809,7 +2809,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91012",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 255,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2837,7 +2837,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0221",
     "padre": "Spartan",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 213,
     "estado": "Activo",
     "comentario": "Embrion de la BON 992-375"
   },
@@ -2851,7 +2851,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "2-31",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 234,
+    "pesoDestete": 130,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2865,7 +2865,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91017",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 230,
+    "pesoDestete": 140,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2879,7 +2879,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91125",
     "padre": "546-0",
     "pesoNacer": 29,
-    "pesoDestete": 226,
+    "pesoDestete": 200,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2893,7 +2893,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9814",
     "padre": "Spartan",
     "pesoNacer": 30,
-    "pesoDestete": 235,
+    "pesoDestete": 250,
     "estado": "Activo",
     "comentario": "Embrion de la BON 463-56"
   },
@@ -2907,7 +2907,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91130",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 235,
+    "pesoDestete": 241,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2921,7 +2921,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9910",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 244,
+    "pesoDestete": 223,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2935,7 +2935,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9834",
     "padre": "546-0",
     "pesoNacer": 27,
-    "pesoDestete": 234,
+    "pesoDestete": 211,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2949,7 +2949,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "911144",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 219,
+    "pesoDestete": 166,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2963,7 +2963,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91205",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoDestete": 213,
     "estado": "Activo",
     "comentario": ""
   },
@@ -2977,7 +2977,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "078-8",
     "padre": "Spartan",
     "pesoNacer": 30,
-    "pesoDestete": 244,
+    "pesoDestete": 305,
     "estado": "Activo",
     "comentario": "Embrion de la BON 52-1"
   },
@@ -3005,7 +3005,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9937",
     "padre": "595-1",
     "pesoNacer": 27,
-    "pesoDestete": 233,
+    "pesoDestete": 204,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3019,7 +3019,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91120",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 231,
+    "pesoDestete": 232,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3033,7 +3033,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9901",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 230,
+    "pesoDestete": 190,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3047,7 +3047,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "094-8",
     "padre": "595-1",
     "pesoNacer": 28,
-    "pesoDestete": 229,
+    "pesoDestete": 228,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3089,7 +3089,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91124",
     "padre": "03-2",
     "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoDestete": 204,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3103,7 +3103,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91155",
     "padre": "595-1",
     "pesoNacer": 29,
-    "pesoDestete": 223,
+    "pesoDestete": 249,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3117,7 +3117,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0250",
     "padre": "477-375",
     "pesoNacer": 28,
-    "pesoDestete": 226,
+    "pesoDestete": 255,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3145,7 +3145,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9932",
     "padre": "03-2",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 230,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3159,7 +3159,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0222",
     "padre": "03-2",
     "pesoNacer": 29,
-    "pesoDestete": 244,
+    "pesoDestete": 224,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3173,7 +3173,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "541",
     "padre": "03-2",
     "pesoNacer": 28,
-    "pesoDestete": 239,
+    "pesoDestete": 180,
     "estado": "Activo",
     "comentario": "BON Puro"
   },
@@ -3187,7 +3187,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9817",
     "padre": "03-2",
     "pesoNacer": 29,
-    "pesoDestete": 239,
+    "pesoDestete": 227,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3201,7 +3201,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "463",
     "padre": "03-2",
     "pesoNacer": 29,
-    "pesoDestete": 232,
+    "pesoDestete": 227,
     "estado": "Activo",
     "comentario": "BON Puro"
   },
@@ -3215,7 +3215,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0109",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 230,
+    "pesoDestete": 245,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3243,7 +3243,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9849",
     "padre": "03-2",
     "pesoNacer": 28,
-    "pesoDestete": 224,
+    "pesoDestete": 230,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3271,7 +3271,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0212",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 258,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3285,7 +3285,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "068-8",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 233,
+    "pesoDestete": 195,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3299,7 +3299,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0143",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 242,
+    "pesoDestete": 220,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3313,7 +3313,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "621",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 253,
+    "pesoDestete": 224,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3327,7 +3327,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "074-8",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 259,
+    "pesoDestete": 236,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3341,7 +3341,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "457",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoDestete": 202,
     "estado": "Activo",
     "comentario": "BON Puro"
   },
@@ -3355,7 +3355,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "992",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 239,
+    "pesoDestete": 173,
     "estado": "Activo",
     "comentario": "BON Puro"
   },
@@ -3369,7 +3369,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "48-91",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 239,
+    "pesoDestete": 179,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3397,7 +3397,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9809",
     "padre": "595-1",
     "pesoNacer": 28,
-    "pesoDestete": 236,
+    "pesoDestete": 222,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3411,7 +3411,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "082-8",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 249,
+    "pesoDestete": 202,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3425,7 +3425,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "336",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 235,
+    "pesoDestete": 177,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3439,7 +3439,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "527",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 248,
+    "pesoDestete": 223,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -3453,7 +3453,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "110-9",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 246,
+    "pesoDestete": 250,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3467,7 +3467,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0232",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 245,
+    "pesoDestete": 225,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3509,7 +3509,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "064-8",
     "padre": "854-476",
     "pesoNacer": 27,
-    "pesoDestete": 244,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3523,7 +3523,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "948",
     "padre": "Desconocido",
     "pesoNacer": 32,
-    "pesoDestete": 237,
+    "pesoDestete": 236,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3537,7 +3537,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0207",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 235,
+    "pesoDestete": 218,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3551,7 +3551,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9917",
     "padre": "595-1",
     "pesoNacer": 28,
-    "pesoDestete": 264,
+    "pesoDestete": 111,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3579,7 +3579,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "088-8",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 252,
+    "pesoDestete": 215,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3593,7 +3593,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "58-111",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 251,
+    "pesoDestete": 115,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3621,7 +3621,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "36-41",
     "padre": "546-0",
     "pesoNacer": 29,
-    "pesoDestete": 250,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3663,7 +3663,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "251",
     "padre": "546-0",
     "pesoNacer": 30,
-    "pesoDestete": 238,
+    "pesoDestete": 233,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3677,7 +3677,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "46-81",
     "padre": "854-476",
     "pesoNacer": 27,
-    "pesoDestete": 242,
+    "pesoDestete": 160,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3705,7 +3705,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9925",
     "padre": "546-0",
     "pesoNacer": 29,
-    "pesoDestete": 262,
+    "pesoDestete": 265,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3719,7 +3719,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "64",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 249,
+    "pesoDestete": 201,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3747,7 +3747,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "58",
     "padre": "854-476",
     "pesoNacer": 30,
-    "pesoDestete": 238,
+    "pesoDestete": 234,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3775,7 +3775,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "100-9",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 212,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3789,7 +3789,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "755",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 244,
+    "pesoDestete": 180,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -3803,7 +3803,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "54-111",
     "padre": "Brave",
     "pesoNacer": 28,
-    "pesoDestete": 259,
+    "pesoDestete": 212,
     "estado": "Activo",
     "comentario": "Embrion de la BON 754"
   },
@@ -3817,7 +3817,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9936",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 250,
+    "pesoDestete": 170,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3831,7 +3831,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "4064",
     "padre": "Brave",
     "pesoNacer": 29,
-    "pesoDestete": 256,
+    "pesoDestete": 219,
     "estado": "Activo",
     "comentario": "Embrion de la BON 754"
   },
@@ -3845,7 +3845,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91114",
     "padre": "Brave",
     "pesoNacer": 28,
-    "pesoDestete": 255,
+    "pesoDestete": 245,
     "estado": "Activo",
     "comentario": "Embrion de la BON 754"
   },
@@ -3859,7 +3859,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "110",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 219,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3873,7 +3873,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "391-12-8",
     "padre": "595-1",
     "pesoNacer": 28,
-    "pesoDestete": 253,
+    "pesoDestete": 240,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3887,7 +3887,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "26",
     "padre": "854-476",
     "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoDestete": 192,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3901,7 +3901,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0151",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 249,
+    "pesoDestete": 208,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3915,7 +3915,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91119",
     "padre": "Brave",
     "pesoNacer": 29,
-    "pesoDestete": 244,
+    "pesoDestete": 172,
     "estado": "Activo",
     "comentario": "Embrion de la BON 757-0"
   },
@@ -3929,7 +3929,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0161",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 238,
+    "pesoDestete": 165,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3943,7 +3943,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "814-876",
     "padre": "854-476",
     "pesoNacer": 29,
-    "pesoDestete": 236,
+    "pesoDestete": 190,
     "estado": "Activo",
     "comentario": "BON puro"
   },
@@ -3957,7 +3957,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "149",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 235,
+    "pesoDestete": 179,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3971,7 +3971,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91016",
     "padre": "595-1",
     "pesoNacer": 28,
-    "pesoDestete": 258,
+    "pesoDestete": 214,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3985,7 +3985,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "080-8",
     "padre": "509-0",
     "pesoNacer": 29,
-    "pesoDestete": 251,
+    "pesoDestete": 243,
     "estado": "Activo",
     "comentario": ""
   },
@@ -3999,7 +3999,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "501",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 251,
+    "pesoDestete": 224,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4013,7 +4013,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "20",
     "padre": "854-476",
     "pesoNacer": 30,
-    "pesoDestete": 249,
+    "pesoDestete": 203,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4027,7 +4027,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "16",
     "padre": "854-476",
     "pesoNacer": 30,
-    "pesoDestete": 249,
+    "pesoDestete": 248,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4041,7 +4041,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91023",
     "padre": "509-0",
     "pesoNacer": 29,
-    "pesoDestete": 248,
+    "pesoDestete": 222,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4055,7 +4055,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "0210",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 247,
+    "pesoDestete": 230,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4069,7 +4069,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "1147",
     "padre": "509-0",
     "pesoNacer": 29,
-    "pesoDestete": 249,
+    "pesoDestete": 267,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4083,7 +4083,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91013",
     "padre": "546-0",
     "pesoNacer": 28,
-    "pesoDestete": 226,
+    "pesoDestete": 189,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4111,7 +4111,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "9812",
     "padre": "595-1",
     "pesoNacer": 28,
-    "pesoDestete": 239,
+    "pesoDestete": 187,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4125,7 +4125,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "91024",
     "padre": "595-1",
     "pesoNacer": 29,
-    "pesoDestete": 239,
+    "pesoDestete": 197,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4139,7 +4139,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "8-4",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 238,
+    "pesoDestete": 168,
     "estado": "Activo",
     "comentario": ""
   },
@@ -4153,7 +4153,7 @@ export const NACIMIENTOS_LA_VEGA = [
     "madre": "086-8",
     "padre": "509-0",
     "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoDestete": 210,
     "estado": "Activo",
     "comentario": ""
   },
