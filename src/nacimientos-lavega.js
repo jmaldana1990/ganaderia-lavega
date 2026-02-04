@@ -1,3 +1,4 @@
+// Nacimientos Ganadería La Vega 2022-2025
 export const NACIMIENTOS_LA_VEGA = [
   {
     "id": 1,
@@ -8,14 +9,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "527",
     "padre": "M444-18",
-    "pesoNacer": 26,
-    "pesoDestete": 193,
+    "pesoNacer": 26.0,
+    "pesoDestete": 193.0,
     "fechaDestete": "2022-10-14",
     "añoDestete": 2022,
-    "edadDestete": 281,
-    "grDiaVida": 594.31,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 2,
@@ -26,14 +26,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "308",
     "padre": "298",
-    "pesoNacer": 24,
-    "pesoDestete": 170,
+    "pesoNacer": 24.0,
+    "pesoDestete": 170.0,
     "fechaDestete": "2022-10-14",
     "añoDestete": 2022,
-    "edadDestete": 243,
-    "grDiaVida": 600.82,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 3,
@@ -44,14 +43,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "322006613",
     "padre": "477-375",
-    "pesoNacer": 18,
+    "pesoNacer": 18.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 4,
@@ -62,14 +60,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "158-04-7",
     "padre": "Desconocido",
-    "pesoNacer": 22,
+    "pesoNacer": 22.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 5,
@@ -80,14 +77,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "200",
     "padre": "Desconocido",
-    "pesoNacer": 18,
+    "pesoNacer": 18.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 6,
@@ -98,14 +94,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "233-02-16",
     "padre": "298",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
-    "estado": "Sociedad",
-    "comentario": "Sociedad con Armando"
+    "estado": "Vendido",
+    "finca": "La Vega",
+    "comentarios": "Sociedad con Armando"
   },
   {
     "id": 7,
@@ -116,14 +111,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "23-11-15",
     "padre": "Desconocido",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 8,
@@ -134,14 +128,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "21095",
     "padre": "298",
-    "pesoNacer": 30,
+    "pesoNacer": 30.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 9,
@@ -152,14 +145,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "193-05-7",
     "padre": "Desconocido",
-    "pesoNacer": 18,
+    "pesoNacer": 18.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 10,
@@ -170,14 +162,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "184-05-7",
     "padre": "Desconocido",
-    "pesoNacer": 21,
+    "pesoNacer": 21.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 11,
@@ -188,14 +179,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "175-01-16",
     "padre": "Desconocido",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 12,
@@ -206,14 +196,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "092-8",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 205,
+    "pesoNacer": 29.0,
+    "pesoDestete": 205.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 254,
-    "grDiaVida": 692.91,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 13,
@@ -224,14 +213,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "110-9",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 206,
+    "pesoNacer": 30.0,
+    "pesoDestete": 206.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 252,
-    "grDiaVida": 698.41,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 14,
@@ -242,14 +230,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9936",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 185,
+    "pesoNacer": 27.0,
+    "pesoDestete": 185.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 251,
-    "grDiaVida": 629.48,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 15,
@@ -260,14 +247,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "078-8",
     "padre": "477-375",
-    "pesoNacer": 32,
-    "pesoDestete": 235,
+    "pesoNacer": 32.0,
+    "pesoDestete": 235.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 249,
-    "grDiaVida": 815.26,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 16,
@@ -278,14 +264,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91024",
     "padre": "477-375",
-    "pesoNacer": 22,
+    "pesoNacer": 22.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Gemelo - Se vendio para carne, no creció"
+    "finca": "La Vega",
+    "comentarios": "Gemelo - Se vendio para carne, no creció"
   },
   {
     "id": 17,
@@ -296,14 +281,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91024",
     "padre": "477-375",
-    "pesoNacer": 22,
+    "pesoNacer": 22.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Gemelo - Murio"
+    "finca": "La Vega",
+    "comentarios": "Gemelo - Murio"
   },
   {
     "id": 18,
@@ -314,14 +298,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "391-12-8",
     "padre": "477-375",
-    "pesoNacer": 32,
-    "pesoDestete": 232,
+    "pesoNacer": 32.0,
+    "pesoDestete": 232.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 249,
-    "grDiaVida": 803.21,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 19,
@@ -332,14 +315,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "08-35",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 150,
+    "pesoNacer": 30.0,
+    "pesoDestete": 150.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 247,
-    "grDiaVida": 485.83,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 20,
@@ -350,14 +332,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0144",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 170,
+    "pesoNacer": 28.0,
+    "pesoDestete": 170.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 247,
-    "grDiaVida": 574.9,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 21,
@@ -368,14 +349,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "088-8",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 192,
+    "pesoNacer": 28.0,
+    "pesoDestete": 192.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 246,
-    "grDiaVida": 666.67,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 22,
@@ -386,14 +366,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9820",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 198,
+    "pesoNacer": 30.0,
+    "pesoDestete": 198.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 244,
-    "grDiaVida": 688.52,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 23,
@@ -404,14 +383,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1130",
     "padre": "477-375",
-    "pesoNacer": 32,
-    "pesoDestete": 216,
+    "pesoNacer": 32.0,
+    "pesoDestete": 216.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 241,
-    "grDiaVida": 763.49,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 24,
@@ -422,14 +400,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9925",
     "padre": "477-375",
-    "pesoNacer": 32,
-    "pesoDestete": 211,
+    "pesoNacer": 32.0,
+    "pesoDestete": 211.0,
     "fechaDestete": "2023-01-11",
     "añoDestete": 2023,
-    "edadDestete": 241,
-    "grDiaVida": 742.74,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 25,
@@ -440,14 +417,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "068-8",
     "padre": "477-375",
-    "pesoNacer": 32,
-    "pesoDestete": 222,
+    "pesoNacer": 32.0,
+    "pesoDestete": 222.0,
     "fechaDestete": "2023-02-03",
     "añoDestete": 2023,
-    "edadDestete": 262,
-    "grDiaVida": 725.19,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 26,
@@ -458,14 +434,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "094-8",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 200,
+    "pesoNacer": 28.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2023-02-03",
     "añoDestete": 2023,
-    "edadDestete": 261,
-    "grDiaVida": 659.0,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 27,
@@ -476,14 +451,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9814",
     "padre": "477-375",
-    "pesoNacer": 26,
+    "pesoNacer": 26.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 28,
@@ -494,14 +468,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "100-9",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 200,
+    "pesoNacer": 28.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2023-02-03",
     "añoDestete": 2023,
-    "edadDestete": 256,
-    "grDiaVida": 671.88,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 29,
@@ -512,14 +485,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9932",
     "padre": "477-375",
-    "pesoNacer": 32,
-    "pesoDestete": 184,
+    "pesoNacer": 32.0,
+    "pesoDestete": 184.0,
     "fechaDestete": "2023-02-03",
     "añoDestete": 2023,
-    "edadDestete": 251,
-    "grDiaVida": 605.58,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 30,
@@ -530,14 +502,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1147",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 200,
+    "pesoNacer": 30.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2023-02-03",
     "añoDestete": 2023,
-    "edadDestete": 239,
-    "grDiaVida": 711.3,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 31,
@@ -548,14 +519,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "082-8",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 193,
+    "pesoNacer": 30.0,
+    "pesoDestete": 193.0,
     "fechaDestete": "2023-02-03",
     "añoDestete": 2023,
-    "edadDestete": 238,
-    "grDiaVida": 684.87,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 32,
@@ -566,14 +536,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "074-8",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 218,
+    "pesoNacer": 28.0,
+    "pesoDestete": 218.0,
     "fechaDestete": "2023-02-03",
     "añoDestete": 2023,
-    "edadDestete": 235,
-    "grDiaVida": 808.51,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 33,
@@ -584,14 +553,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "064-8",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 198,
+    "pesoNacer": 28.0,
+    "pesoDestete": 198.0,
     "fechaDestete": "2023-02-24",
     "añoDestete": 2023,
-    "edadDestete": 255,
-    "grDiaVida": 666.67,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 34,
@@ -602,14 +570,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "320",
     "padre": "298",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
-    "estado": "Sociedad",
-    "comentario": "Sociedad con Armando"
+    "estado": "Vendido",
+    "finca": "La Vega",
+    "comentarios": "Sociedad con Armando"
   },
   {
     "id": 35,
@@ -620,14 +587,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "621",
     "padre": "298",
-    "pesoNacer": 30,
-    "pesoDestete": 184,
+    "pesoNacer": 30.0,
+    "pesoDestete": 184.0,
     "fechaDestete": "2023-03-03",
     "añoDestete": 2023,
-    "edadDestete": 255,
-    "grDiaVida": 603.92,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 36,
@@ -638,14 +604,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "379",
     "padre": "477-375",
-    "pesoNacer": 21,
-    "pesoDestete": 134,
+    "pesoNacer": 21.0,
+    "pesoDestete": 134.0,
     "fechaDestete": "2023-03-03",
     "añoDestete": 2023,
-    "edadDestete": 255,
-    "grDiaVida": 443.14,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 37,
@@ -656,14 +621,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "77",
     "padre": "477-375",
-    "pesoNacer": 32,
-    "pesoDestete": 187,
+    "pesoNacer": 32.0,
+    "pesoDestete": 187.0,
     "fechaDestete": "2023-03-29",
     "añoDestete": 2023,
-    "edadDestete": 280,
-    "grDiaVida": 553.57,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 38,
@@ -674,14 +638,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "553-9",
     "padre": "298",
-    "pesoNacer": 26,
+    "pesoNacer": 26.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
-    "estado": "Sociedad",
-    "comentario": "Sociedad con Armando"
+    "estado": "Vendido",
+    "finca": "La Vega",
+    "comentarios": "Sociedad con Armando"
   },
   {
     "id": 39,
@@ -692,14 +655,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "284-11-7",
     "padre": "298",
-    "pesoNacer": 30,
+    "pesoNacer": 30.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
-    "estado": "Sociedad",
-    "comentario": "Sociedad con Armando"
+    "estado": "Vendido",
+    "finca": "La Vega",
+    "comentarios": "Sociedad con Armando"
   },
   {
     "id": 40,
@@ -710,14 +672,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9917",
     "padre": "298",
-    "pesoNacer": 30,
-    "pesoDestete": 168,
+    "pesoNacer": 30.0,
+    "pesoDestete": 168.0,
     "fechaDestete": "2023-03-17",
     "añoDestete": 2023,
-    "edadDestete": 263,
-    "grDiaVida": 524.71,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 41,
@@ -728,14 +689,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "348-04-8",
     "padre": "298",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
-    "estado": "Sociedad",
-    "comentario": "Sociedad con Armando"
+    "estado": "Vendido",
+    "finca": "La Vega",
+    "comentarios": "Sociedad con Armando"
   },
   {
     "id": 42,
@@ -746,14 +706,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "405",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 115,
+    "pesoNacer": 27.0,
+    "pesoDestete": 115.0,
     "fechaDestete": "2023-03-29",
     "añoDestete": 2023,
-    "edadDestete": 269,
-    "grDiaVida": 327.14,
     "estado": "Activo",
-    "comentario": "Descartar madre"
+    "finca": "La Vega",
+    "comentarios": "Descartar madre"
   },
   {
     "id": 43,
@@ -764,14 +723,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91114",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 147,
+    "pesoNacer": 30.0,
+    "pesoDestete": 147.0,
     "fechaDestete": "2023-03-29",
     "añoDestete": 2023,
-    "edadDestete": 268,
-    "grDiaVida": 436.57,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 44,
@@ -782,14 +740,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "412",
     "padre": "477-375",
-    "pesoNacer": 30,
+    "pesoNacer": 30.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 45,
@@ -800,14 +757,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "505",
     "padre": "Desconocido",
-    "pesoNacer": 28,
-    "pesoDestete": 205,
+    "pesoNacer": 28.0,
+    "pesoDestete": 205.0,
     "fechaDestete": "2023-03-29",
     "añoDestete": 2023,
-    "edadDestete": 258,
-    "grDiaVida": 686.05,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 46,
@@ -818,14 +774,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "080-8",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 185,
+    "pesoNacer": 28.0,
+    "pesoDestete": 185.0,
     "fechaDestete": "2023-03-29",
     "añoDestete": 2023,
-    "edadDestete": 251,
-    "grDiaVida": 625.5,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 47,
@@ -836,14 +791,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9803",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 154,
+    "pesoNacer": 27.0,
+    "pesoDestete": 154.0,
     "fechaDestete": "2023-03-29",
     "añoDestete": 2023,
-    "edadDestete": 249,
-    "grDiaVida": 510.04,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 48,
@@ -854,14 +808,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "457",
     "padre": "298",
-    "pesoNacer": 30,
+    "pesoNacer": 30.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
-    "estado": "Sociedad",
-    "comentario": "Sociedad con Armando"
+    "estado": "Vendido",
+    "finca": "La Vega",
+    "comentarios": "Sociedad con Armando"
   },
   {
     "id": 49,
@@ -872,14 +825,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "351",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 169,
+    "pesoNacer": 27.0,
+    "pesoDestete": 169.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 257,
-    "grDiaVida": 552.53,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 50,
@@ -890,14 +842,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "801-04-12",
     "padre": "477-375",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
-    "estado": "Sociedad",
-    "comentario": "Sociedad con Armando"
+    "estado": "Vendido",
+    "finca": "La Vega",
+    "comentarios": "Sociedad con Armando"
   },
   {
     "id": 51,
@@ -908,14 +859,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9812",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 144,
+    "pesoNacer": 29.0,
+    "pesoDestete": 144.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 256,
-    "grDiaVida": 449.22,
     "estado": "Activo",
-    "comentario": "Hembra coja"
+    "finca": "La Vega",
+    "comentarios": "Hembra coja"
   },
   {
     "id": 52,
@@ -926,14 +876,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9901",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 177,
+    "pesoNacer": 28.0,
+    "pesoDestete": 177.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 255,
-    "grDiaVida": 584.31,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 53,
@@ -944,14 +893,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91138",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 193,
+    "pesoNacer": 28.0,
+    "pesoDestete": 193.0,
     "fechaDestete": "2023-04-22",
     "añoDestete": 2023,
-    "edadDestete": 256,
-    "grDiaVida": 644.53,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 54,
@@ -962,14 +910,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9928",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 148,
+    "pesoNacer": 28.0,
+    "pesoDestete": 148.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 251,
-    "grDiaVida": 478.09,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 55,
@@ -980,14 +927,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "911144",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 159,
+    "pesoNacer": 30.0,
+    "pesoDestete": 159.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 250,
-    "grDiaVida": 516.0,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 56,
@@ -998,14 +944,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91023",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 183,
+    "pesoNacer": 29.0,
+    "pesoDestete": 183.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 249,
-    "grDiaVida": 618.47,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 57,
@@ -1016,14 +961,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91125",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 203,
+    "pesoNacer": 30.0,
+    "pesoDestete": 203.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 248,
-    "grDiaVida": 697.58,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 58,
@@ -1034,14 +978,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9839",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 185,
+    "pesoNacer": 30.0,
+    "pesoDestete": 185.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 248,
-    "grDiaVida": 625.0,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 59,
@@ -1052,14 +995,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91155",
     "padre": "477-375",
-    "pesoNacer": 31,
-    "pesoDestete": 215,
+    "pesoNacer": 31.0,
+    "pesoDestete": 215.0,
     "fechaDestete": "2023-04-19",
     "añoDestete": 2023,
-    "edadDestete": 245,
-    "grDiaVida": 751.02,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 60,
@@ -1070,14 +1012,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "304",
     "padre": "477-375",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
-    "estado": "Sociedad",
-    "comentario": "Sociedad con Armando"
+    "estado": "Vendido",
+    "finca": "La Vega",
+    "comentarios": "Sociedad con Armando"
   },
   {
     "id": 61,
@@ -1088,14 +1029,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91205",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 204,
+    "pesoNacer": 29.0,
+    "pesoDestete": 204.0,
     "fechaDestete": "2023-06-05",
     "añoDestete": 2023,
-    "edadDestete": 265,
-    "grDiaVida": 660.38,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 62,
@@ -1106,14 +1046,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9941",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 187,
+    "pesoNacer": 30.0,
+    "pesoDestete": 187.0,
     "fechaDestete": "2023-06-23",
     "añoDestete": 2023,
-    "edadDestete": 258,
-    "grDiaVida": 608.53,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 63,
@@ -1124,14 +1063,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9937",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 210,
+    "pesoNacer": 30.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2023-07-29",
     "añoDestete": 2023,
-    "edadDestete": 260,
-    "grDiaVida": 692.31,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 64,
@@ -1142,14 +1080,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91119",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 219,
+    "pesoNacer": 30.0,
+    "pesoDestete": 219.0,
     "fechaDestete": "2023-07-29",
     "añoDestete": 2023,
-    "edadDestete": 257,
-    "grDiaVida": 735.41,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 65,
@@ -1160,14 +1097,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9834",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 207,
+    "pesoNacer": 30.0,
+    "pesoDestete": 207.0,
     "fechaDestete": "2023-07-29",
     "añoDestete": 2023,
-    "edadDestete": 256,
-    "grDiaVida": 691.41,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 66,
@@ -1178,14 +1114,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "369",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 164,
+    "pesoNacer": 29.0,
+    "pesoDestete": 164.0,
     "fechaDestete": "2023-07-26",
     "añoDestete": 2023,
-    "edadDestete": 248,
-    "grDiaVida": 544.35,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 67,
@@ -1196,14 +1131,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0226",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 216,
+    "pesoNacer": 30.0,
+    "pesoDestete": 216.0,
     "fechaDestete": "2023-07-29",
     "añoDestete": 2023,
-    "edadDestete": 249,
-    "grDiaVida": 746.99,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 68,
@@ -1214,14 +1148,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0151",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 164,
+    "pesoNacer": 27.0,
+    "pesoDestete": 164.0,
     "fechaDestete": "2023-07-26",
     "añoDestete": 2023,
-    "edadDestete": 241,
-    "grDiaVida": 568.46,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 69,
@@ -1232,14 +1165,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0232",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 212,
+    "pesoNacer": 30.0,
+    "pesoDestete": 212.0,
     "fechaDestete": "2023-07-26",
     "añoDestete": 2023,
-    "edadDestete": 241,
-    "grDiaVida": 755.19,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 70,
@@ -1250,14 +1182,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "361",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 188,
+    "pesoNacer": 27.0,
+    "pesoDestete": 188.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 261,
-    "grDiaVida": 616.86,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 71,
@@ -1268,14 +1199,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0131",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 218,
+    "pesoNacer": 28.0,
+    "pesoDestete": 218.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 260,
-    "grDiaVida": 730.77,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 72,
@@ -1286,14 +1216,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "501",
     "padre": "477-375",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 73,
@@ -1304,14 +1233,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9851",
     "padre": "477-375",
-    "pesoNacer": 30,
+    "pesoNacer": 30.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 74,
@@ -1322,14 +1250,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9927",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 233,
+    "pesoNacer": 28.0,
+    "pesoDestete": 233.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 254,
-    "grDiaVida": 807.09,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 75,
@@ -1340,14 +1267,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0113",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 185,
+    "pesoNacer": 28.0,
+    "pesoDestete": 185.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 252,
-    "grDiaVida": 623.02,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 76,
@@ -1358,14 +1284,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91120",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 228,
+    "pesoNacer": 28.0,
+    "pesoDestete": 228.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 251,
-    "grDiaVida": 796.81,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 77,
@@ -1376,14 +1301,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "4064",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 192,
+    "pesoNacer": 28.0,
+    "pesoDestete": 192.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 247,
-    "grDiaVida": 663.97,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 78,
@@ -1394,14 +1318,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91013",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 184,
+    "pesoNacer": 28.0,
+    "pesoDestete": 184.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 247,
-    "grDiaVida": 631.58,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 79,
@@ -1412,14 +1335,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "516",
     "padre": "477-375",
-    "pesoNacer": 17,
-    "pesoDestete": 180,
+    "pesoNacer": 17.0,
+    "pesoDestete": 180.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 241,
-    "grDiaVida": 676.35,
     "estado": "Activo",
-    "comentario": "Gemelo"
+    "finca": "La Vega",
+    "comentarios": "Gemelo"
   },
   {
     "id": 80,
@@ -1430,14 +1352,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "516",
     "padre": "477-375",
-    "pesoNacer": 17,
+    "pesoNacer": 17.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Gemelo - Murio"
+    "finca": "La Vega",
+    "comentarios": "Gemelo - Murio"
   },
   {
     "id": 81,
@@ -1448,14 +1369,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91017",
     "padre": "298",
-    "pesoNacer": 28,
-    "pesoDestete": 147,
+    "pesoNacer": 28.0,
+    "pesoDestete": 147.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 238,
-    "grDiaVida": 500.0,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 82,
@@ -1466,14 +1386,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0144",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 156,
+    "pesoNacer": 28.0,
+    "pesoDestete": 156.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 238,
-    "grDiaVida": 537.82,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 83,
@@ -1484,14 +1403,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0210",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 215,
+    "pesoNacer": 30.0,
+    "pesoDestete": 215.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 238,
-    "grDiaVida": 777.31,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 84,
@@ -1502,14 +1420,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0209",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 172,
+    "pesoNacer": 30.0,
+    "pesoDestete": 172.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 232,
-    "grDiaVida": 612.07,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 85,
@@ -1520,14 +1437,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9910",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 233,
+    "pesoNacer": 28.0,
+    "pesoDestete": 233.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 231,
-    "grDiaVida": 887.45,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 86,
@@ -1538,14 +1454,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91130",
     "padre": "477-375",
-    "pesoNacer": 32,
-    "pesoDestete": 220,
+    "pesoNacer": 32.0,
+    "pesoDestete": 220.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 230,
-    "grDiaVida": 817.39,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 87,
@@ -1556,14 +1471,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "386",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 200,
+    "pesoNacer": 27.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 299,
-    "grDiaVida": 578.6,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 88,
@@ -1574,14 +1488,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0143",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 205,
+    "pesoNacer": 30.0,
+    "pesoDestete": 205.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 299,
-    "grDiaVida": 585.28,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 89,
@@ -1592,14 +1505,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9916",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 200,
+    "pesoNacer": 30.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 296,
-    "grDiaVida": 574.32,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 90,
@@ -1610,14 +1522,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91016",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 230,
+    "pesoNacer": 30.0,
+    "pesoDestete": 230.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 296,
-    "grDiaVida": 675.68,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 91,
@@ -1628,14 +1539,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91102",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 182,
+    "pesoNacer": 28.0,
+    "pesoDestete": 182.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 294,
-    "grDiaVida": 523.81,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 92,
@@ -1646,14 +1556,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9838",
     "padre": "298",
-    "pesoNacer": 28,
-    "pesoDestete": 220,
+    "pesoNacer": 28.0,
+    "pesoDestete": 220.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 287,
-    "grDiaVida": 668.99,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 93,
@@ -1664,14 +1573,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "322900",
     "padre": "298",
-    "pesoNacer": 30,
-    "pesoDestete": 241,
+    "pesoNacer": 30.0,
+    "pesoDestete": 241.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 287,
-    "grDiaVida": 735.19,
     "estado": "Activo",
-    "comentario": "Madre descartada"
+    "finca": "La Vega",
+    "comentarios": "Madre descartada"
   },
   {
     "id": 94,
@@ -1682,14 +1590,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "291",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 223,
+    "pesoNacer": 30.0,
+    "pesoDestete": 223.0,
     "fechaDestete": "2023-08-26",
     "añoDestete": 2023,
-    "edadDestete": 215,
-    "grDiaVida": 897.67,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 95,
@@ -1700,14 +1607,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0109",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 190,
+    "pesoNacer": 28.0,
+    "pesoDestete": 190.0,
     "fechaDestete": "2023-08-18",
     "añoDestete": 2023,
-    "edadDestete": 202,
-    "grDiaVida": 801.98,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 96,
@@ -1718,14 +1624,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9543078",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 215,
+    "pesoNacer": 29.0,
+    "pesoDestete": 215.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 275,
-    "grDiaVida": 676.36,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 97,
@@ -1736,14 +1641,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "062-8",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 200,
+    "pesoNacer": 29.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 274,
-    "grDiaVida": 624.09,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 98,
@@ -1754,14 +1658,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "357",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 210,
+    "pesoNacer": 30.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 273,
-    "grDiaVida": 659.34,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 99,
@@ -1772,14 +1675,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "358",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 201,
+    "pesoNacer": 28.0,
+    "pesoDestete": 201.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 270,
-    "grDiaVida": 640.74,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 100,
@@ -1790,14 +1692,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91108",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 235,
+    "pesoNacer": 30.0,
+    "pesoDestete": 235.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 263,
-    "grDiaVida": 779.47,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 101,
@@ -1808,14 +1709,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "149",
     "padre": "Brahman",
-    "pesoNacer": 28,
-    "pesoDestete": 190,
+    "pesoNacer": 28.0,
+    "pesoDestete": 190.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 260,
-    "grDiaVida": 623.08,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 102,
@@ -1826,14 +1726,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91148",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 207,
+    "pesoNacer": 29.0,
+    "pesoDestete": 207.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 246,
-    "grDiaVida": 723.58,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 103,
@@ -1844,14 +1743,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0154",
     "padre": "298",
-    "pesoNacer": 31,
-    "pesoDestete": 206,
+    "pesoNacer": 31.0,
+    "pesoDestete": 206.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 244,
-    "grDiaVida": 717.21,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 104,
@@ -1862,14 +1760,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "911300",
     "padre": "298",
-    "pesoNacer": 31,
-    "pesoDestete": 241,
+    "pesoNacer": 31.0,
+    "pesoDestete": 241.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 244,
-    "grDiaVida": 860.66,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 105,
@@ -1880,14 +1777,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "670",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 170,
+    "pesoNacer": 30.0,
+    "pesoDestete": 170.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 242,
-    "grDiaVida": 578.51,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 106,
@@ -1898,14 +1794,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "381",
     "padre": "Brahman",
-    "pesoNacer": 28,
-    "pesoDestete": 170,
+    "pesoNacer": 28.0,
+    "pesoDestete": 170.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 238,
-    "grDiaVida": 596.64,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 107,
@@ -1916,14 +1811,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "3220066",
     "padre": "298",
-    "pesoNacer": 28,
-    "pesoDestete": 173,
+    "pesoNacer": 28.0,
+    "pesoDestete": 173.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 237,
-    "grDiaVida": 611.81,
     "estado": "Activo",
-    "comentario": "Madre descartada"
+    "finca": "La Vega",
+    "comentarios": "Madre descartada"
   },
   {
     "id": 108,
@@ -1934,14 +1828,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0212",
     "padre": "298",
-    "pesoNacer": 40,
-    "pesoDestete": 175,
+    "pesoNacer": 40.0,
+    "pesoDestete": 175.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 236,
-    "grDiaVida": 572.03,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 109,
@@ -1952,14 +1845,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "104-9",
     "padre": "298",
-    "pesoNacer": 27,
-    "pesoDestete": 223,
+    "pesoNacer": 27.0,
+    "pesoDestete": 223.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 235,
-    "grDiaVida": 834.04,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 110,
@@ -1970,14 +1862,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0209",
     "padre": "298",
-    "pesoNacer": 28,
-    "pesoDestete": 204,
+    "pesoNacer": 28.0,
+    "pesoDestete": 204.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 233,
-    "grDiaVida": 755.36,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 111,
@@ -1988,14 +1879,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9849",
     "padre": "298",
-    "pesoNacer": 31,
-    "pesoDestete": 230,
+    "pesoNacer": 31.0,
+    "pesoDestete": 230.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 233,
-    "grDiaVida": 854.08,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 112,
@@ -2006,14 +1896,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "541",
     "padre": "Brahman",
-    "pesoNacer": 27,
-    "pesoDestete": 195,
+    "pesoNacer": 27.0,
+    "pesoDestete": 195.0,
     "fechaDestete": "2023-11-17",
     "añoDestete": 2023,
-    "edadDestete": 250,
-    "grDiaVida": 672.0,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 113,
@@ -2024,14 +1913,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "463",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 235,
+    "pesoNacer": 28.0,
+    "pesoDestete": 235.0,
     "fechaDestete": "2023-11-17",
     "añoDestete": 2023,
-    "edadDestete": 246,
-    "grDiaVida": 841.46,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 114,
@@ -2042,14 +1930,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "070-8",
     "padre": "298",
-    "pesoNacer": 27,
-    "pesoDestete": 188,
+    "pesoNacer": 27.0,
+    "pesoDestete": 188.0,
     "fechaDestete": "2024-01-13",
     "añoDestete": 2024,
-    "edadDestete": 299,
-    "grDiaVida": 538.46,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 115,
@@ -2060,14 +1947,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91012",
     "padre": "298",
-    "pesoNacer": 29,
-    "pesoDestete": 222,
+    "pesoNacer": 29.0,
+    "pesoDestete": 222.0,
     "fechaDestete": "2024-01-13",
     "añoDestete": 2024,
-    "edadDestete": 284,
-    "grDiaVida": 679.58,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 116,
@@ -2078,14 +1964,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0145",
     "padre": "298",
-    "pesoNacer": 29,
-    "pesoDestete": 220,
+    "pesoNacer": 29.0,
+    "pesoDestete": 220.0,
     "fechaDestete": "2023-10-30",
     "añoDestete": 2023,
-    "edadDestete": 209,
-    "grDiaVida": 913.88,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 117,
@@ -2096,14 +1981,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "109 (Gasmar)",
     "padre": "Desconocido",
-    "pesoNacer": 27,
-    "pesoDestete": 136,
+    "pesoNacer": 27.0,
+    "pesoDestete": 136.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 287,
-    "grDiaVida": 379.79,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 118,
@@ -2114,14 +1998,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0222",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 243,
+    "pesoNacer": 28.0,
+    "pesoDestete": 243.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 266,
-    "grDiaVida": 808.27,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 119,
@@ -2132,14 +2015,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9817",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 280,
+    "pesoNacer": 28.0,
+    "pesoDestete": 280.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 265,
-    "grDiaVida": 950.94,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 120,
@@ -2150,14 +2032,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91124",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 213,
+    "pesoNacer": 27.0,
+    "pesoDestete": 213.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 264,
-    "grDiaVida": 704.55,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 121,
@@ -2168,14 +2049,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "074-8",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 210,
+    "pesoNacer": 27.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 261,
-    "grDiaVida": 701.15,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 122,
@@ -2186,14 +2066,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "094-8",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 217,
+    "pesoNacer": 27.0,
+    "pesoDestete": 217.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 256,
-    "grDiaVida": 742.19,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 123,
@@ -2204,14 +2083,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "457",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 182,
+    "pesoNacer": 29.0,
+    "pesoDestete": 182.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 256,
-    "grDiaVida": 597.66,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 124,
@@ -2222,14 +2100,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "08-35",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 204,
+    "pesoNacer": 28.0,
+    "pesoDestete": 204.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 247,
-    "grDiaVida": 712.55,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 125,
@@ -2240,14 +2117,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "527",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 193,
+    "pesoNacer": 28.0,
+    "pesoDestete": 193.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 241,
-    "grDiaVida": 684.65,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 126,
@@ -2258,14 +2134,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "110-9",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 217,
+    "pesoNacer": 27.0,
+    "pesoDestete": 217.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 239,
-    "grDiaVida": 794.98,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 127,
@@ -2276,14 +2151,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "029",
     "padre": "Profit Maker",
-    "pesoNacer": 27,
-    "pesoDestete": 147,
+    "pesoNacer": 27.0,
+    "pesoDestete": 147.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 297,
-    "grDiaVida": 404.04,
     "estado": "Activo",
-    "comentario": "IATF Profit Maker. Madre en observación para descarte"
+    "finca": "La Vega",
+    "comentarios": "IATF Profit Maker. Madre en observación para descarte"
   },
   {
     "id": 128,
@@ -2294,14 +2168,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9814",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoNacer": 28.0,
+    "pesoDestete": 240.0,
     "fechaDestete": "2024-01-25",
     "añoDestete": 2024,
-    "edadDestete": 222,
-    "grDiaVida": 954.95,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 129,
@@ -2312,14 +2185,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0161",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 197,
+    "pesoNacer": 27.0,
+    "pesoDestete": 197.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 289,
-    "grDiaVida": 588.24,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 130,
@@ -2330,14 +2202,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0157",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 221,
+    "pesoNacer": 28.0,
+    "pesoDestete": 221.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 289,
-    "grDiaVida": 667.82,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 131,
@@ -2348,14 +2219,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "082-8",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 207,
+    "pesoNacer": 28.0,
+    "pesoDestete": 207.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 287,
-    "grDiaVida": 623.69,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 132,
@@ -2366,14 +2236,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0221",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 133,
@@ -2384,14 +2253,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "336",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 202,
+    "pesoNacer": 29.0,
+    "pesoDestete": 202.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 284,
-    "grDiaVida": 609.15,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 134,
@@ -2402,14 +2270,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9936",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 185,
+    "pesoNacer": 28.0,
+    "pesoDestete": 185.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 283,
-    "grDiaVida": 554.77,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 135,
@@ -2420,14 +2287,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "233",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 190,
+    "pesoNacer": 30.0,
+    "pesoDestete": 190.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 283,
-    "grDiaVida": 565.37,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 136,
@@ -2438,14 +2304,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "100-9",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 205,
+    "pesoNacer": 28.0,
+    "pesoDestete": 205.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 279,
-    "grDiaVida": 634.41,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 137,
@@ -2456,14 +2321,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9932",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 205,
+    "pesoNacer": 28.0,
+    "pesoDestete": 205.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 278,
-    "grDiaVida": 636.69,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 138,
@@ -2474,14 +2338,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9917",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 197,
+    "pesoNacer": 29.0,
+    "pesoDestete": 197.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 276,
-    "grDiaVida": 608.7,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 139,
@@ -2492,14 +2355,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "088-8",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 220,
+    "pesoNacer": 29.0,
+    "pesoDestete": 220.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 273,
-    "grDiaVida": 699.63,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 140,
@@ -2510,14 +2372,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "064-8",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 216,
+    "pesoNacer": 28.0,
+    "pesoDestete": 216.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 270,
-    "grDiaVida": 696.3,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 141,
@@ -2528,14 +2389,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "414",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 227,
+    "pesoNacer": 28.0,
+    "pesoDestete": 227.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 268,
-    "grDiaVida": 742.54,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 142,
@@ -2546,14 +2406,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "244",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 160,
+    "pesoNacer": 28.0,
+    "pesoDestete": 160.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 267,
-    "grDiaVida": 494.38,
     "estado": "Activo",
-    "comentario": "Madre observacion para descarte"
+    "finca": "La Vega",
+    "comentarios": "Madre observacion para descarte"
   },
   {
     "id": 143,
@@ -2564,14 +2423,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0250",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 200,
+    "pesoNacer": 28.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 267,
-    "grDiaVida": 644.19,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 144,
@@ -2582,14 +2440,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "510",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 180,
+    "pesoNacer": 28.0,
+    "pesoDestete": 180.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 264,
-    "grDiaVida": 575.76,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 145,
@@ -2600,14 +2457,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9809",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 200,
+    "pesoNacer": 29.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 262,
-    "grDiaVida": 652.67,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 146,
@@ -2618,14 +2474,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91155",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 194,
+    "pesoNacer": 29.0,
+    "pesoDestete": 194.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 261,
-    "grDiaVida": 632.18,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 147,
@@ -2636,14 +2491,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9820",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 220,
+    "pesoNacer": 28.0,
+    "pesoDestete": 220.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 258,
-    "grDiaVida": 744.19,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 148,
@@ -2654,14 +2508,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "068-8",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 204,
+    "pesoNacer": 28.0,
+    "pesoDestete": 204.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 257,
-    "grDiaVida": 684.82,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 149,
@@ -2672,14 +2525,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "391-12-8",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 216,
+    "pesoNacer": 27.0,
+    "pesoDestete": 216.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 256,
-    "grDiaVida": 738.28,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 150,
@@ -2690,14 +2542,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "992",
     "padre": "876",
-    "pesoNacer": 33,
-    "pesoDestete": 177,
+    "pesoNacer": 33.0,
+    "pesoDestete": 177.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 256,
-    "grDiaVida": 562.5,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 151,
@@ -2708,14 +2559,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "1147",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 222,
+    "pesoNacer": 29.0,
+    "pesoDestete": 222.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 248,
-    "grDiaVida": 778.23,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 152,
@@ -2726,14 +2576,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "167",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 164,
+    "pesoNacer": 29.0,
+    "pesoDestete": 164.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 235,
-    "grDiaVida": 574.47,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 153,
@@ -2744,14 +2593,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9901",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 180,
+    "pesoNacer": 27.0,
+    "pesoDestete": 180.0,
     "fechaDestete": "2024-04-04",
     "añoDestete": 2024,
-    "edadDestete": 235,
-    "grDiaVida": 651.06,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 154,
@@ -2762,14 +2610,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "379",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 152,
+    "pesoNacer": 28.0,
+    "pesoDestete": 152.0,
     "fechaDestete": "2024-05-01",
     "añoDestete": 2024,
-    "edadDestete": 247,
-    "grDiaVida": 502.02,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 155,
@@ -2780,14 +2627,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "814-876",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 132,
+    "pesoNacer": 28.0,
+    "pesoDestete": 132.0,
     "fechaDestete": "2024-06-19",
     "añoDestete": 2024,
-    "edadDestete": 268,
-    "grDiaVida": 388.06,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 156,
@@ -2798,14 +2644,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1130",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 210,
+    "pesoNacer": 29.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2024-07-12",
     "añoDestete": 2024,
-    "edadDestete": 251,
-    "grDiaVida": 721.12,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 157,
@@ -2816,14 +2661,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "501",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 217,
+    "pesoNacer": 28.0,
+    "pesoDestete": 217.0,
     "fechaDestete": "2024-07-12",
     "añoDestete": 2024,
-    "edadDestete": 249,
-    "grDiaVida": 759.04,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 158,
@@ -2834,14 +2678,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91207",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 208,
+    "pesoNacer": 29.0,
+    "pesoDestete": 208.0,
     "fechaDestete": "2024-07-12",
     "añoDestete": 2024,
-    "edadDestete": 248,
-    "grDiaVida": 721.77,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 159,
@@ -2852,14 +2695,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9925",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 220,
+    "pesoNacer": 28.0,
+    "pesoDestete": 220.0,
     "fechaDestete": "2024-07-12",
     "añoDestete": 2024,
-    "edadDestete": 242,
-    "grDiaVida": 793.39,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 160,
@@ -2870,14 +2712,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "086-8",
     "padre": "509-0",
-    "pesoNacer": 29,
-    "pesoDestete": 230,
+    "pesoNacer": 29.0,
+    "pesoDestete": 230.0,
     "fechaDestete": "2024-07-12",
     "añoDestete": 2024,
-    "edadDestete": 233,
-    "grDiaVida": 862.66,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 161,
@@ -2888,14 +2729,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "080-8",
     "padre": "Soberbio",
-    "pesoNacer": 28,
-    "pesoDestete": 202,
+    "pesoNacer": 28.0,
+    "pesoDestete": 202.0,
     "fechaDestete": "2024-08-08",
     "añoDestete": 2024,
-    "edadDestete": 244,
-    "grDiaVida": 713.11,
     "estado": "Activo",
-    "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
+    "finca": "La Vega",
+    "comentarios": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
   {
     "id": 162,
@@ -2906,14 +2746,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91016",
     "padre": "Soberbio",
-    "pesoNacer": 29,
-    "pesoDestete": 205,
+    "pesoNacer": 29.0,
+    "pesoDestete": 205.0,
     "fechaDestete": "2024-08-08",
     "añoDestete": 2024,
-    "edadDestete": 243,
-    "grDiaVida": 724.28,
     "estado": "Activo",
-    "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
+    "finca": "La Vega",
+    "comentarios": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
   {
     "id": 163,
@@ -2924,14 +2763,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "757",
     "padre": "606-0",
-    "pesoNacer": 31,
-    "pesoDestete": 188,
+    "pesoNacer": 31.0,
+    "pesoDestete": 188.0,
     "fechaDestete": "2024-08-08",
     "añoDestete": 2024,
-    "edadDestete": 242,
-    "grDiaVida": 648.76,
     "estado": "Activo",
-    "comentario": "Padre brahman de Bohemia. F1 con registro"
+    "finca": "La Vega",
+    "comentarios": "Padre brahman de Bohemia. F1 con registro"
   },
   {
     "id": 164,
@@ -2942,14 +2780,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "4064",
     "padre": "QEUED",
-    "pesoNacer": 28,
-    "pesoDestete": 194,
+    "pesoNacer": 28.0,
+    "pesoDestete": 194.0,
     "fechaDestete": "2024-08-08",
     "añoDestete": 2024,
-    "edadDestete": 240,
-    "grDiaVida": 691.67,
     "estado": "Activo",
-    "comentario": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
+    "finca": "La Vega",
+    "comentarios": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
   },
   {
     "id": 165,
@@ -2960,14 +2797,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9851",
     "padre": "QEUED",
-    "pesoNacer": 28,
-    "pesoDestete": 192,
+    "pesoNacer": 28.0,
+    "pesoDestete": 192.0,
     "fechaDestete": "2024-08-08",
     "añoDestete": 2024,
-    "edadDestete": 238,
-    "grDiaVida": 689.08,
     "estado": "Activo",
-    "comentario": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
+    "finca": "La Vega",
+    "comentarios": "IATF Angus Rojo - Gusti 716 Queb Red 5586"
   },
   {
     "id": 166,
@@ -2978,14 +2814,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91114",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 208,
+    "pesoNacer": 28.0,
+    "pesoDestete": 208.0,
     "fechaDestete": "2024-09-29",
     "añoDestete": 2024,
-    "edadDestete": 272,
-    "grDiaVida": 661.76,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 167,
@@ -2996,14 +2831,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9916",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 193,
+    "pesoNacer": 28.0,
+    "pesoDestete": 193.0,
     "fechaDestete": "2024-09-29",
     "añoDestete": 2024,
-    "edadDestete": 270,
-    "grDiaVida": 611.11,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 168,
@@ -3014,14 +2848,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "361",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 192,
+    "pesoNacer": 28.0,
+    "pesoDestete": 192.0,
     "fechaDestete": "2024-10-04",
     "añoDestete": 2024,
-    "edadDestete": 271,
-    "grDiaVida": 605.17,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 169,
@@ -3032,14 +2865,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "505",
     "padre": "509-0",
-    "pesoNacer": 29,
-    "pesoDestete": 207,
+    "pesoNacer": 29.0,
+    "pesoDestete": 207.0,
     "fechaDestete": "2024-10-04",
     "añoDestete": 2024,
-    "edadDestete": 270,
-    "grDiaVida": 659.26,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 170,
@@ -3050,14 +2882,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91119",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 210,
+    "pesoNacer": 28.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2024-09-29",
     "añoDestete": 2024,
-    "edadDestete": 263,
-    "grDiaVida": 692.02,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 171,
@@ -3068,14 +2899,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "516",
     "padre": "509-0",
-    "pesoNacer": 27,
-    "pesoDestete": 163,
+    "pesoNacer": 27.0,
+    "pesoDestete": 163.0,
     "fechaDestete": "2024-10-04",
     "añoDestete": 2024,
-    "edadDestete": 261,
-    "grDiaVida": 521.07,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 172,
@@ -3086,14 +2916,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0131",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 198,
+    "pesoNacer": 28.0,
+    "pesoDestete": 198.0,
     "fechaDestete": "2024-10-04",
     "añoDestete": 2024,
-    "edadDestete": 259,
-    "grDiaVida": 656.37,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 173,
@@ -3104,14 +2933,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "092-8",
     "padre": "Soberbio",
-    "pesoNacer": 28,
-    "pesoDestete": 224,
+    "pesoNacer": 28.0,
+    "pesoDestete": 224.0,
     "fechaDestete": "2024-09-29",
     "añoDestete": 2024,
-    "edadDestete": 254,
-    "grDiaVida": 771.65,
     "estado": "Activo",
-    "comentario": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
+    "finca": "La Vega",
+    "comentarios": "IATF Angus Rojo - Marcar Soberbio 756-107 / 15-E7"
   },
   {
     "id": 174,
@@ -3122,14 +2950,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0151",
     "padre": "546-0",
-    "pesoNacer": 27,
-    "pesoDestete": 180,
+    "pesoNacer": 27.0,
+    "pesoDestete": 180.0,
     "fechaDestete": "2024-09-29",
     "añoDestete": 2024,
-    "edadDestete": 252,
-    "grDiaVida": 607.14,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 175,
@@ -3140,14 +2967,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "104-9",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 201,
+    "pesoNacer": 28.0,
+    "pesoDestete": 201.0,
     "fechaDestete": "2024-09-29",
     "añoDestete": 2024,
-    "edadDestete": 246,
-    "grDiaVida": 703.25,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 176,
@@ -3158,14 +2984,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0113",
     "padre": "546-0",
-    "pesoNacer": 27,
-    "pesoDestete": 207,
+    "pesoNacer": 27.0,
+    "pesoDestete": 207.0,
     "fechaDestete": "2024-09-29",
     "añoDestete": 2024,
-    "edadDestete": 241,
-    "grDiaVida": 746.89,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 177,
@@ -3176,14 +3001,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9803",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 179,
+    "pesoNacer": 28.0,
+    "pesoDestete": 179.0,
     "fechaDestete": "2024-10-04",
     "añoDestete": 2024,
-    "edadDestete": 243,
-    "grDiaVida": 621.4,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 178,
@@ -3194,14 +3018,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0210",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 210,
+    "pesoNacer": 28.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2024-09-29",
     "añoDestete": 2024,
-    "edadDestete": 234,
-    "grDiaVida": 777.78,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 179,
@@ -3212,14 +3035,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91024",
     "padre": "546-0",
-    "pesoNacer": 29,
-    "pesoDestete": 175,
+    "pesoNacer": 29.0,
+    "pesoDestete": 175.0,
     "fechaDestete": "2024-10-07",
     "añoDestete": 2024,
-    "edadDestete": 242,
-    "grDiaVida": 603.31,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 180,
@@ -3230,14 +3052,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "062-8",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 176,
+    "pesoNacer": 27.0,
+    "pesoDestete": 176.0,
     "fechaDestete": "2024-10-04",
     "añoDestete": 2024,
-    "edadDestete": 237,
-    "grDiaVida": 628.69,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 181,
@@ -3248,14 +3069,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0209",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 170,
+    "pesoNacer": 28.0,
+    "pesoDestete": 170.0,
     "fechaDestete": "2024-10-07",
     "añoDestete": 2024,
-    "edadDestete": 235,
-    "grDiaVida": 604.26,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 182,
@@ -3266,14 +3086,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91013",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 183,
+    "pesoNacer": 28.0,
+    "pesoDestete": 183.0,
     "fechaDestete": "2024-10-07",
     "añoDestete": 2024,
-    "edadDestete": 240,
-    "grDiaVida": 645.83,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 183,
@@ -3284,14 +3103,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91108",
     "padre": "477-375",
-    "pesoNacer": 29,
-    "pesoDestete": 172,
+    "pesoNacer": 29.0,
+    "pesoDestete": 172.0,
     "fechaDestete": "2024-10-07",
     "añoDestete": 2024,
-    "edadDestete": 231,
-    "grDiaVida": 619.05,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 184,
@@ -3302,14 +3120,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "070-8",
     "padre": "477-375",
-    "pesoNacer": 30,
-    "pesoDestete": 200,
+    "pesoNacer": 30.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2024-10-07",
     "añoDestete": 2024,
-    "edadDestete": 220,
-    "grDiaVida": 772.73,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 185,
@@ -3318,16 +3135,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2024,
     "mes": 3,
     "sexo": "M",
-    "madre": "9928",
+    "madre": "50-1",
     "padre": "Spartan",
-    "pesoNacer": 28,
-    "pesoDestete": 195,
+    "pesoNacer": 28.0,
+    "pesoDestete": 195.0,
     "fechaDestete": "2024-12-04",
     "añoDestete": 2024,
-    "edadDestete": 256,
-    "grDiaVida": 652.34,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 50-1"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 50-1"
   },
   {
     "id": 186,
@@ -3336,16 +3152,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2024,
     "mes": 3,
     "sexo": "M",
-    "madre": "40-41",
+    "madre": "50-1",
     "padre": "Spartan",
-    "pesoNacer": 30,
-    "pesoDestete": 205,
+    "pesoNacer": 30.0,
+    "pesoDestete": 205.0,
     "fechaDestete": "2024-12-04",
     "añoDestete": 2024,
-    "edadDestete": 256,
-    "grDiaVida": 683.59,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 50-1"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 50-1"
   },
   {
     "id": 187,
@@ -3354,16 +3169,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2024,
     "mes": 3,
     "sexo": "M",
-    "madre": "950-58",
+    "madre": "463-56",
     "padre": "Spartan",
-    "pesoNacer": 30,
-    "pesoDestete": 147,
+    "pesoNacer": 30.0,
+    "pesoDestete": 147.0,
     "fechaDestete": "2024-12-04",
     "añoDestete": 2024,
-    "edadDestete": 253,
-    "grDiaVida": 462.45,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 463-56"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 463-56"
   },
   {
     "id": 188,
@@ -3372,16 +3186,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2024,
     "mes": 3,
     "sexo": "H",
-    "madre": "291",
+    "madre": "463-56",
     "padre": "Spartan",
-    "pesoNacer": 30,
-    "pesoDestete": 246,
+    "pesoNacer": 30.0,
+    "pesoDestete": 246.0,
     "fechaDestete": "2024-12-04",
     "añoDestete": 2024,
-    "edadDestete": 251,
-    "grDiaVida": 860.56,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 463-56"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 463-56"
   },
   {
     "id": 189,
@@ -3392,14 +3205,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9941",
     "padre": "546-0",
-    "pesoNacer": 27,
-    "pesoDestete": 181,
+    "pesoNacer": 27.0,
+    "pesoDestete": 181.0,
     "fechaDestete": "2024-12-04",
     "añoDestete": 2024,
-    "edadDestete": 242,
-    "grDiaVida": 636.36,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 190,
@@ -3410,14 +3222,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "358",
     "padre": "509-0",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 191,
@@ -3428,14 +3239,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "670",
     "padre": "509-0",
-    "pesoNacer": 26,
-    "pesoDestete": 125,
+    "pesoNacer": 26.0,
+    "pesoDestete": 125.0,
     "fechaDestete": "2025-02-14",
     "añoDestete": 2025,
-    "edadDestete": 307,
-    "grDiaVida": 322.48,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 192,
@@ -3446,14 +3256,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "8-41",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 168,
+    "pesoNacer": 28.0,
+    "pesoDestete": 168.0,
     "fechaDestete": "2025-01-08",
     "añoDestete": 2025,
-    "edadDestete": 269,
-    "grDiaVida": 520.45,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 193,
@@ -3464,14 +3273,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9812",
     "padre": "546-0",
-    "pesoNacer": 29,
-    "pesoDestete": 187,
+    "pesoNacer": 29.0,
+    "pesoDestete": 187.0,
     "fechaDestete": "2025-01-08",
     "añoDestete": 2025,
-    "edadDestete": 268,
-    "grDiaVida": 589.55,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 194,
@@ -3482,14 +3290,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "386",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 214,
+    "pesoNacer": 28.0,
+    "pesoDestete": 214.0,
     "fechaDestete": "2024-12-27",
     "añoDestete": 2024,
-    "edadDestete": 255,
-    "grDiaVida": 729.41,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 195,
@@ -3500,14 +3307,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9838",
     "padre": "546-0",
-    "pesoNacer": 30,
-    "pesoDestete": 234,
+    "pesoNacer": 30.0,
+    "pesoDestete": 234.0,
     "fechaDestete": "2024-12-27",
     "añoDestete": 2024,
-    "edadDestete": 248,
-    "grDiaVida": 822.58,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 196,
@@ -3518,14 +3324,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "149",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 187,
+    "pesoNacer": 28.0,
+    "pesoDestete": 187.0,
     "fechaDestete": "2024-12-27",
     "añoDestete": 2024,
-    "edadDestete": 248,
-    "grDiaVida": 641.13,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 197,
@@ -3536,14 +3341,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "12-41",
     "padre": "509-0",
-    "pesoNacer": 29,
-    "pesoDestete": 196,
+    "pesoNacer": 29.0,
+    "pesoDestete": 196.0,
     "fechaDestete": "2024-12-29",
     "añoDestete": 2024,
-    "edadDestete": 247,
-    "grDiaVida": 676.11,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 198,
@@ -3554,14 +3358,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "747",
     "padre": "477-375",
-    "pesoNacer": 27,
-    "pesoDestete": 165,
+    "pesoNacer": 27.0,
+    "pesoDestete": 165.0,
     "fechaDestete": "2025-01-15",
     "añoDestete": 2025,
-    "edadDestete": 263,
-    "grDiaVida": 524.71,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 199,
@@ -3572,14 +3375,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91023",
     "padre": "546-0",
-    "pesoNacer": 30,
-    "pesoDestete": 236,
+    "pesoNacer": 30.0,
+    "pesoDestete": 236.0,
     "fechaDestete": "2024-12-27",
     "añoDestete": 2024,
-    "edadDestete": 242,
-    "grDiaVida": 851.24,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 200,
@@ -3590,14 +3392,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91148",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 200,
+    "pesoNacer": 28.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2025-02-14",
     "añoDestete": 2025,
-    "edadDestete": 268,
-    "grDiaVida": 641.79,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 201,
@@ -3608,14 +3409,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91012",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 200,
+    "pesoNacer": 28.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2025-02-14",
     "añoDestete": 2025,
-    "edadDestete": 255,
-    "grDiaVida": 674.51,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 202,
@@ -3626,14 +3426,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9927",
     "padre": "477-375",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 203,
@@ -3642,16 +3441,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2024,
     "mes": 6,
     "sexo": "M",
-    "madre": "0221",
+    "madre": "992-375",
     "padre": "Spartan",
-    "pesoNacer": 28,
-    "pesoDestete": 213,
+    "pesoNacer": 28.0,
+    "pesoDestete": 213.0,
     "fechaDestete": "2025-02-25",
     "añoDestete": 2025,
-    "edadDestete": 247,
-    "grDiaVida": 748.99,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 992-375"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 992-375"
   },
   {
     "id": 204,
@@ -3662,14 +3460,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "2-31",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 130,
+    "pesoNacer": 28.0,
+    "pesoDestete": 130.0,
     "fechaDestete": "2025-02-14",
     "añoDestete": 2025,
-    "edadDestete": 234,
-    "grDiaVida": 435.9,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 205,
@@ -3680,14 +3477,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91017",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 140,
+    "pesoNacer": 28.0,
+    "pesoDestete": 140.0,
     "fechaDestete": "2025-02-14",
     "añoDestete": 2025,
-    "edadDestete": 230,
-    "grDiaVida": 486.96,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 206,
@@ -3698,14 +3494,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91125",
     "padre": "546-0",
-    "pesoNacer": 29,
-    "pesoDestete": 200,
+    "pesoNacer": 29.0,
+    "pesoDestete": 200.0,
     "fechaDestete": "2025-02-14",
     "añoDestete": 2025,
-    "edadDestete": 226,
-    "grDiaVida": 756.64,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 207,
@@ -3714,16 +3509,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2024,
     "mes": 7,
     "sexo": "H",
-    "madre": "9814",
+    "madre": "463-56",
     "padre": "Spartan",
-    "pesoNacer": 30,
-    "pesoDestete": 250,
+    "pesoNacer": 30.0,
+    "pesoDestete": 250.0,
     "fechaDestete": "2025-02-25",
     "añoDestete": 2025,
-    "edadDestete": 235,
-    "grDiaVida": 936.17,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 463-56"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 463-56"
   },
   {
     "id": 208,
@@ -3734,14 +3528,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91130",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 241,
+    "pesoNacer": 28.0,
+    "pesoDestete": 241.0,
     "fechaDestete": "2025-02-25",
     "añoDestete": 2025,
-    "edadDestete": 235,
-    "grDiaVida": 906.38,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 209,
@@ -3752,14 +3545,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9910",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 223,
+    "pesoNacer": 28.0,
+    "pesoDestete": 223.0,
     "fechaDestete": "2025-03-07",
     "añoDestete": 2025,
-    "edadDestete": 244,
-    "grDiaVida": 799.18,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 210,
@@ -3770,14 +3562,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9834",
     "padre": "546-0",
-    "pesoNacer": 27,
-    "pesoDestete": 211,
+    "pesoNacer": 27.0,
+    "pesoDestete": 211.0,
     "fechaDestete": "2025-02-25",
     "añoDestete": 2025,
-    "edadDestete": 234,
-    "grDiaVida": 786.32,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 211,
@@ -3788,14 +3579,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "911144",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 166,
+    "pesoNacer": 28.0,
+    "pesoDestete": 166.0,
     "fechaDestete": "2025-02-14",
     "añoDestete": 2025,
-    "edadDestete": 219,
-    "grDiaVida": 630.14,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 212,
@@ -3806,14 +3596,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91205",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 213,
+    "pesoNacer": 28.0,
+    "pesoDestete": 213.0,
     "fechaDestete": "2025-03-07",
     "añoDestete": 2025,
-    "edadDestete": 240,
-    "grDiaVida": 770.83,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 213,
@@ -3822,16 +3611,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2024,
     "mes": 7,
     "sexo": "H",
-    "madre": "078-8",
+    "madre": "52-1",
     "padre": "Spartan",
-    "pesoNacer": 30,
-    "pesoDestete": 305,
+    "pesoNacer": 30.0,
+    "pesoDestete": 305.0,
     "fechaDestete": "2025-03-18",
     "añoDestete": 2025,
-    "edadDestete": 244,
-    "grDiaVida": 1127.05,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 52-1"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 52-1"
   },
   {
     "id": 214,
@@ -3842,14 +3630,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "510",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 215,
@@ -3860,14 +3647,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9937",
     "padre": "595-1",
-    "pesoNacer": 27,
-    "pesoDestete": 204,
+    "pesoNacer": 27.0,
+    "pesoDestete": 204.0,
     "fechaDestete": "2025-03-18",
     "añoDestete": 2025,
-    "edadDestete": 233,
-    "grDiaVida": 759.66,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 216,
@@ -3878,14 +3664,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91120",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 232,
+    "pesoNacer": 28.0,
+    "pesoDestete": 232.0,
     "fechaDestete": "2025-03-18",
     "añoDestete": 2025,
-    "edadDestete": 231,
-    "grDiaVida": 883.12,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 217,
@@ -3896,14 +3681,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9901",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 190,
+    "pesoNacer": 28.0,
+    "pesoDestete": 190.0,
     "fechaDestete": "2025-03-18",
     "añoDestete": 2025,
-    "edadDestete": 230,
-    "grDiaVida": 704.35,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 218,
@@ -3914,14 +3698,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "094-8",
     "padre": "595-1",
-    "pesoNacer": 28,
-    "pesoDestete": 228,
+    "pesoNacer": 28.0,
+    "pesoDestete": 228.0,
     "fechaDestete": "2025-03-18",
     "añoDestete": 2025,
-    "edadDestete": 229,
-    "grDiaVida": 873.36,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 219,
@@ -3932,14 +3715,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91102",
     "padre": "595-1",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 220,
@@ -3950,14 +3732,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "911300",
     "padre": "03-2",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 221,
@@ -3968,14 +3749,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91124",
     "padre": "03-2",
-    "pesoNacer": 28,
-    "pesoDestete": 204,
+    "pesoNacer": 28.0,
+    "pesoDestete": 204.0,
     "fechaDestete": "2025-04-02",
     "añoDestete": 2025,
-    "edadDestete": 240,
-    "grDiaVida": 733.33,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 222,
@@ -3986,14 +3766,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91155",
     "padre": "595-1",
-    "pesoNacer": 29,
-    "pesoDestete": 249,
+    "pesoNacer": 29.0,
+    "pesoDestete": 249.0,
     "fechaDestete": "2025-03-18",
     "añoDestete": 2025,
-    "edadDestete": 223,
-    "grDiaVida": 986.55,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 223,
@@ -4004,14 +3783,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0250",
     "padre": "477-375",
-    "pesoNacer": 28,
-    "pesoDestete": 255,
+    "pesoNacer": 28.0,
+    "pesoDestete": 255.0,
     "fechaDestete": "2025-04-02",
     "añoDestete": 2025,
-    "edadDestete": 226,
-    "grDiaVida": 1004.42,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 224,
@@ -4022,14 +3800,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0157",
     "padre": "03-2",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 225,
@@ -4040,14 +3817,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9932",
     "padre": "03-2",
-    "pesoNacer": 28,
-    "pesoDestete": 230,
+    "pesoNacer": 28.0,
+    "pesoDestete": 230.0,
     "fechaDestete": "2025-04-28",
     "añoDestete": 2025,
-    "edadDestete": 247,
-    "grDiaVida": 817.81,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 226,
@@ -4058,14 +3834,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0222",
     "padre": "03-2",
-    "pesoNacer": 29,
-    "pesoDestete": 224,
+    "pesoNacer": 29.0,
+    "pesoDestete": 224.0,
     "fechaDestete": "2025-04-28",
     "añoDestete": 2025,
-    "edadDestete": 244,
-    "grDiaVida": 799.18,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 227,
@@ -4076,14 +3851,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "541",
     "padre": "03-2",
-    "pesoNacer": 28,
-    "pesoDestete": 180,
+    "pesoNacer": 28.0,
+    "pesoDestete": 180.0,
     "fechaDestete": "2025-04-28",
     "añoDestete": 2025,
-    "edadDestete": 239,
-    "grDiaVida": 635.98,
     "estado": "Activo",
-    "comentario": "BON Puro"
+    "finca": "La Vega",
+    "comentarios": "BON Puro"
   },
   {
     "id": 228,
@@ -4094,14 +3868,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9817",
     "padre": "03-2",
-    "pesoNacer": 29,
-    "pesoDestete": 227,
+    "pesoNacer": 29.0,
+    "pesoDestete": 227.0,
     "fechaDestete": "2025-04-28",
     "añoDestete": 2025,
-    "edadDestete": 239,
-    "grDiaVida": 828.45,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 229,
@@ -4112,14 +3885,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "463",
     "padre": "03-2",
-    "pesoNacer": 29,
-    "pesoDestete": 227,
+    "pesoNacer": 29.0,
+    "pesoDestete": 227.0,
     "fechaDestete": "2025-04-28",
     "añoDestete": 2025,
-    "edadDestete": 232,
-    "grDiaVida": 853.45,
     "estado": "Activo",
-    "comentario": "BON Puro"
+    "finca": "La Vega",
+    "comentarios": "BON Puro"
   },
   {
     "id": 230,
@@ -4130,14 +3902,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0109",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 245,
+    "pesoNacer": 28.0,
+    "pesoDestete": 245.0,
     "fechaDestete": "2025-04-28",
     "añoDestete": 2025,
-    "edadDestete": 230,
-    "grDiaVida": 943.48,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 231,
@@ -4148,14 +3919,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0154",
     "padre": "546-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 232,
@@ -4166,14 +3936,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9849",
     "padre": "03-2",
-    "pesoNacer": 28,
-    "pesoDestete": 230,
+    "pesoNacer": 28.0,
+    "pesoDestete": 230.0,
     "fechaDestete": "2025-04-28",
     "añoDestete": 2025,
-    "edadDestete": 224,
-    "grDiaVida": 901.79,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 233,
@@ -4184,14 +3953,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "109 (Gasmar)",
     "padre": "595-1",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 234,
@@ -4202,14 +3970,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0212",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 210,
+    "pesoNacer": 28.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2025-06-17",
     "añoDestete": 2025,
-    "edadDestete": 258,
-    "grDiaVida": 705.43,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 235,
@@ -4220,14 +3987,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "068-8",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 195,
+    "pesoNacer": 29.0,
+    "pesoDestete": 195.0,
     "fechaDestete": "2025-05-23",
     "añoDestete": 2025,
-    "edadDestete": 233,
-    "grDiaVida": 712.45,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 236,
@@ -4238,14 +4004,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0143",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 220,
+    "pesoNacer": 28.0,
+    "pesoDestete": 220.0,
     "fechaDestete": "2025-06-06",
     "añoDestete": 2025,
-    "edadDestete": 242,
-    "grDiaVida": 793.39,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 237,
@@ -4256,14 +4021,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "621",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 224,
+    "pesoNacer": 28.0,
+    "pesoDestete": 224.0,
     "fechaDestete": "2025-06-17",
     "añoDestete": 2025,
-    "edadDestete": 253,
-    "grDiaVida": 774.7,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 238,
@@ -4274,14 +4038,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "074-8",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 236,
+    "pesoNacer": 29.0,
+    "pesoDestete": 236.0,
     "fechaDestete": "2025-06-23",
     "añoDestete": 2025,
-    "edadDestete": 259,
-    "grDiaVida": 799.23,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 239,
@@ -4292,14 +4055,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "457",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 202,
+    "pesoNacer": 28.0,
+    "pesoDestete": 202.0,
     "fechaDestete": "2025-06-06",
     "añoDestete": 2025,
-    "edadDestete": 240,
-    "grDiaVida": 725.0,
     "estado": "Activo",
-    "comentario": "BON Puro"
+    "finca": "La Vega",
+    "comentarios": "BON Puro"
   },
   {
     "id": 240,
@@ -4310,14 +4072,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "992",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 173,
+    "pesoNacer": 29.0,
+    "pesoDestete": 173.0,
     "fechaDestete": "2025-06-06",
     "añoDestete": 2025,
-    "edadDestete": 239,
-    "grDiaVida": 602.51,
     "estado": "Activo",
-    "comentario": "BON Puro"
+    "finca": "La Vega",
+    "comentarios": "BON Puro"
   },
   {
     "id": 241,
@@ -4328,14 +4089,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "48-91",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 179,
+    "pesoNacer": 29.0,
+    "pesoDestete": 179.0,
     "fechaDestete": "2025-06-06",
     "añoDestete": 2025,
-    "edadDestete": 239,
-    "grDiaVida": 627.62,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 242,
@@ -4346,14 +4106,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "379",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 243,
@@ -4364,14 +4123,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9809",
     "padre": "595-1",
-    "pesoNacer": 28,
-    "pesoDestete": 222,
+    "pesoNacer": 28.0,
+    "pesoDestete": 222.0,
     "fechaDestete": "2025-06-10",
     "añoDestete": 2025,
-    "edadDestete": 236,
-    "grDiaVida": 822.03,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 244,
@@ -4382,14 +4140,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "082-8",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 202,
+    "pesoNacer": 28.0,
+    "pesoDestete": 202.0,
     "fechaDestete": "2025-06-23",
     "añoDestete": 2025,
-    "edadDestete": 249,
-    "grDiaVida": 698.8,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 245,
@@ -4400,14 +4157,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "336",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 177,
+    "pesoNacer": 29.0,
+    "pesoDestete": 177.0,
     "fechaDestete": "2025-06-10",
     "añoDestete": 2025,
-    "edadDestete": 235,
-    "grDiaVida": 629.79,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 246,
@@ -4418,14 +4174,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "527",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 223,
+    "pesoNacer": 29.0,
+    "pesoDestete": 223.0,
     "fechaDestete": "2025-06-23",
     "añoDestete": 2025,
-    "edadDestete": 248,
-    "grDiaVida": 782.26,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 247,
@@ -4436,14 +4191,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "110-9",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 250,
+    "pesoNacer": 29.0,
+    "pesoDestete": 250.0,
     "fechaDestete": "2025-06-23",
     "añoDestete": 2025,
-    "edadDestete": 246,
-    "grDiaVida": 898.37,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 248,
@@ -4454,14 +4208,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0232",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 225,
+    "pesoNacer": 28.0,
+    "pesoDestete": 225.0,
     "fechaDestete": "2025-06-23",
     "añoDestete": 2025,
-    "edadDestete": 245,
-    "grDiaVida": 804.08,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 249,
@@ -4472,14 +4225,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "244",
     "padre": "854-476",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 250,
@@ -4490,14 +4242,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "167",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 251,
@@ -4508,14 +4259,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "064-8",
     "padre": "854-476",
-    "pesoNacer": 27,
-    "pesoDestete": 210,
+    "pesoNacer": 27.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2025-06-23",
     "añoDestete": 2025,
-    "edadDestete": 244,
-    "grDiaVida": 750.0,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 252,
@@ -4526,14 +4276,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "948",
     "padre": "Desconocido",
-    "pesoNacer": 32,
-    "pesoDestete": 236,
+    "pesoNacer": 32.0,
+    "pesoDestete": 236.0,
     "fechaDestete": "2025-06-23",
     "añoDestete": 2025,
-    "edadDestete": 237,
-    "grDiaVida": 860.76,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 253,
@@ -4544,14 +4293,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0207",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 218,
+    "pesoNacer": 28.0,
+    "pesoDestete": 218.0,
     "fechaDestete": "2025-06-23",
     "añoDestete": 2025,
-    "edadDestete": 235,
-    "grDiaVida": 808.51,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 254,
@@ -4562,14 +4310,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9917",
     "padre": "595-1",
-    "pesoNacer": 28,
-    "pesoDestete": 111,
+    "pesoNacer": 28.0,
+    "pesoDestete": 111.0,
     "fechaDestete": "2025-07-23",
     "añoDestete": 2025,
-    "edadDestete": 264,
-    "grDiaVida": 314.39,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 255,
@@ -4580,14 +4327,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9820",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 254,
+    "pesoNacer": 29.0,
+    "pesoDestete": 254.0,
     "fechaDestete": "2025-07-22",
     "añoDestete": 2025,
-    "edadDestete": 254,
-    "grDiaVida": 885.83,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 256,
@@ -4598,14 +4344,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "088-8",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 215,
+    "pesoNacer": 28.0,
+    "pesoDestete": 215.0,
     "fechaDestete": "2025-07-22",
     "añoDestete": 2025,
-    "edadDestete": 252,
-    "grDiaVida": 742.06,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 257,
@@ -4616,14 +4361,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "58-111",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 115,
+    "pesoNacer": 28.0,
+    "pesoDestete": 115.0,
     "fechaDestete": "2025-07-23",
     "añoDestete": 2025,
-    "edadDestete": 251,
-    "grDiaVida": 346.61,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 258,
@@ -4634,14 +4378,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "029",
     "padre": "854-476",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 259,
@@ -4652,14 +4395,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "36-41",
     "padre": "546-0",
-    "pesoNacer": 29,
-    "pesoDestete": 210,
+    "pesoNacer": 29.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2025-07-22",
     "añoDestete": 2025,
-    "edadDestete": 250,
-    "grDiaVida": 724.0,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 260,
@@ -4670,14 +4412,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9851",
     "padre": "854-476",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 261,
@@ -4688,14 +4429,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1130",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 262,
@@ -4706,14 +4446,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "251",
     "padre": "546-0",
-    "pesoNacer": 30,
-    "pesoDestete": 233,
+    "pesoNacer": 30.0,
+    "pesoDestete": 233.0,
     "fechaDestete": "2025-07-22",
     "añoDestete": 2025,
-    "edadDestete": 238,
-    "grDiaVida": 852.94,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 263,
@@ -4724,14 +4463,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "46-81",
     "padre": "854-476",
-    "pesoNacer": 27,
-    "pesoDestete": 160,
+    "pesoNacer": 27.0,
+    "pesoDestete": 160.0,
     "fechaDestete": "2025-08-13",
     "añoDestete": 2025,
-    "edadDestete": 242,
-    "grDiaVida": 549.59,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 264,
@@ -4742,14 +4480,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "08-35",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 265,
@@ -4760,14 +4497,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9925",
     "padre": "546-0",
-    "pesoNacer": 29,
-    "pesoDestete": 265,
+    "pesoNacer": 29.0,
+    "pesoDestete": 265.0,
     "fechaDestete": "2025-09-24",
     "añoDestete": 2025,
-    "edadDestete": 262,
-    "grDiaVida": 900.76,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 266,
@@ -4778,14 +4514,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "64",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 201,
+    "pesoNacer": 28.0,
+    "pesoDestete": 201.0,
     "fechaDestete": "2025-09-24",
     "añoDestete": 2025,
-    "edadDestete": 249,
-    "grDiaVida": 694.78,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 267,
@@ -4796,14 +4531,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "16-51",
     "padre": "509-0",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Vendido",
-    "comentario": "Se vendio con la mama"
+    "finca": "La Vega",
+    "comentarios": "Se vendio con la mama"
   },
   {
     "id": 268,
@@ -4814,14 +4548,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "58",
     "padre": "854-476",
-    "pesoNacer": 30,
-    "pesoDestete": 234,
+    "pesoNacer": 30.0,
+    "pesoDestete": 234.0,
     "fechaDestete": "2025-09-24",
     "añoDestete": 2025,
-    "edadDestete": 238,
-    "grDiaVida": 857.14,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 269,
@@ -4832,14 +4565,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "414",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 270,
@@ -4850,14 +4582,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "100-9",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 212,
+    "pesoNacer": 28.0,
+    "pesoDestete": 212.0,
     "fechaDestete": "2025-10-27",
     "añoDestete": 2025,
-    "edadDestete": 247,
-    "grDiaVida": 744.94,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 271,
@@ -4868,14 +4599,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "755",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 180,
+    "pesoNacer": 28.0,
+    "pesoDestete": 180.0,
     "fechaDestete": "2025-10-27",
     "añoDestete": 2025,
-    "edadDestete": 244,
-    "grDiaVida": 622.95,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 272,
@@ -4884,16 +4614,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2025,
     "mes": 3,
     "sexo": "H",
-    "madre": "54-111",
+    "madre": "754",
     "padre": "Brave",
-    "pesoNacer": 28,
-    "pesoDestete": 212,
+    "pesoNacer": 28.0,
+    "pesoDestete": 212.0,
     "fechaDestete": "2025-12-09",
     "añoDestete": 2025,
-    "edadDestete": 259,
-    "grDiaVida": 710.42,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 754"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 754"
   },
   {
     "id": 273,
@@ -4904,14 +4633,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9936",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 170,
+    "pesoNacer": 28.0,
+    "pesoDestete": 170.0,
     "fechaDestete": "2025-12-01",
     "añoDestete": 2025,
-    "edadDestete": 250,
-    "grDiaVida": 568.0,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 274,
@@ -4920,16 +4648,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2025,
     "mes": 4,
     "sexo": "H",
-    "madre": "4064",
+    "madre": "754",
     "padre": "Brave",
-    "pesoNacer": 29,
-    "pesoDestete": 219,
+    "pesoNacer": 29.0,
+    "pesoDestete": 219.0,
     "fechaDestete": "2025-12-15",
     "añoDestete": 2025,
-    "edadDestete": 256,
-    "grDiaVida": 742.19,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 754"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 754"
   },
   {
     "id": 275,
@@ -4938,16 +4665,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2025,
     "mes": 4,
     "sexo": "H",
-    "madre": "91114",
+    "madre": "754",
     "padre": "Brave",
-    "pesoNacer": 28,
-    "pesoDestete": 245,
+    "pesoNacer": 28.0,
+    "pesoDestete": 245.0,
     "fechaDestete": "2025-12-15",
     "añoDestete": 2025,
-    "edadDestete": 255,
-    "grDiaVida": 850.98,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 754"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 754"
   },
   {
     "id": 276,
@@ -4958,14 +4684,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "110",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 219,
+    "pesoNacer": 28.0,
+    "pesoDestete": 219.0,
     "fechaDestete": "2025-12-09",
     "añoDestete": 2025,
-    "edadDestete": 247,
-    "grDiaVida": 773.28,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 277,
@@ -4976,14 +4701,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "391-12-8",
     "padre": "595-1",
-    "pesoNacer": 28,
-    "pesoDestete": 240,
+    "pesoNacer": 28.0,
+    "pesoDestete": 240.0,
     "fechaDestete": "2025-12-19",
     "añoDestete": 2025,
-    "edadDestete": 253,
-    "grDiaVida": 837.94,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 278,
@@ -4994,14 +4718,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "26",
     "padre": "854-476",
-    "pesoNacer": 28,
-    "pesoDestete": 192,
+    "pesoNacer": 28.0,
+    "pesoDestete": 192.0,
     "fechaDestete": "2025-12-09",
     "añoDestete": 2025,
-    "edadDestete": 240,
-    "grDiaVida": 683.33,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 279,
@@ -5012,14 +4735,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0151",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 208,
+    "pesoNacer": 29.0,
+    "pesoDestete": 208.0,
     "fechaDestete": "2025-12-19",
     "añoDestete": 2025,
-    "edadDestete": 249,
-    "grDiaVida": 718.88,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 280,
@@ -5028,16 +4750,15 @@ export const NACIMIENTOS_LA_VEGA = [
     "año": 2025,
     "mes": 4,
     "sexo": "H",
-    "madre": "91119",
+    "madre": "757-0",
     "padre": "Brave",
-    "pesoNacer": 29,
-    "pesoDestete": 172,
+    "pesoNacer": 29.0,
+    "pesoDestete": 172.0,
     "fechaDestete": "2025-12-15",
     "añoDestete": 2025,
-    "edadDestete": 244,
-    "grDiaVida": 586.07,
     "estado": "Activo",
-    "comentario": "Embrion de la BON 757-0"
+    "finca": "La Vega",
+    "comentarios": "Embrion de la BON 757-0"
   },
   {
     "id": 281,
@@ -5048,14 +4769,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0161",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 165,
+    "pesoNacer": 28.0,
+    "pesoDestete": 165.0,
     "fechaDestete": "2025-12-19",
     "añoDestete": 2025,
-    "edadDestete": 238,
-    "grDiaVida": 575.63,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 282,
@@ -5066,14 +4786,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "814-876",
     "padre": "854-476",
-    "pesoNacer": 29,
-    "pesoDestete": 190,
+    "pesoNacer": 29.0,
+    "pesoDestete": 190.0,
     "fechaDestete": "2025-12-19",
     "añoDestete": 2025,
-    "edadDestete": 236,
-    "grDiaVida": 682.2,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 283,
@@ -5084,14 +4803,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "149",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 179,
+    "pesoNacer": 28.0,
+    "pesoDestete": 179.0,
     "fechaDestete": "2026-01-05",
     "añoDestete": 2026,
-    "edadDestete": 235,
-    "grDiaVida": 642.55,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 284,
@@ -5102,14 +4820,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91016",
     "padre": "595-1",
-    "pesoNacer": 28,
-    "pesoDestete": 214,
+    "pesoNacer": 28.0,
+    "pesoDestete": 214.0,
     "fechaDestete": "2026-01-28",
     "añoDestete": 2026,
-    "edadDestete": 258,
-    "grDiaVida": 720.93,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 285,
@@ -5120,14 +4837,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "080-8",
     "padre": "509-0",
-    "pesoNacer": 29,
-    "pesoDestete": 243,
+    "pesoNacer": 29.0,
+    "pesoDestete": 243.0,
     "fechaDestete": "2026-01-24",
     "añoDestete": 2026,
-    "edadDestete": 251,
-    "grDiaVida": 852.59,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 286,
@@ -5138,14 +4854,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "501",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 224,
+    "pesoNacer": 28.0,
+    "pesoDestete": 224.0,
     "fechaDestete": "2026-01-24",
     "añoDestete": 2026,
-    "edadDestete": 251,
-    "grDiaVida": 780.88,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 287,
@@ -5156,14 +4871,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "20",
     "padre": "854-476",
-    "pesoNacer": 30,
-    "pesoDestete": 203,
+    "pesoNacer": 30.0,
+    "pesoDestete": 203.0,
     "fechaDestete": "2026-01-24",
     "añoDestete": 2026,
-    "edadDestete": 249,
-    "grDiaVida": 694.78,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 288,
@@ -5174,14 +4888,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "16",
     "padre": "854-476",
-    "pesoNacer": 30,
-    "pesoDestete": 248,
+    "pesoNacer": 30.0,
+    "pesoDestete": 248.0,
     "fechaDestete": "2026-01-24",
     "añoDestete": 2026,
-    "edadDestete": 249,
-    "grDiaVida": 875.5,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 289,
@@ -5192,14 +4905,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91023",
     "padre": "509-0",
-    "pesoNacer": 29,
-    "pesoDestete": 222,
+    "pesoNacer": 29.0,
+    "pesoDestete": 222.0,
     "fechaDestete": "2026-01-24",
     "añoDestete": 2026,
-    "edadDestete": 248,
-    "grDiaVida": 778.23,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 290,
@@ -5210,14 +4922,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0210",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 230,
+    "pesoNacer": 28.0,
+    "pesoDestete": 230.0,
     "fechaDestete": "2026-01-24",
     "añoDestete": 2026,
-    "edadDestete": 247,
-    "grDiaVida": 817.81,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 291,
@@ -5228,14 +4939,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "1147",
     "padre": "509-0",
-    "pesoNacer": 29,
-    "pesoDestete": 267,
+    "pesoNacer": 29.0,
+    "pesoDestete": 267.0,
     "fechaDestete": "2026-01-28",
     "añoDestete": 2026,
-    "edadDestete": 249,
-    "grDiaVida": 955.82,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 292,
@@ -5246,14 +4956,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91013",
     "padre": "546-0",
-    "pesoNacer": 28,
-    "pesoDestete": 189,
+    "pesoNacer": 28.0,
+    "pesoDestete": 189.0,
     "fechaDestete": "2026-01-05",
     "añoDestete": 2026,
-    "edadDestete": 226,
-    "grDiaVida": 712.39,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 293,
@@ -5264,14 +4973,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "070-8",
     "padre": "509-0",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 294,
@@ -5282,14 +4990,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9812",
     "padre": "595-1",
-    "pesoNacer": 28,
-    "pesoDestete": 187,
+    "pesoNacer": 28.0,
+    "pesoDestete": 187.0,
     "fechaDestete": "2026-01-22",
     "añoDestete": 2026,
-    "edadDestete": 239,
-    "grDiaVida": 665.27,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 295,
@@ -5300,14 +5007,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91024",
     "padre": "595-1",
-    "pesoNacer": 29,
-    "pesoDestete": 197,
+    "pesoNacer": 29.0,
+    "pesoDestete": 197.0,
     "fechaDestete": "2026-01-22",
     "añoDestete": 2026,
-    "edadDestete": 239,
-    "grDiaVida": 702.93,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 296,
@@ -5318,14 +5024,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "8-4",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 168,
+    "pesoNacer": 28.0,
+    "pesoDestete": 168.0,
     "fechaDestete": "2026-01-22",
     "añoDestete": 2026,
-    "edadDestete": 238,
-    "grDiaVida": 588.24,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 297,
@@ -5336,14 +5041,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "086-8",
     "padre": "509-0",
-    "pesoNacer": 28,
-    "pesoDestete": 210,
+    "pesoNacer": 28.0,
+    "pesoDestete": 210.0,
     "fechaDestete": "2026-01-28",
     "añoDestete": 2026,
-    "edadDestete": 240,
-    "grDiaVida": 758.33,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 298,
@@ -5354,14 +5058,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "757-0",
     "padre": "477-375",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 299,
@@ -5372,14 +5075,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91108",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 300,
@@ -5390,14 +5092,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91124",
     "padre": "509-0",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 301,
@@ -5408,14 +5109,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "002-80",
     "padre": "595-1",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": "Brangus Puro"
+    "finca": "La Vega",
+    "comentarios": "Brangus Puro"
   },
   {
     "id": 302,
@@ -5426,14 +5126,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "14",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 303,
@@ -5444,14 +5143,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9927",
     "padre": "595-1",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 304,
@@ -5462,14 +5160,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "094-8",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 305,
@@ -5480,14 +5177,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "52-1",
     "padre": "854-476",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 306,
@@ -5498,14 +5194,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "291",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 307,
@@ -5516,14 +5211,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91155",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": null,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 308,
@@ -5534,14 +5228,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "104-9",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 309,
@@ -5552,14 +5245,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9838",
     "padre": "595-1",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 310,
@@ -5570,14 +5262,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9916",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 311,
@@ -5588,14 +5279,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "463",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 312,
@@ -5606,14 +5296,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0157",
     "padre": "854-476",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 313,
@@ -5624,14 +5313,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "M1026",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 314,
@@ -5642,14 +5330,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9814",
     "padre": "854-476",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Muerto",
-    "comentario": "Murio"
+    "finca": "La Vega",
+    "comentarios": "Murio"
   },
   {
     "id": 315,
@@ -5660,14 +5347,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "510-22",
     "padre": "477-375",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 316,
@@ -5678,14 +5364,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "747",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 317,
@@ -5696,14 +5381,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0113",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 318,
@@ -5714,14 +5398,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9932",
     "padre": "854-476",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 319,
@@ -5732,14 +5415,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0221",
     "padre": "854-476",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 320,
@@ -5750,14 +5432,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9910",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 321,
@@ -5768,14 +5449,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "M1004",
     "padre": "477-375",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 322,
@@ -5786,14 +5466,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "48",
     "padre": "854-476",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 323,
@@ -5804,14 +5483,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "457",
     "padre": "854-476",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 324,
@@ -5822,14 +5500,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "M1248",
     "padre": "477-375",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 325,
@@ -5840,14 +5517,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "527",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": "BON puro"
+    "finca": "La Vega",
+    "comentarios": "BON puro"
   },
   {
     "id": 326,
@@ -5858,14 +5534,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "91130",
     "padre": "477-375",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 327,
@@ -5876,14 +5551,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0250",
     "padre": "477-375",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 328,
@@ -5894,14 +5568,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "62",
     "padre": "854-476",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 329,
@@ -5912,14 +5585,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "58-1",
     "padre": "854-476",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 330,
@@ -5930,14 +5602,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "508-22",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 331,
@@ -5948,14 +5619,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0109",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 332,
@@ -5966,14 +5636,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "91012",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 333,
@@ -5984,14 +5653,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "386",
     "padre": "509-0",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 334,
@@ -6002,14 +5670,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "M1072",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 335,
@@ -6020,14 +5687,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "0222",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 336,
@@ -6038,14 +5704,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "078-8",
     "padre": "854-476",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 337,
@@ -6056,14 +5721,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "58",
     "padre": "854-476",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 338,
@@ -6074,14 +5738,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "0232",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 339,
@@ -6092,14 +5755,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "9820",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 340,
@@ -6110,14 +5772,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "414",
     "padre": "595-1",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 341,
@@ -6128,14 +5789,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "088-8",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 342,
@@ -6146,14 +5806,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "074-8",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 343,
@@ -6164,14 +5823,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "082-8",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 344,
@@ -6182,14 +5840,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "110-9",
     "padre": "477-375",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 345,
@@ -6200,14 +5857,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "064-8",
     "padre": "477-375",
-    "pesoNacer": 29,
+    "pesoNacer": 29.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 346,
@@ -6218,14 +5874,13 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "H",
     "madre": "9936",
     "padre": "509-0",
-    "pesoNacer": 28,
+    "pesoNacer": 28.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   },
   {
     "id": 347,
@@ -6236,13 +5891,12 @@ export const NACIMIENTOS_LA_VEGA = [
     "sexo": "M",
     "madre": "114",
     "padre": "854-476",
-    "pesoNacer": 27,
+    "pesoNacer": 27.0,
     "pesoDestete": null,
     "fechaDestete": null,
     "añoDestete": 1900,
-    "edadDestete": null,
-    "grDiaVida": null,
     "estado": "Activo",
-    "comentario": ""
+    "finca": "La Vega",
+    "comentarios": ""
   }
 ];
