@@ -267,7 +267,7 @@ export default function GanaderiaApp() {
               <Menu size={24}/>
             </button>
             <div className="flex items-center gap-3">
-              <img src="/logo_lavega.jpg" alt="Hierro La Vega" className="h-10 w-10 object-contain rounded-lg bg-white/90 p-1" />
+              <img src="/logo_lavega.jpg" alt="Hierro La Vega" className="h-12 w-12 object-cover rounded-lg bg-white p-0.5 shadow-sm" />
               <div>
                 <h1 className="text-xl font-bold">Ganadería La Vega</h1>
                 <p className="text-xs text-green-200 hidden sm:block">Sistema de Gestión</p>
