@@ -180,7 +180,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
 
   const extraerInventario = (workbook, sheetName, año, mes) => {
     const ws = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
     
     const inventario = {
       año: año,
@@ -189,10 +189,24 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       vp: 0, vh: 0, nas: 0, ch: 0, cm: 0, hl: 0, ml: 0, total: 0, toros: 0, caballos: 0
     };
 
+    // Buscar la columna de SALDO FINAL en los encabezados
+    let saldoFinalCol = 12; // Columna por defecto (índice 12 = columna M)
+    for (const row of data.slice(0, 10)) {
+      if (!row) continue;
+      for (let i = 0; i < row.length; i++) {
+        if (row[i] && String(row[i]).toUpperCase().includes('SALDO FINAL')) {
+          saldoFinalCol = i;
+          break;
+        }
+      }
+    }
+
     for (const row of data) {
-      if (!row[0]) continue;
+      if (!row || !row[0]) continue;
       const cat = String(row[0]).trim().toUpperCase();
-      const saldoFinal = row[row.length - 1];
+      
+      // Obtener el valor de SALDO FINAL de la columna correcta
+      const saldoFinal = row[saldoFinalCol];
       
       if (typeof saldoFinal !== 'number') continue;
       
@@ -207,6 +221,13 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
         case 'T': inventario.toros = saldoFinal; break;
         case 'TOTAL': inventario.total = saldoFinal; break;
       }
+    }
+
+    // Si no se encontró TOTAL, calcularlo
+    if (inventario.total === 0) {
+      inventario.total = inventario.vp + inventario.vh + inventario.nas + 
+                         inventario.ch + inventario.cm + inventario.hl + 
+                         inventario.ml + inventario.toros;
     }
 
     return inventario.total > 0 ? inventario : null;
