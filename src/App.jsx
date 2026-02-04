@@ -153,8 +153,10 @@ export default function GanaderiaApp() {
   // Cálculos memorizados
   const años = useMemo(() => {
     const añosGastos = gastos.map(g => g.fecha?.split('-')[0]).filter(Boolean);
-    return [...new Set(añosGastos)].sort().reverse();
-  }, [gastos]);
+    const añosNacimientos = nacimientos.map(n => n.año?.toString()).filter(Boolean);
+    const añosInventario = inventario.map(i => i.año?.toString()).filter(Boolean);
+    return [...new Set([...añosGastos, ...añosNacimientos, ...añosInventario])].sort().reverse();
+  }, [gastos, nacimientos, inventario]);
   
   const filtered = useMemo(() => gastos.filter(g => {
     if (!g.fecha) return false;
