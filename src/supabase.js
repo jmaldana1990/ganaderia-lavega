@@ -80,16 +80,16 @@ export async function getInventario() {
     año: i.año,
     mes: i.mes,
     finca: i.finca,
-    VP: i.vp,
-    VH: i.vh,
-    NAS: i.nas,
-    CH: i.ch,
-    CM: i.cm,
-    HL: i.hl,
-    ML: i.ml,
-    TOTAL: i.total,
-    TOROS: i.toros,
-    CABALLOS: i.caballos
+    vp: i.vp,
+    vh: i.vh,
+    nas: i.nas,
+    ch: i.ch,
+    cm: i.cm,
+    hl: i.hl,
+    ml: i.ml,
+    total: i.total,
+    toros: i.toros,
+    caballos: i.caballos
   }))
 }
 
