@@ -180,7 +180,9 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
 
   const extraerInventario = (workbook, sheetName, año, mes) => {
     const ws = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+    
+    // Usar range para obtener todas las celdas incluidas las vacías
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:Z50');
     
     const inventario = {
       año: año,
@@ -189,25 +191,42 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       vp: 0, vh: 0, nas: 0, ch: 0, cm: 0, hl: 0, ml: 0, total: 0, toros: 0, caballos: 0
     };
 
-    // Buscar la columna de SALDO FINAL en los encabezados
-    let saldoFinalCol = 12; // Columna por defecto (índice 12 = columna M)
-    for (const row of data.slice(0, 10)) {
-      if (!row) continue;
-      for (let i = 0; i < row.length; i++) {
-        if (row[i] && String(row[i]).toUpperCase().includes('SALDO FINAL')) {
-          saldoFinalCol = i;
+    // Función helper para obtener valor de celda
+    const getCellValue = (r, c) => {
+      const cellAddress = XLSX.utils.encode_cell({ r, c });
+      const cell = ws[cellAddress];
+      return cell ? cell.v : null;
+    };
+
+    // Buscar la columna de SALDO FINAL en las primeras 10 filas
+    let saldoFinalCol = -1;
+    for (let r = 0; r < 10; r++) {
+      for (let c = 0; c <= 15; c++) {
+        const val = getCellValue(r, c);
+        if (val && typeof val === 'string' && val.toUpperCase().includes('SALDO FINAL')) {
+          saldoFinalCol = c;
+          console.log('Encontrada columna SALDO FINAL en:', c);
           break;
         }
       }
+      if (saldoFinalCol >= 0) break;
     }
 
-    for (const row of data) {
-      if (!row || !row[0]) continue;
-      const cat = String(row[0]).trim().toUpperCase();
+    // Si no encontramos la columna, usar 12 por defecto (columna M)
+    if (saldoFinalCol < 0) {
+      saldoFinalCol = 12;
+      console.log('Usando columna por defecto:', saldoFinalCol);
+    }
+
+    // Recorrer filas buscando categorías
+    for (let r = 0; r <= Math.min(range.e.r, 25); r++) {
+      const categoria = getCellValue(r, 0);
+      if (!categoria) continue;
       
-      // Obtener el valor de SALDO FINAL de la columna correcta
-      const saldoFinal = row[saldoFinalCol];
+      const cat = String(categoria).trim().toUpperCase();
+      const saldoFinal = getCellValue(r, saldoFinalCol);
       
+      // Solo procesar si el saldo final es un número
       if (typeof saldoFinal !== 'number') continue;
       
       switch(cat) {
@@ -230,6 +249,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
                          inventario.ml + inventario.toros;
     }
 
+    console.log('Inventario extraído:', inventario);
     return inventario.total > 0 ? inventario : null;
   };
 
