@@ -266,8 +266,8 @@ export default function GanaderiaApp() {
             <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 hover:bg-white/10 rounded-lg">
               <Menu size={24}/>
             </button>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🐄</span>
+            <div className="flex items-center gap-3">
+              <img src="/logo_lavega.jpg" alt="Hierro La Vega" className="h-10 w-10 object-contain rounded-lg bg-white/90 p-1" />
               <div>
                 <h1 className="text-xl font-bold">Ganadería La Vega</h1>
                 <p className="text-xs text-green-200 hidden sm:block">Sistema de Gestión</p>
