@@ -379,6 +379,8 @@ export default function GanaderiaApp() {
               filtros={filtros} 
               setFiltros={updateFiltros} 
               años={años}
+              nacimientos={nacimientos}
+              inventario={inventario}
             />
           )}
           {view === 'costos' && (
@@ -552,17 +554,29 @@ function Nacimientos({ data, inventario }) {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm lg:col-span-2">
           <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-600"/>Nacimientos por Mes</h3>
-          <div className="flex items-end gap-1 h-40">
-            {porMes.length > 0 ? porMes.map(([m, c]) => {
-              const max = Math.max(...porMes.map(([,v]) => v));
-              return (
-                <div key={m} className="flex-1 flex flex-col items-center">
-                  <span className="text-xs text-gray-600 mb-1">{c}</span>
-                  <div className="w-full bg-green-500 rounded-t" style={{height: `${(c/max)*100}%`}}/>
-                  <span className="text-xs text-gray-500 mt-1">{MESES[parseInt(m.split('-')[1])]}</span>
-                </div>
-              );
-            }) : <p className="text-gray-400 w-full text-center py-8">Sin datos</p>}
+          <div className="h-48">
+            {porMes.length > 0 ? (
+              <div className="flex items-end justify-between h-full gap-1 px-2">
+                {porMes.map(([m, c]) => {
+                  const max = Math.max(...porMes.map(([,v]) => v));
+                  const mesNum = parseInt(m.split('-')[1]);
+                  return (
+                    <div key={m} className="flex-1 flex flex-col items-center h-full justify-end">
+                      <span className="text-xs font-semibold text-green-700 mb-1">{c}</span>
+                      <div 
+                        className="w-full rounded-t transition-all duration-300 bg-gradient-to-t from-green-600 to-green-400"
+                        style={{height: `${Math.max((c/max)*100, 8)}%`}}
+                      />
+                      <span className="text-xs text-gray-500 mt-2 font-medium">{MESES[mesNum]}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                <p>Sin datos para el período seleccionado</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="bg-white rounded-2xl p-6 shadow-sm">
@@ -644,9 +658,79 @@ function Nacimientos({ data, inventario }) {
 }
 
 // ==================== COMPONENTE DASHBOARD ====================
-function Dashboard({totales, porCategoria, porCentro, pendientes, onApprove, filtros, setFiltros, años}) {
+function Dashboard({totales, porCategoria, porCentro, pendientes, onApprove, filtros, setFiltros, años, nacimientos, inventario}) {
   const maxCat = Math.max(...porCategoria.map(c=>c.total), 1);
   const maxCen = Math.max(...porCentro.map(c=>c.total), 1);
+  
+  // Calcular nacimientos por mes del año seleccionado
+  const nacimientosPorMes = useMemo(() => {
+    const añoFiltro = filtros.año ? parseInt(filtros.año) : null;
+    const meses = {};
+    
+    // Inicializar todos los meses en 0
+    for (let i = 1; i <= 12; i++) {
+      meses[i] = 0;
+    }
+    
+    nacimientos?.forEach(n => {
+      if (n.estado === 'Activo' && n.año && n.mes) {
+        if (!añoFiltro || n.año === añoFiltro) {
+          meses[n.mes] = (meses[n.mes] || 0) + 1;
+        }
+      }
+    });
+    
+    return Object.entries(meses).map(([mes, count]) => ({
+      mes: parseInt(mes),
+      count,
+      label: MESES[parseInt(mes)]
+    }));
+  }, [nacimientos, filtros.año]);
+  
+  const maxNacimientos = Math.max(...nacimientosPorMes.map(m => m.count), 1);
+  
+  // Calcular inventario total por mes
+  const inventarioPorMes = useMemo(() => {
+    const añoFiltro = filtros.año ? parseInt(filtros.año) : null;
+    const meses = {};
+    
+    inventario?.forEach(inv => {
+      if (!añoFiltro || inv.año === añoFiltro) {
+        const key = `${inv.año}-${String(inv.mes).padStart(2, '0')}`;
+        if (!meses[key] || inv.total > meses[key].total) {
+          meses[key] = {
+            año: inv.año,
+            mes: inv.mes,
+            total: inv.total || 0,
+            vp: inv.vp || 0,
+            vh: inv.vh || 0,
+            cm: inv.cm || 0,
+            ch: inv.ch || 0,
+            label: MESES[inv.mes]
+          };
+        }
+      }
+    });
+    
+    return Object.values(meses).sort((a, b) => {
+      if (a.año !== b.año) return a.año - b.año;
+      return a.mes - b.mes;
+    }).slice(-12);
+  }, [inventario, filtros.año]);
+  
+  const maxInventario = Math.max(...inventarioPorMes.map(m => m.total), 1);
+  
+  // Stats generales de nacimientos
+  const statsNacimientos = useMemo(() => {
+    const añoFiltro = filtros.año ? parseInt(filtros.año) : null;
+    const filtered = nacimientos?.filter(n => !añoFiltro || n.año === añoFiltro) || [];
+    const activos = filtered.filter(n => n.estado === 'Activo');
+    return {
+      total: activos.length,
+      machos: activos.filter(n => n.sexo === 'M').length,
+      hembras: activos.filter(n => n.sexo === 'H').length
+    };
+  }, [nacimientos, filtros.año]);
   
   return (
     <div className="space-y-6">
@@ -658,6 +742,7 @@ function Dashboard({totales, porCategoria, porCentro, pendientes, onApprove, fil
         </select>
       </div>
       
+      {/* Cards financieros */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card title="Total Egresos" value={formatCurrency(totales.total)} icon={DollarSign} color="from-green-500 to-green-600"/>
         <Card title="Costos" value={formatCurrency(totales.costos)} icon={TrendingUp} color="from-blue-500 to-blue-600"/>
@@ -665,6 +750,76 @@ function Dashboard({totales, porCategoria, porCentro, pendientes, onApprove, fil
         <Card title="Pendientes" value={totales.pendientes} icon={FileText} color="from-orange-500 to-orange-600" sub="por aprobar"/>
       </div>
       
+      {/* Gráficas de Nacimientos e Inventario */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Gráfica de Nacimientos por Mes */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Baby size={20} className="text-green-600"/>
+              Nacimientos por Mes
+            </h3>
+            <span className="text-sm text-gray-500">
+              Total: {statsNacimientos.total} (♂{statsNacimientos.machos} / ♀{statsNacimientos.hembras})
+            </span>
+          </div>
+          <div className="h-48">
+            <div className="flex items-end justify-between h-full gap-1 px-2">
+              {nacimientosPorMes.map(({ mes, count, label }) => (
+                <div key={mes} className="flex-1 flex flex-col items-center h-full justify-end">
+                  {count > 0 && (
+                    <span className="text-xs font-semibold text-green-700 mb-1">{count}</span>
+                  )}
+                  <div 
+                    className={`w-full rounded-t transition-all duration-300 ${count > 0 ? 'bg-gradient-to-t from-green-600 to-green-400' : 'bg-gray-100'}`}
+                    style={{ height: count > 0 ? `${Math.max((count / maxNacimientos) * 100, 8)}%` : '4px' }}
+                  />
+                  <span className="text-xs text-gray-500 mt-2 font-medium">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Gráfica de Inventario Total por Mes */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Beef size={20} className="text-amber-600"/>
+              Inventario Total por Mes
+            </h3>
+            {inventarioPorMes.length > 0 && (
+              <span className="text-sm text-gray-500">
+                Último: {inventarioPorMes[inventarioPorMes.length - 1]?.total || 0} cabezas
+              </span>
+            )}
+          </div>
+          <div className="h-48">
+            {inventarioPorMes.length > 0 ? (
+              <div className="flex items-end justify-between h-full gap-1 px-2">
+                {inventarioPorMes.map(({ mes, año, total, label }) => (
+                  <div key={`${año}-${mes}`} className="flex-1 flex flex-col items-center h-full justify-end">
+                    {total > 0 && (
+                      <span className="text-xs font-semibold text-amber-700 mb-1">{total}</span>
+                    )}
+                    <div 
+                      className={`w-full rounded-t transition-all duration-300 ${total > 0 ? 'bg-gradient-to-t from-amber-600 to-amber-400' : 'bg-gray-100'}`}
+                      style={{ height: total > 0 ? `${Math.max((total / maxInventario) * 100, 8)}%` : '4px' }}
+                    />
+                    <span className="text-xs text-gray-500 mt-2 font-medium">{label}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                <p>Sin datos de inventario</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Gráficas financieras */}
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-600"/>Por Categoría</h3>
