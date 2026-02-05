@@ -329,11 +329,11 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
 
   // Inventario último por finca
   const invLaVega = useMemo(() =>
-    inventario.filter(i => i.finca === 'La Vega').sort((a, b) => (b.año * 12 + b.mes) - (a.año * 12 + a.mes))[0],
-    [inventario]);
+    inventario.filter(i => i.finca === 'La Vega' && (!añoFiltro || i.año === añoFiltro)).sort((a, b) => (b.año * 12 + b.mes) - (a.año * 12 + a.mes))[0],
+    [inventario, añoFiltro]);
   const invBariloche = useMemo(() =>
-    inventario.filter(i => i.finca === 'Bariloche').sort((a, b) => (b.año * 12 + b.mes) - (a.año * 12 + a.mes))[0],
-    [inventario]);
+    inventario.filter(i => i.finca === 'Bariloche' && (!añoFiltro || i.año === añoFiltro)).sort((a, b) => (b.año * 12 + b.mes) - (a.año * 12 + a.mes))[0],
+    [inventario, añoFiltro]);
 
   // Nacimientos por mes
   const nacimientosPorMes = useMemo(() => {
