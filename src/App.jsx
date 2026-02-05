@@ -719,7 +719,7 @@ export default function GanaderiaApp() {
   
   const proveedores = useMemo(() => {
     const fromGastos = [...new Set(gastos.map(g => g.proveedor))];
-    return [...new Set([...fromGastos, ...PROVEEDORES_CONOCIDOS])].sort();
+    return [...new Set([...fromGastos, ...Object.keys(PROVEEDORES_CONOCIDOS)])].sort();
   }, [gastos]);
 
   const pendientes = gastos.filter(g => !g.aprobado);
