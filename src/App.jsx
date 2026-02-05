@@ -106,7 +106,17 @@ export default function GanaderiaApp() {
       ]);
       if (nacData?.length > 0) setNacimientos(nacData);
       if (costosData?.length > 0) setGastos(costosData);
-      if (invData?.length > 0) setInventario(invData);
+      // Inventario: combinar nube + local, deduplicando por finca+periodo
+      if (invData?.length > 0) {
+        setInventario(() => {
+          const merged = new Map();
+          // Primero los locales (del archivo JS importado)
+          INVENTARIO_FINCAS.forEach(r => merged.set(r.finca + '-' + r.periodo, r));
+          // Luego los de la nube (sobreescriben duplicados, pueden tener datos más frescos)
+          invData.forEach(r => merged.set(r.finca + '-' + r.periodo, r));
+          return [...merged.values()];
+        });
+      }
       setDataSource('cloud');
     } catch (err) {
       console.error('Error cargando datos de la nube:', err);
