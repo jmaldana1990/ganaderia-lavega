@@ -42,10 +42,23 @@ export default function CargaInventario({ user, onClose, onSuccess }) {
     setError(null);
 
     try {
-      // Guardar cada registro en Supabase (upsert por finca+periodo)
-      for (const registro of resultado.data) {
-        await db.upsertInventario(registro);
-      }
+      // Mapear campos al formato que espera la tabla de Supabase
+      const registrosDB = resultado.data.map(r => ({
+        año: r.año,
+        mes: r.mes,
+        finca: r.finca,
+        vp: r.vp,
+        vh: r.vh,
+        nas: r.nas,
+        cm: r.cm,
+        ch: r.ch,
+        hl: r.hl,
+        ml: r.ml,
+        total: r.total,
+        toros: r.t || 0,
+        caballos: 0
+      }));
+      await db.upsertInventario(registrosDB);
       setPaso('done');
       // Esperar un momento para mostrar el éxito y luego cerrar
       setTimeout(() => {

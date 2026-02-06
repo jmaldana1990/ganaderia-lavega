@@ -14,7 +14,6 @@ export async function getNacimientos() {
   
   if (error) throw error
   
-  // Transformar nombres de campos para compatibilidad con el código existente
   return data.map(n => ({
     id: n.id,
     cria: n.cria,
@@ -36,7 +35,6 @@ export async function getNacimientos() {
 }
 
 export async function upsertNacimientos(registros) {
-  // Transformar a formato de base de datos
   const dbRecords = registros.map(r => ({
     cria: r.cria,
     fecha: r.fecha,
@@ -74,19 +72,24 @@ export async function getInventario() {
   
   if (error) throw error
   
-  // Transformar a formato compatible
+  // Transformar a formato compatible con App.jsx (incluye periodo y t)
   return data.map(i => ({
     id: i.id,
     año: i.año,
     mes: i.mes,
+    periodo: `${i.año}-${String(i.mes).padStart(2, '0')}`,
     finca: i.finca,
     vp: i.vp,
     vh: i.vh,
     nas: i.nas,
     ch: i.ch,
     cm: i.cm,
+    t: i.toros || 0,
     hl: i.hl,
     ml: i.ml,
+    hd: 0,
+    md: 0,
+    mc: 0,
     total: i.total,
     toros: i.toros,
     caballos: i.caballos
