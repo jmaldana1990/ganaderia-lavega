@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin } from 'lucide-react';
+import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 import { NACIMIENTOS_LA_VEGA } from './nacimientos-lavega';
@@ -7,6 +7,8 @@ import { INVENTARIO_FINCAS } from './inventario-fincas';
 import * as db from './supabase';
 import Login from './Login';
 import CargaArchivos from './CargaArchivos';
+import CargaInventario from './CargaInventario';
+import { VENTAS_GANADO, VENTAS_RESUMEN, TIPO_ANIMAL_LABELS } from './ventas-ganado';
 
 // ==================== HELPERS ====================
 const formatCurrency = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v);
@@ -51,6 +53,7 @@ export default function GanaderiaApp() {
   const [view, setView] = useState('dashboard');
   const [showForm, setShowForm] = useState(false);
   const [showCarga, setShowCarga] = useState(false);
+  const [showCargaInv, setShowCargaInv] = useState(false);
   const [editGasto, setEditGasto] = useState(null);
   const [filtros, setFiltros] = useState({ mes: '', año: '2025', centro: '', categoria: '', busqueda: '' });
   const [menuOpen, setMenuOpen] = useState(false);
@@ -221,6 +224,7 @@ export default function GanaderiaApp() {
     { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-600' },
     { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-600' },
     { id: 'nacimientos', icon: Baby, label: 'Nacimientos' },
+    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-600' },
     { id: 'costos', icon: Receipt, label: 'Costos y Gastos' },
   ];
 
@@ -249,9 +253,14 @@ export default function GanaderiaApp() {
               <button onClick={loadCloudData} className="p-2 hover:bg-white/20 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
             )}
             {user && (
-              <button onClick={() => setShowCarga(true)} className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition-colors">
-                <Upload size={18} /><span className="hidden sm:inline">Cargar</span>
-              </button>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar costos/nacimientos">
+                  <Upload size={16} /><span className="hidden sm:inline">Costos</span>
+                </button>
+                <button onClick={() => setShowCargaInv(true)} className="flex items-center gap-1.5 bg-emerald-400/30 hover:bg-emerald-400/50 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar movimientos de inventario">
+                  <FileText size={16} /><span className="hidden sm:inline">Inventario</span>
+                </button>
+              </div>
             )}
             {user ? (
               <div className="flex items-center gap-2">
@@ -283,6 +292,7 @@ export default function GanaderiaApp() {
               <p>📋 {nacimientos.length} nacimientos</p>
               <p>💰 {gastos.length} costos</p>
               <p>📊 {inventario.length} inventarios</p>
+              <p>🛒 {VENTAS_GANADO.length} ventas</p>
             </div>
           </div>
         </aside>
@@ -304,6 +314,7 @@ export default function GanaderiaApp() {
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años} />
           )}
           {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
+          {view === 'ventas' && <VentasTotales />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
               filtros={filtros} setFiltros={updateFiltros} onNew={() => setShowForm(true)}
@@ -316,6 +327,7 @@ export default function GanaderiaApp() {
       {/* Modales */}
       {showForm && <Form gasto={editGasto} onSave={save} onClose={() => { setShowForm(false); setEditGasto(null); }} />}
       {showCarga && <CargaArchivos user={user} onClose={() => setShowCarga(false)} onSuccess={() => { setShowCarga(false); loadCloudData(); }} />}
+      {showCargaInv && <CargaInventario user={user} onClose={() => setShowCargaInv(false)} onSuccess={() => { setShowCargaInv(false); loadCloudData(); }} />}
       {menuOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setMenuOpen(false)} />}
     </div>
   );
@@ -326,6 +338,20 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
   const maxCat = Math.max(...porCategoria.map(c => c.total), 1);
   const maxCen = Math.max(...porCentro.map(c => c.total), 1);
   const añoFiltro = filtros.año ? parseInt(filtros.año) : null;
+
+  // Ventas del año filtrado o el más reciente con datos
+  const ventasAñoLabel = useMemo(() => {
+    if (añoFiltro && VENTAS_RESUMEN[añoFiltro]) return añoFiltro;
+    if (añoFiltro) return añoFiltro; // año sin datos, mostrará $0
+    // Sin filtro: usar el año más reciente con datos
+    const años = Object.keys(VENTAS_RESUMEN).map(Number).sort((a, b) => b - a);
+    return años[0] || new Date().getFullYear();
+  }, [añoFiltro]);
+
+  const ventasAño = useMemo(() => {
+    const resumen = VENTAS_RESUMEN[ventasAñoLabel];
+    return resumen ? resumen.ingresosTotales : 0;
+  }, [ventasAñoLabel]);
 
   // Inventario último por finca
   const invLaVega = useMemo(() =>
@@ -370,7 +396,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
         <Card title="Total Egresos" value={formatCurrency(totales.total)} icon={DollarSign} color="from-green-500 to-green-600" />
         <Card title="Costos" value={formatCurrency(totales.costos)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
         <Card title="Gastos" value={formatCurrency(totales.gastos)} icon={Receipt} color="from-purple-500 to-purple-600" />
-        <Card title="Pendientes" value={totales.pendientes} icon={FileText} color="from-orange-500 to-orange-600" sub="por aprobar" />
+        <Card title={`Ventas ${ventasAñoLabel}`} value={formatCurrency(ventasAño)} icon={ShoppingCart} color="from-amber-500 to-amber-600" sub="ingresos ganado" />
       </div>
 
       {/* Inventario por finca */}
@@ -473,6 +499,222 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ==================== COMPONENTE VENTAS TOTALES ====================
+function VentasTotales() {
+  const [añoSel, setAñoSel] = useState('');
+  const añosDisponibles = Object.keys(VENTAS_RESUMEN).sort((a, b) => b - a);
+
+  const COLORES_TIPO = {
+    ML: { bg: 'bg-blue-100', text: 'text-blue-700', bar: 'bg-blue-500' },
+    HL: { bg: 'bg-pink-100', text: 'text-pink-700', bar: 'bg-pink-500' },
+    VD: { bg: 'bg-amber-100', text: 'text-amber-700', bar: 'bg-amber-500' },
+    T: { bg: 'bg-red-100', text: 'text-red-700', bar: 'bg-red-500' },
+    CM: { bg: 'bg-cyan-100', text: 'text-cyan-700', bar: 'bg-cyan-500' },
+    CH: { bg: 'bg-purple-100', text: 'text-purple-700', bar: 'bg-purple-500' },
+  };
+
+  // Ventas filtradas
+  const ventasFiltradas = useMemo(() => {
+    if (!añoSel) return VENTAS_GANADO;
+    return VENTAS_GANADO.filter(v => v.año === parseInt(añoSel));
+  }, [añoSel]);
+
+  // Totales globales
+  const totalGlobal = useMemo(() => {
+    const total = ventasFiltradas.reduce((s, v) => s + v.valor, 0);
+    const kg = ventasFiltradas.reduce((s, v) => s + v.kg, 0);
+    return { total, kg, precioPromedio: kg > 0 ? Math.round(total / kg) : 0, transacciones: ventasFiltradas.length };
+  }, [ventasFiltradas]);
+
+  // Por tipo de animal
+  const porTipo = useMemo(() => {
+    const tipos = {};
+    ventasFiltradas.forEach(v => {
+      if (!tipos[v.tipo]) tipos[v.tipo] = { kg: 0, valor: 0, count: 0 };
+      tipos[v.tipo].kg += v.kg;
+      tipos[v.tipo].valor += v.valor;
+      tipos[v.tipo].count += 1;
+    });
+    return Object.entries(tipos).map(([tipo, d]) => ({
+      tipo, label: TIPO_ANIMAL_LABELS[tipo] || tipo,
+      kg: d.kg, valor: d.valor, count: d.count,
+      precioPromedio: d.kg > 0 ? Math.round(d.valor / d.kg) : 0
+    })).sort((a, b) => b.valor - a.valor);
+  }, [ventasFiltradas]);
+
+  const maxKg = Math.max(...porTipo.map(t => t.kg), 1);
+
+  // Por año (para tabla comparativa)
+  const porAño = useMemo(() => {
+    return añosDisponibles.map(año => {
+      const r = VENTAS_RESUMEN[parseInt(año)];
+      return { año: parseInt(año), ...r };
+    });
+  }, []);
+
+  // Transacciones del periodo
+  const transacciones = useMemo(() => {
+    return [...ventasFiltradas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  }, [ventasFiltradas]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 flex-wrap">
+        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+          <ShoppingCart size={28} className="text-amber-600" /> Ventas Totales
+        </h2>
+        <select value={añoSel} onChange={e => setAñoSel(e.target.value)} className="px-4 py-2 border rounded-xl">
+          <option value="">Todos los años</option>
+          {añosDisponibles.map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
+      </div>
+
+      {/* Cards resumen */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card title="Ingresos Totales" value={formatCurrency(totalGlobal.total)} icon={DollarSign} color="from-amber-500 to-amber-600" />
+        <Card title="Total Kg" value={totalGlobal.kg.toLocaleString('es-CO')} icon={Scale} color="from-blue-500 to-blue-600" sub="kg vendidos" />
+        <Card title="Precio Prom/kg" value={formatCurrency(totalGlobal.precioPromedio)} icon={TrendingUp} color="from-green-500 to-green-600" sub="$/kg" />
+        <Card title="Transacciones" value={totalGlobal.transacciones} icon={FileText} color="from-purple-500 to-purple-600" sub="ventas realizadas" />
+      </div>
+
+      {/* Desglose por tipo de animal */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><Beef size={20} className="text-amber-600" />Ventas por Tipo de Animal</h3>
+        <div className="space-y-4">
+          {porTipo.map(({ tipo, label, kg, valor, precioPromedio }) => (
+            <div key={tipo}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[tipo]?.bg || 'bg-gray-100'} ${COLORES_TIPO[tipo]?.text || 'text-gray-700'}`}>{tipo}</span>
+                  <span className="text-sm font-medium text-gray-700">{label}</span>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="text-gray-500">{kg.toLocaleString('es-CO')} kg</span>
+                  <span className="text-gray-500">{formatCurrency(precioPromedio)}/kg</span>
+                  <span className="font-semibold text-gray-800">{formatCurrency(valor)}</span>
+                </div>
+              </div>
+              <div className="h-3 bg-gray-100 rounded-full">
+                <div className={`h-full rounded-full transition-all duration-300 ${COLORES_TIPO[tipo]?.bar || 'bg-gray-500'}`} style={{ width: `${(kg / maxKg) * 100}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabla comparativa por año */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-amber-600" />Comparativo Anual</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-3 px-2 font-semibold text-gray-600">Año</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">Kg Totales</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">Precio Prom/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">Ingresos Totales</th>
+              </tr>
+            </thead>
+            <tbody>
+              {porAño.map(({ año, totalKg, precioPromedio, ingresosTotales }) => (
+                <tr key={año} className={`border-b hover:bg-amber-50 ${añoSel && parseInt(añoSel) === año ? 'bg-amber-50 font-semibold' : ''}`}>
+                  <td className="py-3 px-2 font-medium">{año}</td>
+                  <td className="py-3 px-2 text-right">{totalKg.toLocaleString('es-CO')}</td>
+                  <td className="py-3 px-2 text-right">{formatCurrency(precioPromedio)}</td>
+                  <td className="py-3 px-2 text-right font-medium text-amber-700">{formatCurrency(ingresosTotales)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t-2 font-bold">
+                <td className="py-3 px-2">Total</td>
+                <td className="py-3 px-2 text-right">{porAño.reduce((s, r) => s + r.totalKg, 0).toLocaleString('es-CO')}</td>
+                <td className="py-3 px-2 text-right">{formatCurrency(Math.round(porAño.reduce((s, r) => s + r.ingresosTotales, 0) / porAño.reduce((s, r) => s + r.totalKg, 0)))}</td>
+                <td className="py-3 px-2 text-right text-amber-700">{formatCurrency(porAño.reduce((s, r) => s + r.ingresosTotales, 0))}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      {/* Detalle por tipo por año */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-amber-600" />Detalle por Tipo de Animal y Año</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-3 px-2 font-semibold text-gray-600">Año</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-600">Tipo</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">Kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">Precio/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {añosDisponibles.map(año => {
+                const r = VENTAS_RESUMEN[parseInt(año)];
+                const tipoKeys = Object.keys(r.tipos).sort();
+                return tipoKeys.map((tipo, idx) => {
+                  const t = r.tipos[tipo];
+                  const valor = Math.round(t.kg * t.precio);
+                  return (
+                    <tr key={`${año}-${tipo}`} className={`border-b hover:bg-gray-50 ${idx === 0 ? 'border-t-2 border-t-gray-200' : ''}`}>
+                      {idx === 0 && <td className="py-2 px-2 font-bold text-gray-800" rowSpan={tipoKeys.length}>{año}</td>}
+                      <td className="py-2 px-2">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[tipo]?.bg || 'bg-gray-100'} ${COLORES_TIPO[tipo]?.text || 'text-gray-700'}`}>{tipo}</span>
+                        <span className="ml-2 text-gray-600">{TIPO_ANIMAL_LABELS[tipo] || tipo}</span>
+                      </td>
+                      <td className="py-2 px-2 text-right">{t.kg.toLocaleString('es-CO')}</td>
+                      <td className="py-2 px-2 text-right">{formatCurrency(Math.round(t.precio))}</td>
+                      <td className="py-2 px-2 text-right font-medium">{formatCurrency(valor)}</td>
+                    </tr>
+                  );
+                });
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Historial de transacciones */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><FileText size={20} className="text-amber-600" />Historial de Ventas ({transacciones.length})</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-3 px-2 font-semibold text-gray-600">Fecha</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-600">Factura</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-600">Cliente</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-600">Tipo</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">Kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">$/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-600">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transacciones.map((v, i) => (
+                <tr key={i} className="border-b hover:bg-gray-50">
+                  <td className="py-2 px-2 whitespace-nowrap">{v.fecha}</td>
+                  <td className="py-2 px-2 text-gray-500">{v.factura || '—'}</td>
+                  <td className="py-2 px-2 truncate max-w-[150px]">{v.cliente}</td>
+                  <td className="py-2 px-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[v.tipo]?.bg || 'bg-gray-100'} ${COLORES_TIPO[v.tipo]?.text || 'text-gray-700'}`}>{v.tipo}</span>
+                  </td>
+                  <td className="py-2 px-2 text-right">{v.kg.toLocaleString('es-CO')}</td>
+                  <td className="py-2 px-2 text-right">{formatCurrency(v.precio)}</td>
+                  <td className="py-2 px-2 text-right font-medium text-amber-700">{formatCurrency(v.valor)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
