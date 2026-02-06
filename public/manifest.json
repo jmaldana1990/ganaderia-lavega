@@ -1,17 +1,23 @@
 {
   "name": "Ganadería La Vega",
   "short_name": "La Vega",
-  "description": "Sistema de Gestión Ganadería La Vega",
+  "description": "Sistema de Gestión Ganadera - Control de costos, inventario y producción",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#15803d",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/logo192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
