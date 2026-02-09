@@ -538,14 +538,24 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     const fechaMax = fechas[fechas.length - 1];
     const añosEnArchivo = [...new Set(registrosExcel.map(r => r.fecha.split('-')[0]))].sort();
 
-    // 6. Consultar registros existentes en Supabase para ese rango
-    const { data: existentes, error: fetchError } = await supabase
-      .from('costos')
-      .select('fecha, monto, proveedor, centro, categoria')
-      .gte('fecha', fechaMin)
-      .lte('fecha', fechaMax);
-
-    if (fetchError) throw fetchError;
+    // 6. Consultar TODOS los registros existentes en Supabase para ese rango (paginar para evitar límite de 1000)
+    let existentes = [];
+    let from = 0;
+    const pageSize = 1000;
+    while (true) {
+      const { data: page, error: fetchError } = await supabase
+        .from('costos')
+        .select('fecha, monto, proveedor, centro, categoria')
+        .gte('fecha', fechaMin)
+        .lte('fecha', fechaMax)
+        .range(from, from + pageSize - 1);
+      if (fetchError) throw fetchError;
+      if (!page || page.length === 0) break;
+      existentes = existentes.concat(page);
+      if (page.length < pageSize) break;
+      from += pageSize;
+    }
+    console.log(`[Costos] ${existentes.length} registros existentes en Supabase para el período`);
 
     // 7. Crear "huella" para deduplicar (fecha + monto redondeado + proveedor + centro + categoría)
     const generarHuella = (r) => 
