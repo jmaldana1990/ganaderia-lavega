@@ -438,29 +438,32 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
     
-    const registros = [];
-    
+    const parseDate = (val) => {
+      if (!val) return null;
+      try {
+        if (typeof val === 'number') {
+          const date = new Date((val - 25569) * 86400 * 1000);
+          return date.toISOString().split('T')[0];
+        }
+        return new Date(val).toISOString().split('T')[0];
+      } catch {
+        return null;
+      }
+    };
+
+    // 1. Parsear todos los registros del Excel
+    const registrosExcel = [];
     for (const row of jsonData) {
       const fecha = row['Fecha'] || row['fecha'];
       if (!fecha) continue;
-      
-      const parseDate = (val) => {
-        if (!val) return null;
-        try {
-          if (typeof val === 'number') {
-            const date = new Date((val - 25569) * 86400 * 1000);
-            return date.toISOString().split('T')[0];
-          }
-          return new Date(val).toISOString().split('T')[0];
-        } catch {
-          return null;
-        }
-      };
 
-      registros.push({
-        fecha: parseDate(fecha),
+      const fechaParsed = parseDate(fecha);
+      if (!fechaParsed) continue;
+
+      registrosExcel.push({
+        fecha: fechaParsed,
         monto: parseFloat(row['Monto'] || row['monto'] || row['Valor'] || 0),
-        proveedor: row['Proveedor'] || row['proveedor'] || 'Sin especificar',
+        proveedor: (row['Proveedor'] || row['proveedor'] || 'Sin especificar').toString().trim(),
         tipo: row['Tipo'] || row['tipo'] || 'Costo',
         centro: row['Centro'] || row['centro'] || 'La Vega',
         categoria: row['Categoría'] || row['Categoria'] || row['categoria'] || 'General',
@@ -469,10 +472,62 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       });
     }
 
-    const { data, error } = await supabase.from('costos').insert(registros).select();
-    if (error) throw error;
-    
-    return { procesados: registros.length, insertados: data?.length || 0 };
+    if (registrosExcel.length === 0) {
+      throw new Error('No se encontraron registros válidos en el archivo');
+    }
+
+    // 2. Determinar el rango de fechas del archivo
+    const fechas = registrosExcel.map(r => r.fecha).sort();
+    const fechaMin = fechas[0];
+    const fechaMax = fechas[fechas.length - 1];
+    const añosEnArchivo = [...new Set(registrosExcel.map(r => r.fecha.split('-')[0]))];
+
+    // 3. Consultar registros existentes en Supabase para ese rango de fechas
+    const { data: existentes, error: fetchError } = await supabase
+      .from('costos')
+      .select('fecha, monto, proveedor, centro, categoria')
+      .gte('fecha', fechaMin)
+      .lte('fecha', fechaMax);
+
+    if (fetchError) throw fetchError;
+
+    // 4. Crear "huella" de cada registro existente para comparar
+    const generarHuella = (r) => `${r.fecha}|${Math.round(r.monto)}|${(r.proveedor || '').toString().trim().toLowerCase()}|${r.centro}|${r.categoria}`;
+    const huellaExistentes = new Set((existentes || []).map(generarHuella));
+
+    // 5. Filtrar solo registros nuevos (que no existen ya en la base de datos)
+    const registrosNuevos = registrosExcel.filter(r => !huellaExistentes.has(generarHuella(r)));
+    const registrosDuplicados = registrosExcel.length - registrosNuevos.length;
+
+    // 6. Insertar solo los nuevos
+    let insertados = 0;
+    if (registrosNuevos.length > 0) {
+      // Insertar en lotes de 500 para evitar límites
+      for (let i = 0; i < registrosNuevos.length; i += 500) {
+        const lote = registrosNuevos.slice(i, i + 500);
+        const { data, error: insertError } = await supabase.from('costos').insert(lote).select();
+        if (insertError) throw insertError;
+        insertados += data?.length || 0;
+      }
+    }
+
+    return {
+      procesados: registrosExcel.length,
+      insertados: insertados,
+      duplicados: registrosDuplicados,
+      añosEnArchivo: añosEnArchivo,
+      fechaMin,
+      fechaMax,
+      detalles: {
+        inventario: null,
+        nacimientos: null,
+        destetes: null,
+        errores: [],
+        costos: `✅ ${insertados} registros nuevos insertados de ${registrosExcel.length} procesados` +
+                (registrosDuplicados > 0 ? `\n⏭️ ${registrosDuplicados} registros ya existían y fueron omitidos` : '') +
+                `\n📅 Período: ${fechaMin} a ${fechaMax} (${añosEnArchivo.join(', ')})`
+      }
+    };
   };
 
   const handleSubmit = async () => {
@@ -508,7 +563,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
           break;
         case 'costos':
           result = await procesarCostos(workbook);
-          break;
+          break;  
         default:
           throw new Error('Tipo de archivo no soportado');
       }
@@ -631,9 +686,16 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
               
               {resultado.detalles ? (
                 <div className="text-left bg-gray-50 rounded-xl p-4 mt-4 space-y-2">
-                  <p className="text-sm">{resultado.detalles.inventario}</p>
-                  <p className="text-sm">{resultado.detalles.nacimientos}</p>
-                  <p className="text-sm">{resultado.detalles.destetes}</p>
+                  {resultado.detalles.inventario && <p className="text-sm">{resultado.detalles.inventario}</p>}
+                  {resultado.detalles.nacimientos && <p className="text-sm">{resultado.detalles.nacimientos}</p>}
+                  {resultado.detalles.destetes && <p className="text-sm">{resultado.detalles.destetes}</p>}
+                  {resultado.detalles.costos && (
+                    <div className="space-y-1">
+                      {resultado.detalles.costos.split('\n').map((line, i) => (
+                        <p key={i} className="text-sm">{line}</p>
+                      ))}
+                    </div>
+                  )}
                   {resultado.detalles.errores?.length > 0 && (
                     <div className="mt-2 pt-2 border-t">
                       <p className="text-sm text-red-600 font-medium">Errores:</p>
