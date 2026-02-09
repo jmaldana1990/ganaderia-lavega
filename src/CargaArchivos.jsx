@@ -590,8 +590,13 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
 
   // ==================== PROCESAR VENTAS ====================
   const procesarVentas = async (workbook) => {
+    console.log('[Ventas] Hojas disponibles:', workbook.SheetNames);
     const ventasSheet = workbook.SheetNames.find(s => s.toLowerCase().includes('venta'));
-    if (!ventasSheet) return null;
+    if (!ventasSheet) {
+      console.log('[Ventas] No se encontró hoja de ventas');
+      return null;
+    }
+    console.log('[Ventas] Hoja encontrada:', ventasSheet);
 
     const ws = workbook.Sheets[ventasSheet];
     const rawData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
@@ -664,14 +669,23 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       });
     }
 
-    if (ventas.length === 0) return null;
+    if (ventas.length === 0) {
+      console.log('[Ventas] No se encontraron ventas válidas');
+      return null;
+    }
+    console.log(`[Ventas] ${ventas.length} ventas encontradas, insertando en Supabase...`);
 
     // Consultar ventas existentes en Supabase
+    console.log('[Ventas] Consultando ventas existentes en Supabase...');
     const { data: existentes, error: fetchError } = await supabase
       .from('ventas')
       .select('fecha, cliente, kg, valor, tipo');
 
-    if (fetchError) throw fetchError;
+    if (fetchError) {
+      console.error('[Ventas] Error consultando existentes:', fetchError);
+      throw fetchError;
+    }
+    console.log(`[Ventas] ${(existentes || []).length} ventas existentes en Supabase`);
 
     // Deduplicar por huella: fecha + cliente + kg redondeado + valor + tipo
     const generarHuella = (r) =>
@@ -683,12 +697,17 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
 
     let insertados = 0;
     if (ventasNuevas.length > 0) {
+      console.log(`[Ventas] Insertando ${ventasNuevas.length} ventas nuevas...`);
       const { data, error: insertError } = await supabase
         .from('ventas')
         .insert(ventasNuevas)
         .select();
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error('[Ventas] Error insertando:', insertError);
+        throw insertError;
+      }
       insertados = data?.length || 0;
+      console.log(`[Ventas] ${insertados} ventas insertadas exitosamente`);
     }
 
     const añosVentas = [...new Set(ventas.map(v => v.año))].sort();
@@ -739,14 +758,15 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
           result = await procesarCostos(workbook);
           // También procesar ventas si la hoja existe
           try {
+            console.log('[Ventas] Iniciando procesamiento de ventas...');
             const ventasResult = await procesarVentas(workbook);
+            console.log('[Ventas] Resultado:', ventasResult);
             if (ventasResult) {
               result.detalles.ventas = ventasResult.resumen;
             }
           } catch (ventasErr) {
-            console.error('Error procesando ventas:', ventasErr);
-            result.detalles.errores = result.detalles.errores || [];
-            result.detalles.errores.push(`Ventas: ${ventasErr.message}`);
+            console.error('[Ventas] ERROR:', ventasErr);
+            result.detalles.ventas = `❌ Error: ${ventasErr.message}`;
           }
           break;  
         default:
