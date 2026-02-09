@@ -642,22 +642,22 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       if (!row) continue;
 
       // Detectar fila de sección "Ventas 20XX"
-      const cellB = row[1];
-      if (cellB && typeof cellB === 'string' && cellB.match(/^Ventas\s+20\d{2}$/i)) {
-        añoActual = parseInt(cellB.match(/20\d{2}/)[0]);
+      const cellA = row[0];
+      if (cellA && typeof cellA === 'string' && cellA.match(/^Ventas\s+20\d{2}$/i)) {
+        añoActual = parseInt(cellA.match(/20\d{2}/)[0]);
         continue;
       }
 
       // Saltar filas de headers y totales
-      if (cellB === 'Fecha' || (row[3] && String(row[3]).toLowerCase() === 'total')) continue;
+      if (cellA === 'Fecha' || (row[2] && String(row[2]).toLowerCase() === 'total')) continue;
 
-      // Procesar fila de datos: [_, Fecha, Factura, Cliente, Kg, Precio, Valor, Tipo, Comentarios]
-      const fecha = parseDate(row[1]);
-      const cliente = row[3] ? String(row[3]).trim() : null;
-      const kg = typeof row[4] === 'number' ? row[4] : null;
-      const precio = typeof row[5] === 'number' ? row[5] : null;
-      const valor = typeof row[6] === 'number' ? row[6] : null;
-      const tipo = row[7] ? String(row[7]).trim() : null;
+      // Procesar fila de datos: [Fecha, Factura, Cliente, Kg, Precio, Valor, Tipo, Comentarios]
+      const fecha = parseDate(row[0]);
+      const cliente = row[2] ? String(row[2]).trim() : null;
+      const kg = typeof row[3] === 'number' ? row[3] : null;
+      const precio = typeof row[4] === 'number' ? row[4] : null;
+      const valor = typeof row[5] === 'number' ? row[5] : null;
+      const tipo = row[6] ? String(row[6]).trim() : null;
 
       // Necesitamos al menos cliente, kg y valor para que sea una venta válida
       if (!cliente || !kg || !valor || valor === 0) continue;
@@ -669,13 +669,13 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       ventas.push({
         año: añoFinal || añoActual,
         fecha: fechaFinal,
-        factura: row[2] ? String(row[2]).trim() : null,
+        factura: row[1] ? String(row[1]).trim() : null,
         cliente: cliente,
         kg: Math.round(kg * 100) / 100,
         precio: Math.round(precio * 100) / 100,
         valor: Math.round(valor),
         tipo: tipo,
-        comentarios: row[8] ? String(row[8]).trim() : ''
+        comentarios: row[7] ? String(row[7]).trim() : ''
       });
     }
 
