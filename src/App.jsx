@@ -152,28 +152,42 @@ export default function GanaderiaApp() {
       (!filtros.busqueda || g.proveedor?.toLowerCase().includes(filtros.busqueda.toLowerCase()) || g.comentarios?.toLowerCase().includes(filtros.busqueda.toLowerCase()));
   }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)), [gastos, filtros]);
 
+  // Categorías y centros excluidos de totales operativos
+  const CATEGORIAS_EXCLUIDAS = ['Las Victorias', 'Yegua Mauricio Aldana', 'Apicultura', 'Montaje finca'];
+  const CENTROS_EXCLUIDOS = ['Yegua MAG', 'Apicultura', 'Aparco'];
+
+  const esOperativo = (g) => {
+    const cat = (g.categoria || '').trim();
+    const centro = (g.centro || '').trim();
+    return !CATEGORIAS_EXCLUIDAS.some(exc => cat.toLowerCase() === exc.toLowerCase()) &&
+           !CENTROS_EXCLUIDOS.some(exc => centro.toLowerCase() === exc.toLowerCase());
+  };
+
+  // Datos filtrados solo operativos (para totales de Dashboard y Fincas)
+  const filteredOperativo = useMemo(() => filtered.filter(esOperativo), [filtered]);
+
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const totales = useMemo(() => ({
-    total: filtered.reduce((s, g) => s + (g.monto || 0), 0),
-    costos: filtered.filter(g => g.tipo === 'Costo').reduce((s, g) => s + (g.monto || 0), 0),
-    gastos: filtered.filter(g => g.tipo === 'Gasto').reduce((s, g) => s + (g.monto || 0), 0),
+    total: filteredOperativo.reduce((s, g) => s + (g.monto || 0), 0),
+    costos: filteredOperativo.filter(g => g.tipo === 'Costo').reduce((s, g) => s + (g.monto || 0), 0),
+    gastos: filteredOperativo.filter(g => g.tipo === 'Gasto').reduce((s, g) => s + (g.monto || 0), 0),
     pendientes: gastos.filter(g => g.estado === 'pendiente').length,
     registros: filtered.length
-  }), [filtered, gastos]);
+  }), [filteredOperativo, filtered, gastos]);
 
   const porCategoria = useMemo(() => {
     const cats = {};
-    filtered.forEach(g => { cats[g.categoria] = (cats[g.categoria] || 0) + (g.monto || 0); });
+    filteredOperativo.forEach(g => { cats[g.categoria] = (cats[g.categoria] || 0) + (g.monto || 0); });
     return Object.entries(cats).map(([c, t]) => ({ categoria: c, total: t })).sort((a, b) => b.total - a.total);
-  }, [filtered]);
+  }, [filteredOperativo]);
 
   const porCentro = useMemo(() => {
     const c = {};
-    filtered.forEach(g => { c[g.centro] = (c[g.centro] || 0) + (g.monto || 0); });
+    filteredOperativo.forEach(g => { c[g.centro] = (c[g.centro] || 0) + (g.monto || 0); });
     return CENTROS_COSTOS.map(centro => ({ centro, total: c[centro] || 0 })).filter(x => x.total > 0).sort((a, b) => b.total - a.total);
-  }, [filtered]);
+  }, [filteredOperativo]);
 
   const updateFiltros = (f) => { setFiltros(f); setPage(1); };
 
@@ -734,8 +748,12 @@ function VentasTotales({ ventas: ventasData }) {
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
 function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años }) {
-  const [añoSel, setAñoSel] = useState('2025');
+  const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const añoNum = parseInt(añoSel);
+
+  // Categorías y centros excluidos de totales operativos
+  const CATEGORIAS_EXCLUIDAS = ['Las Victorias', 'Yegua Mauricio Aldana', 'Apicultura', 'Montaje finca'];
+  const CENTROS_EXCLUIDOS = ['Yegua MAG', 'Apicultura', 'Aparco'];
 
   const añosDisponibles = useMemo(() => {
     const a = [...new Set(inventario.filter(i => i.finca === finca).map(i => i.año))].sort((a, b) => b - a);
@@ -778,13 +796,17 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
     };
   }, [nacimientos, añoNum, finca]);
 
-  // Costos del año (finca + 50% Global)
+  // Costos del año (finca + 50% Global, excluyendo categorías no operativas)
   const costosAño = useMemo(() => {
     return gastos
       .filter(g => {
         if (!g.fecha) return false;
         const año = g.fecha.split('-')[0];
-        return año === añoSel && (g.centro === finca || g.centro === 'Global');
+        const cat = (g.categoria || '').trim();
+        const centro = (g.centro || '').trim();
+        const esExcluido = CATEGORIAS_EXCLUIDAS.some(exc => cat.toLowerCase() === exc.toLowerCase()) ||
+                           CENTROS_EXCLUIDOS.some(exc => centro.toLowerCase() === exc.toLowerCase());
+        return !esExcluido && año === añoSel && (g.centro === finca || g.centro === 'Global');
       })
       .reduce((sum, g) => sum + ((g.centro === 'Global' ? (g.monto || 0) * 0.5 : (g.monto || 0))), 0);
   }, [gastos, añoSel, finca]);
