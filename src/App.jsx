@@ -8,7 +8,7 @@ import * as db from './supabase';
 import Login from './Login';
 import CargaArchivos from './CargaArchivos';
 import CargaInventario from './CargaInventario';
-import { VENTAS_GANADO, VENTAS_RESUMEN, TIPO_ANIMAL_LABELS } from './ventas-ganado';
+import { VENTAS_GANADO, TIPO_ANIMAL_LABELS } from './ventas-ganado';
 
 // ==================== HELPERS ====================
 const formatCurrency = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v);
@@ -48,6 +48,7 @@ export default function GanaderiaApp() {
   const [nacimientos, setNacimientos] = useState(NACIMIENTOS_LA_VEGA);
   const [gastos, setGastos] = useState(GASTOS_HISTORICOS);
   const [inventario, setInventario] = useState(INVENTARIO_FINCAS);
+  const [ventas, setVentas] = useState(VENTAS_GANADO);
 
   // UI
   const [view, setView] = useState('dashboard');
@@ -55,7 +56,7 @@ export default function GanaderiaApp() {
   const [showCarga, setShowCarga] = useState(false);
   const [showCargaInv, setShowCargaInv] = useState(false);
   const [editGasto, setEditGasto] = useState(null);
-  const [filtros, setFiltros] = useState({ mes: '', año: '2025', centro: '', categoria: '', busqueda: '' });
+  const [filtros, setFiltros] = useState({ mes: '', año: new Date().getFullYear().toString(), centro: '', categoria: '', busqueda: '' });
   const [menuOpen, setMenuOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -104,11 +105,13 @@ export default function GanaderiaApp() {
   const loadCloudData = async () => {
     setSyncing(true);
     try {
-      const [nacData, costosData, invData] = await Promise.all([
-        db.getNacimientos(), db.getCostos(), db.getInventario()
+      const [nacData, costosData, invData, ventasData] = await Promise.all([
+        db.getNacimientos(), db.getCostos(), db.getInventario(), db.getVentas().catch(() => null)
       ]);
       if (nacData?.length > 0) setNacimientos(nacData);
       if (costosData?.length > 0) setGastos(costosData);
+      // Ventas: usar nube si hay datos, sino mantener los estáticos
+      if (ventasData?.length > 0) setVentas(ventasData);
       // Inventario: combinar nube + local, deduplicando por finca+periodo
       if (invData?.length > 0) {
         setInventario(() => {
@@ -292,7 +295,7 @@ export default function GanaderiaApp() {
               <p>📋 {nacimientos.length} nacimientos</p>
               <p>💰 {gastos.length} costos</p>
               <p>📊 {inventario.length} inventarios</p>
-              <p>🛒 {VENTAS_GANADO.length} ventas</p>
+              <p>🛒 {ventas.length} ventas</p>
             </div>
           </div>
         </aside>
@@ -303,7 +306,7 @@ export default function GanaderiaApp() {
             <Dashboard totales={totales} porCategoria={porCategoria} porCentro={porCentro}
               pendientes={gastos.filter(g => g.estado === 'pendiente').slice(0, 5)} onApprove={approve}
               filtros={filtros} setFiltros={updateFiltros} años={años}
-              nacimientos={nacimientos} inventario={inventario} gastos={gastos} />
+              nacimientos={nacimientos} inventario={inventario} gastos={gastos} ventas={ventas} />
           )}
           {view === 'lavega' && (
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
@@ -314,7 +317,7 @@ export default function GanaderiaApp() {
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años} />
           )}
           {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
-          {view === 'ventas' && <VentasTotales />}
+          {view === 'ventas' && <VentasTotales ventas={ventas} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
               filtros={filtros} setFiltros={updateFiltros} onNew={() => setShowForm(true)}
@@ -334,24 +337,21 @@ export default function GanaderiaApp() {
 }
 
 // ==================== COMPONENTE DASHBOARD ====================
-function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, filtros, setFiltros, años, nacimientos, inventario, gastos }) {
+function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, filtros, setFiltros, años, nacimientos, inventario, gastos, ventas }) {
   const maxCat = Math.max(...porCategoria.map(c => c.total), 1);
   const maxCen = Math.max(...porCentro.map(c => c.total), 1);
   const añoFiltro = filtros.año ? parseInt(filtros.año) : null;
 
-  // Ventas del año filtrado o el más reciente con datos
+  // Ventas del año filtrado — computado dinámicamente desde datos
   const ventasAñoLabel = useMemo(() => {
-    if (añoFiltro && VENTAS_RESUMEN[añoFiltro]) return añoFiltro;
-    if (añoFiltro) return añoFiltro; // año sin datos, mostrará $0
-    // Sin filtro: usar el año más reciente con datos
-    const años = Object.keys(VENTAS_RESUMEN).map(Number).sort((a, b) => b - a);
-    return años[0] || new Date().getFullYear();
-  }, [añoFiltro]);
+    if (añoFiltro) return añoFiltro;
+    const añosVentas = [...new Set((ventas || []).map(v => v.año))].sort((a, b) => b - a);
+    return añosVentas[0] || new Date().getFullYear();
+  }, [añoFiltro, ventas]);
 
   const ventasAño = useMemo(() => {
-    const resumen = VENTAS_RESUMEN[ventasAñoLabel];
-    return resumen ? resumen.ingresosTotales : 0;
-  }, [ventasAñoLabel]);
+    return (ventas || []).filter(v => v.año === ventasAñoLabel).reduce((s, v) => s + (v.valor || 0), 0);
+  }, [ventas, ventasAñoLabel]);
 
   // Inventario último por finca
   const invLaVega = useMemo(() =>
@@ -504,9 +504,12 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
 }
 
 // ==================== COMPONENTE VENTAS TOTALES ====================
-function VentasTotales() {
+function VentasTotales({ ventas: ventasData }) {
   const [añoSel, setAñoSel] = useState('');
-  const añosDisponibles = Object.keys(VENTAS_RESUMEN).sort((a, b) => b - a);
+  const allVentas = ventasData || VENTAS_GANADO;
+  const añosDisponibles = useMemo(() => 
+    [...new Set(allVentas.map(v => v.año))].sort((a, b) => b - a).map(String), 
+    [allVentas]);
 
   const COLORES_TIPO = {
     ML: { bg: 'bg-blue-100', text: 'text-blue-700', bar: 'bg-blue-500' },
@@ -519,14 +522,14 @@ function VentasTotales() {
 
   // Ventas filtradas
   const ventasFiltradas = useMemo(() => {
-    if (!añoSel) return VENTAS_GANADO;
-    return VENTAS_GANADO.filter(v => v.año === parseInt(añoSel));
-  }, [añoSel]);
+    if (!añoSel) return allVentas;
+    return allVentas.filter(v => v.año === parseInt(añoSel));
+  }, [añoSel, allVentas]);
 
   // Totales globales
   const totalGlobal = useMemo(() => {
-    const total = ventasFiltradas.reduce((s, v) => s + v.valor, 0);
-    const kg = ventasFiltradas.reduce((s, v) => s + v.kg, 0);
+    const total = ventasFiltradas.reduce((s, v) => s + (v.valor || 0), 0);
+    const kg = ventasFiltradas.reduce((s, v) => s + (v.kg || 0), 0);
     return { total, kg, precioPromedio: kg > 0 ? Math.round(total / kg) : 0, transacciones: ventasFiltradas.length };
   }, [ventasFiltradas]);
 
@@ -535,8 +538,8 @@ function VentasTotales() {
     const tipos = {};
     ventasFiltradas.forEach(v => {
       if (!tipos[v.tipo]) tipos[v.tipo] = { kg: 0, valor: 0, count: 0 };
-      tipos[v.tipo].kg += v.kg;
-      tipos[v.tipo].valor += v.valor;
+      tipos[v.tipo].kg += v.kg || 0;
+      tipos[v.tipo].valor += v.valor || 0;
       tipos[v.tipo].count += 1;
     });
     return Object.entries(tipos).map(([tipo, d]) => ({
@@ -548,13 +551,25 @@ function VentasTotales() {
 
   const maxKg = Math.max(...porTipo.map(t => t.kg), 1);
 
-  // Por año (para tabla comparativa)
+  // Por año (computado dinámicamente desde los datos)
   const porAño = useMemo(() => {
-    return añosDisponibles.map(año => {
-      const r = VENTAS_RESUMEN[parseInt(año)];
-      return { año: parseInt(año), ...r };
+    return añosDisponibles.map(añoStr => {
+      const año = parseInt(añoStr);
+      const ventasAño = allVentas.filter(v => v.año === año);
+      const totalKg = ventasAño.reduce((s, v) => s + (v.kg || 0), 0);
+      const ingresosTotales = ventasAño.reduce((s, v) => s + (v.valor || 0), 0);
+      const precioPromedio = totalKg > 0 ? Math.round(ingresosTotales / totalKg) : 0;
+      // Tipos por año
+      const tipos = {};
+      ventasAño.forEach(v => {
+        if (!tipos[v.tipo]) tipos[v.tipo] = { kg: 0, precio: 0, valor: 0 };
+        tipos[v.tipo].kg += v.kg || 0;
+        tipos[v.tipo].valor += v.valor || 0;
+      });
+      Object.values(tipos).forEach(t => { t.precio = t.kg > 0 ? Math.round(t.valor / t.kg) : 0; });
+      return { año, totalKg, precioPromedio, ingresosTotales, tipos };
     });
-  }, []);
+  }, [allVentas, añosDisponibles]);
 
   // Transacciones del periodo
   const transacciones = useMemo(() => {
@@ -656,12 +671,10 @@ function VentasTotales() {
               </tr>
             </thead>
             <tbody>
-              {añosDisponibles.map(año => {
-                const r = VENTAS_RESUMEN[parseInt(año)];
-                const tipoKeys = Object.keys(r.tipos).sort();
+              {porAño.map(({ año, tipos }) => {
+                const tipoKeys = Object.keys(tipos).sort();
                 return tipoKeys.map((tipo, idx) => {
-                  const t = r.tipos[tipo];
-                  const valor = Math.round(t.kg * t.precio);
+                  const t = tipos[tipo];
                   return (
                     <tr key={`${año}-${tipo}`} className={`border-b hover:bg-gray-50 ${idx === 0 ? 'border-t-2 border-t-gray-200' : ''}`}>
                       {idx === 0 && <td className="py-2 px-2 font-bold text-gray-800" rowSpan={tipoKeys.length}>{año}</td>}
@@ -671,7 +684,7 @@ function VentasTotales() {
                       </td>
                       <td className="py-2 px-2 text-right">{t.kg.toLocaleString('es-CO')}</td>
                       <td className="py-2 px-2 text-right">{formatCurrency(Math.round(t.precio))}</td>
-                      <td className="py-2 px-2 text-right font-medium">{formatCurrency(valor)}</td>
+                      <td className="py-2 px-2 text-right font-medium">{formatCurrency(t.valor)}</td>
                     </tr>
                   );
                 });

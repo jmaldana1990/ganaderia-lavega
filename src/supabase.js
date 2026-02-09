@@ -133,6 +133,17 @@ export async function getCostos() {
   return data
 }
 
+// ==================== VENTAS ====================
+export async function getVentas() {
+  const { data, error } = await supabase
+    .from('ventas')
+    .select('*')
+    .order('fecha', { ascending: false })
+  
+  if (error) throw error
+  return data
+}
+
 export async function insertCosto(registro) {
   const { data, error } = await supabase
     .from('costos')

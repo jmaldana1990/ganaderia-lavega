@@ -588,6 +588,122 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     };
   };
 
+  // ==================== PROCESAR VENTAS ====================
+  const procesarVentas = async (workbook) => {
+    const ventasSheet = workbook.SheetNames.find(s => s.toLowerCase().includes('venta'));
+    if (!ventasSheet) return null;
+
+    const ws = workbook.Sheets[ventasSheet];
+    const rawData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+    const parseDate = (val) => {
+      if (!val) return null;
+      try {
+        if (typeof val === 'number') {
+          const date = new Date((val - 25569) * 86400 * 1000);
+          return date.toISOString().split('T')[0];
+        }
+        if (val instanceof Date) return val.toISOString().split('T')[0];
+        // Handle string dates like "18/4/2025"
+        if (typeof val === 'string') {
+          const parts = val.split('/');
+          if (parts.length === 3) {
+            const [d, m, y] = parts;
+            return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          }
+          const d = new Date(val);
+          if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+        }
+        return null;
+      } catch { return null; }
+    };
+
+    // Recorrer todas las filas, detectando secciones por año
+    const ventas = [];
+    let añoActual = null;
+
+    for (let i = 0; i < rawData.length; i++) {
+      const row = rawData[i];
+      if (!row) continue;
+
+      // Detectar fila de sección "Ventas 20XX"
+      const cellB = row[1];
+      if (cellB && typeof cellB === 'string' && cellB.match(/^Ventas\s+20\d{2}$/i)) {
+        añoActual = parseInt(cellB.match(/20\d{2}/)[0]);
+        continue;
+      }
+
+      // Saltar filas de headers y totales
+      if (cellB === 'Fecha' || (row[3] && String(row[3]).toLowerCase() === 'total')) continue;
+
+      // Procesar fila de datos: [_, Fecha, Factura, Cliente, Kg, Precio, Valor, Tipo, Comentarios]
+      const fecha = parseDate(row[1]);
+      const cliente = row[3] ? String(row[3]).trim() : null;
+      const kg = typeof row[4] === 'number' ? row[4] : null;
+      const precio = typeof row[5] === 'number' ? row[5] : null;
+      const valor = typeof row[6] === 'number' ? row[6] : null;
+      const tipo = row[7] ? String(row[7]).trim() : null;
+
+      // Necesitamos al menos cliente, kg y valor para que sea una venta válida
+      if (!cliente || !kg || !valor || valor === 0) continue;
+
+      // Si no tiene fecha propia, puede heredar la del row anterior (caso AB & Cia en 2024)
+      const fechaFinal = fecha || (ventas.length > 0 ? ventas[ventas.length - 1].fecha : null);
+      const añoFinal = fechaFinal ? parseInt(fechaFinal.split('-')[0]) : añoActual;
+
+      ventas.push({
+        año: añoFinal || añoActual,
+        fecha: fechaFinal,
+        factura: row[2] ? String(row[2]).trim() : null,
+        cliente: cliente,
+        kg: Math.round(kg * 100) / 100,
+        precio: Math.round(precio * 100) / 100,
+        valor: Math.round(valor),
+        tipo: tipo,
+        comentarios: row[8] ? String(row[8]).trim() : ''
+      });
+    }
+
+    if (ventas.length === 0) return null;
+
+    // Consultar ventas existentes en Supabase
+    const { data: existentes, error: fetchError } = await supabase
+      .from('ventas')
+      .select('fecha, cliente, kg, valor, tipo');
+
+    if (fetchError) throw fetchError;
+
+    // Deduplicar por huella: fecha + cliente + kg redondeado + valor + tipo
+    const generarHuella = (r) =>
+      `${r.fecha}|${(r.cliente || '').toLowerCase()}|${Math.round(r.kg)}|${Math.round(r.valor)}|${r.tipo}`;
+
+    const huellaExistentes = new Set((existentes || []).map(generarHuella));
+    const ventasNuevas = ventas.filter(v => !huellaExistentes.has(generarHuella(v)));
+    const ventasDuplicadas = ventas.length - ventasNuevas.length;
+
+    let insertados = 0;
+    if (ventasNuevas.length > 0) {
+      const { data, error: insertError } = await supabase
+        .from('ventas')
+        .insert(ventasNuevas)
+        .select();
+      if (insertError) throw insertError;
+      insertados = data?.length || 0;
+    }
+
+    const añosVentas = [...new Set(ventas.map(v => v.año))].sort();
+
+    return {
+      procesados: ventas.length,
+      insertados: insertados,
+      duplicados: ventasDuplicadas,
+      años: añosVentas,
+      resumen: `✅ ${insertados} ventas nuevas insertadas de ${ventas.length} encontradas` +
+               (ventasDuplicadas > 0 ? `\n⏭️ ${ventasDuplicadas} ventas ya existían y fueron omitidas` : '') +
+               `\n📅 Años: ${añosVentas.join(', ')}`
+    };
+  };
+
   const handleSubmit = async () => {
     if (!archivo || !tipoArchivo) {
       setError('Selecciona un archivo y su tipo');
@@ -621,6 +737,17 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
           break;
         case 'costos':
           result = await procesarCostos(workbook);
+          // También procesar ventas si la hoja existe
+          try {
+            const ventasResult = await procesarVentas(workbook);
+            if (ventasResult) {
+              result.detalles.ventas = ventasResult.resumen;
+            }
+          } catch (ventasErr) {
+            console.error('Error procesando ventas:', ventasErr);
+            result.detalles.errores = result.detalles.errores || [];
+            result.detalles.errores.push(`Ventas: ${ventasErr.message}`);
+          }
           break;  
         default:
           throw new Error('Tipo de archivo no soportado');
@@ -750,6 +877,14 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
                   {resultado.detalles.costos && (
                     <div className="space-y-1">
                       {resultado.detalles.costos.split('\n').map((line, i) => (
+                        <p key={i} className="text-sm">{line}</p>
+                      ))}
+                    </div>
+                  )}
+                  {resultado.detalles.ventas && (
+                    <div className="space-y-1 mt-2 pt-2 border-t">
+                      <p className="text-sm font-medium text-gray-700">🛒 Ventas de Ganado:</p>
+                      {resultado.detalles.ventas.split('\n').map((line, i) => (
                         <p key={i} className="text-sm">{line}</p>
                       ))}
                     </div>
