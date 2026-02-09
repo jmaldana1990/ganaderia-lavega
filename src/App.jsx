@@ -70,9 +70,11 @@ export default function GanaderiaApp() {
         const online = await db.checkConnection();
         setIsOnline(online);
         if (online) await loadCloudData();
+        else loadCachedData();
       } catch (err) {
         console.error('Error en inicialización:', err);
         setIsOnline(false);
+        loadCachedData();
       } finally {
         setLoading(false);
       }
@@ -85,7 +87,7 @@ export default function GanaderiaApp() {
     });
 
     const handleOnline = () => checkConnection();
-    const handleOffline = () => setIsOnline(false);
+    const handleOffline = () => { setIsOnline(false); if (dataSource === 'local') loadCachedData(); };
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
@@ -99,7 +101,8 @@ export default function GanaderiaApp() {
   const checkConnection = async () => {
     const online = await db.checkConnection();
     setIsOnline(online);
-    if (online && dataSource === 'local') await loadCloudData();
+    if (online && dataSource !== 'cloud') await loadCloudData();
+    if (!online && dataSource === 'local') loadCachedData();
   };
 
   const loadCloudData = async () => {
@@ -108,26 +111,54 @@ export default function GanaderiaApp() {
       const [nacData, costosData, invData, ventasData] = await Promise.all([
         db.getNacimientos(), db.getCostos(), db.getInventario(), db.getVentas().catch(() => null)
       ]);
-      if (nacData?.length > 0) setNacimientos(nacData);
-      if (costosData?.length > 0) setGastos(costosData);
-      // Ventas: usar nube si hay datos, sino mantener los estáticos
-      if (ventasData?.length > 0) setVentas(ventasData);
+      if (nacData?.length > 0) {
+        setNacimientos(nacData);
+        try { localStorage.setItem('cache_nacimientos', JSON.stringify(nacData)); } catch(e) {}
+      }
+      if (costosData?.length > 0) {
+        setGastos(costosData);
+        try { localStorage.setItem('cache_costos', JSON.stringify(costosData)); } catch(e) {}
+      }
+      if (ventasData?.length > 0) {
+        setVentas(ventasData);
+        try { localStorage.setItem('cache_ventas', JSON.stringify(ventasData)); } catch(e) {}
+      }
       // Inventario: combinar nube + local, deduplicando por finca+periodo
       if (invData?.length > 0) {
         setInventario(() => {
           const merged = new Map();
-          // Primero los locales (del archivo JS importado)
           INVENTARIO_FINCAS.forEach(r => merged.set(r.finca + '-' + r.periodo, r));
-          // Luego los de la nube (sobreescriben duplicados, pueden tener datos más frescos)
           invData.forEach(r => merged.set(r.finca + '-' + r.periodo, r));
-          return [...merged.values()];
+          const result = [...merged.values()];
+          try { localStorage.setItem('cache_inventario', JSON.stringify(result)); } catch(e) {}
+          return result;
         });
       }
       setDataSource('cloud');
+      try { localStorage.setItem('cache_timestamp', new Date().toISOString()); } catch(e) {}
     } catch (err) {
       console.error('Error cargando datos de la nube:', err);
     } finally {
       setSyncing(false);
+    }
+  };
+
+  // Cargar datos desde caché local (para modo offline)
+  const loadCachedData = () => {
+    try {
+      const cachedNac = localStorage.getItem('cache_nacimientos');
+      const cachedCostos = localStorage.getItem('cache_costos');
+      const cachedVentas = localStorage.getItem('cache_ventas');
+      const cachedInv = localStorage.getItem('cache_inventario');
+      if (cachedNac) setNacimientos(JSON.parse(cachedNac));
+      if (cachedCostos) setGastos(JSON.parse(cachedCostos));
+      if (cachedVentas) setVentas(JSON.parse(cachedVentas));
+      if (cachedInv) setInventario(JSON.parse(cachedInv));
+      const ts = localStorage.getItem('cache_timestamp');
+      if (ts) setDataSource('cache');
+      console.log('[Offline] Datos cargados desde caché local', ts ? `(${ts})` : '');
+    } catch (e) {
+      console.error('[Offline] Error cargando caché:', e);
     }
   };
 
@@ -269,7 +300,7 @@ export default function GanaderiaApp() {
             {isOnline && !syncing && (
               <button onClick={loadCloudData} className="p-2 hover:bg-white/20 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
             )}
-            {user && (
+            {user && isOnline && (
               <div className="flex items-center gap-1">
                 <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar costos/nacimientos">
                   <Upload size={16} /><span className="hidden sm:inline">Costos</span>
@@ -304,7 +335,7 @@ export default function GanaderiaApp() {
             ))}
           </nav>
           <div className="p-4 border-t">
-            <p className="text-xs text-gray-400 mb-2">Fuente: {dataSource === 'cloud' ? '☁️ Nube' : '💾 Local'}</p>
+            <p className="text-xs text-gray-400 mb-2">Fuente: {dataSource === 'cloud' ? '☁️ Nube' : dataSource === 'cache' ? '📦 Caché offline' : '💾 Local'}</p>
             <div className="space-y-1 text-sm text-gray-600">
               <p>📋 {nacimientos.length} nacimientos</p>
               <p>💰 {gastos.length} costos</p>
