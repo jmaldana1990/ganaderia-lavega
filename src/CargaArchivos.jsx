@@ -600,6 +600,16 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
 
     const ws = workbook.Sheets[ventasSheet];
     const rawData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+    console.log(`[Ventas] Total filas: ${rawData.length}`);
+    // Log first 10 non-empty rows for debugging
+    let logCount = 0;
+    for (let i = 0; i < rawData.length && logCount < 15; i++) {
+      const row = rawData[i];
+      if (row && row.some(v => v !== null)) {
+        console.log(`[Ventas] Fila ${i}:`, JSON.stringify(row.slice(0, 9)));
+        logCount++;
+      }
+    }
 
     const parseDate = (val) => {
       if (!val) return null;
