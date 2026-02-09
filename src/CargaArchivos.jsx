@@ -434,10 +434,41 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
   };
 
   const procesarCostos = async (workbook) => {
-    const sheetName = workbook.SheetNames[0];
+    // 1. Auto-detectar la mejor hoja para leer
+    //    Prioridad: hoja "Acumulado" > hoja del año más reciente con datos
+    let sheetName = workbook.SheetNames[0];
+    const acumulado = workbook.SheetNames.find(s => s.toLowerCase().includes('acumulado'));
+    if (acumulado) {
+      sheetName = acumulado;
+    } else {
+      // Buscar hoja del año más reciente
+      const yearSheets = workbook.SheetNames
+        .map(s => ({ name: s, year: parseInt((s.match(/20\d{2}/) || [])[0]) || 0 }))
+        .filter(s => s.year > 0)
+        .sort((a, b) => b.year - a.year);
+      if (yearSheets.length > 0) sheetName = yearSheets[0].name;
+    }
+
     const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
-    
+
+    // 2. Encontrar la fila de headers (buscar fila que contenga "Fecha" y "Monto")
+    const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: null });
+    let headerRowIdx = -1;
+    for (let i = 0; i < Math.min(rawData.length, 10); i++) {
+      const row = (rawData[i] || []).map(c => c ? String(c).trim() : '');
+      if (row.some(c => c === 'Fecha') && row.some(c => c === 'Monto')) {
+        headerRowIdx = i;
+        break;
+      }
+    }
+    if (headerRowIdx === -1) {
+      throw new Error('No se encontró la fila de encabezados (Fecha, Monto) en la hoja "' + sheetName + '"');
+    }
+
+    // 3. Parsear usando la fila de headers correcta
+    const headers = rawData[headerRowIdx].map(h => h ? String(h).trim() : '');
+    const dataRows = rawData.slice(headerRowIdx + 1);
+
     const parseDate = (val) => {
       if (!val) return null;
       try {
@@ -445,44 +476,69 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
           const date = new Date((val - 25569) * 86400 * 1000);
           return date.toISOString().split('T')[0];
         }
-        return new Date(val).toISOString().split('T')[0];
+        if (val instanceof Date) {
+          return val.toISOString().split('T')[0];
+        }
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+        return null;
       } catch {
         return null;
       }
     };
 
-    // 1. Parsear todos los registros del Excel
-    const registrosExcel = [];
-    for (const row of jsonData) {
-      const fecha = row['Fecha'] || row['fecha'];
-      if (!fecha) continue;
+    // Mapear índices de columnas
+    const colIdx = {};
+    headers.forEach((h, i) => { colIdx[h] = i; });
 
-      const fechaParsed = parseDate(fecha);
+    const iFecha = colIdx['Fecha'];
+    const iMonto = colIdx['Monto'];
+    const iProveedor = colIdx['Proveedor'];
+    const iTipo = colIdx['Costo/Gasto'] ?? colIdx['Tipo'] ?? colIdx['tipo'];
+    const iComentarios = colIdx['Comentarios'];
+    const iCentro = colIdx['Centro de costos'] ?? colIdx['Centro'] ?? colIdx['centro'];
+    const iCategoria = colIdx['Categoría'] ?? colIdx['Categoria'] ?? colIdx['categoria'];
+
+    if (iFecha === undefined || iMonto === undefined) {
+      throw new Error('No se encontraron las columnas "Fecha" y "Monto" en los encabezados');
+    }
+
+    // 4. Parsear registros
+    const registrosExcel = [];
+    for (const row of dataRows) {
+      if (!row || !row[iFecha]) continue;
+      
+      const fechaParsed = parseDate(row[iFecha]);
       if (!fechaParsed) continue;
+
+      const monto = parseFloat(row[iMonto]);
+      if (isNaN(monto) || monto === 0) continue;
+
+      const tipo = row[iTipo] ? String(row[iTipo]).trim() : 'Costo';
 
       registrosExcel.push({
         fecha: fechaParsed,
-        monto: parseFloat(row['Monto'] || row['monto'] || row['Valor'] || 0),
-        proveedor: (row['Proveedor'] || row['proveedor'] || 'Sin especificar').toString().trim(),
-        tipo: row['Tipo'] || row['tipo'] || 'Costo',
-        centro: row['Centro'] || row['centro'] || 'La Vega',
-        categoria: row['Categoría'] || row['Categoria'] || row['categoria'] || 'General',
-        comentarios: row['Comentarios'] || row['comentarios'] || '',
+        monto: monto,
+        proveedor: row[iProveedor] ? String(row[iProveedor]).trim() : 'Sin especificar',
+        tipo: tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase(),
+        centro: row[iCentro] ? String(row[iCentro]).trim() : 'La Vega',
+        categoria: row[iCategoria] ? String(row[iCategoria]).trim() : 'General',
+        comentarios: row[iComentarios] ? String(row[iComentarios]).trim() : '',
         estado: 'pendiente'
       });
     }
 
     if (registrosExcel.length === 0) {
-      throw new Error('No se encontraron registros válidos en el archivo');
+      throw new Error(`No se encontraron registros válidos en la hoja "${sheetName}" (${dataRows.length} filas revisadas)`);
     }
 
-    // 2. Determinar el rango de fechas del archivo
+    // 5. Determinar rango de fechas
     const fechas = registrosExcel.map(r => r.fecha).sort();
     const fechaMin = fechas[0];
     const fechaMax = fechas[fechas.length - 1];
-    const añosEnArchivo = [...new Set(registrosExcel.map(r => r.fecha.split('-')[0]))];
+    const añosEnArchivo = [...new Set(registrosExcel.map(r => r.fecha.split('-')[0]))].sort();
 
-    // 3. Consultar registros existentes en Supabase para ese rango de fechas
+    // 6. Consultar registros existentes en Supabase para ese rango
     const { data: existentes, error: fetchError } = await supabase
       .from('costos')
       .select('fecha, monto, proveedor, centro, categoria')
@@ -491,18 +547,19 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
 
     if (fetchError) throw fetchError;
 
-    // 4. Crear "huella" de cada registro existente para comparar
-    const generarHuella = (r) => `${r.fecha}|${Math.round(r.monto)}|${(r.proveedor || '').toString().trim().toLowerCase()}|${r.centro}|${r.categoria}`;
+    // 7. Crear "huella" para deduplicar (fecha + monto redondeado + proveedor + centro + categoría)
+    const generarHuella = (r) => 
+      `${r.fecha}|${Math.round(r.monto)}|${(r.proveedor || '').toString().trim().toLowerCase()}|${(r.centro || '').trim()}|${(r.categoria || '').trim().toLowerCase()}`;
+    
     const huellaExistentes = new Set((existentes || []).map(generarHuella));
 
-    // 5. Filtrar solo registros nuevos (que no existen ya en la base de datos)
+    // 8. Filtrar solo registros nuevos
     const registrosNuevos = registrosExcel.filter(r => !huellaExistentes.has(generarHuella(r)));
     const registrosDuplicados = registrosExcel.length - registrosNuevos.length;
 
-    // 6. Insertar solo los nuevos
+    // 9. Insertar solo los nuevos en lotes
     let insertados = 0;
     if (registrosNuevos.length > 0) {
-      // Insertar en lotes de 500 para evitar límites
       for (let i = 0; i < registrosNuevos.length; i += 500) {
         const lote = registrosNuevos.slice(i, i + 500);
         const { data, error: insertError } = await supabase.from('costos').insert(lote).select();
@@ -525,6 +582,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
         errores: [],
         costos: `✅ ${insertados} registros nuevos insertados de ${registrosExcel.length} procesados` +
                 (registrosDuplicados > 0 ? `\n⏭️ ${registrosDuplicados} registros ya existían y fueron omitidos` : '') +
+                `\n📄 Hoja: "${sheetName}"` +
                 `\n📅 Período: ${fechaMin} a ${fechaMax} (${añosEnArchivo.join(', ')})`
       }
     };
