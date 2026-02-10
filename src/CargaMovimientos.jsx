@@ -352,104 +352,118 @@ const insertarConDedup = async (tabla, registros, camposHuella) => {
 
 // ==================== MAIN COMPONENT ====================
 export default function CargaMovimientos({ user, onClose, onSuccess }) {
-  const [archivo, setArchivo] = useState(null);
   const [procesando, setProcesando] = useState(false);
-  const [resultado, setResultado] = useState(null);
+  const [resultados, setResultados] = useState([]); // array of results per file
   const [error, setError] = useState(null);
   const [progreso, setProgreso] = useState('');
+  const [archivoActual, setArchivoActual] = useState('');
+  const [totalArchivos, setTotalArchivos] = useState(0);
+  const [archivoIdx, setArchivoIdx] = useState(0);
 
-  const procesarArchivo = useCallback(async (file) => {
+  const procesarUnArchivo = async (file) => {
+    const buffer = await file.arrayBuffer();
+    const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+    const hojas = wb.SheetNames;
+    const resultado = {};
+
+    // ---- PESAJE ----
+    const hojaPesaje = hojas.find(h => h.toUpperCase().includes('PESAJE'));
+    if (hojaPesaje) {
+      const registros = procesarPesaje(wb.Sheets[hojaPesaje]);
+      if (registros.length > 0) {
+        const res = await insertarConDedup('pesajes', registros, ['animal', 'finca', 'fecha_pesaje', 'peso']);
+        resultado.pesajes = { total: registros.length, ...res };
+      }
+    }
+
+    // ---- PALPACION ----
+    const hojaPalp = hojas.find(h => h.toUpperCase().includes('PALPACION'));
+    if (hojaPalp) {
+      const registros = procesarPalpacion(wb.Sheets[hojaPalp]);
+      if (registros.length > 0) {
+        const res = await insertarConDedup('palpaciones', registros, ['hembra', 'finca', 'fecha', 'estado', 'dias_gestacion']);
+        resultado.palpaciones = { total: registros.length, ...res };
+      }
+    }
+
+    // ---- SERVICIOS ----
+    const hojaServ = hojas.find(h => h.toUpperCase().includes('SERVICIO'));
+    if (hojaServ) {
+      const registros = procesarServicios(wb.Sheets[hojaServ]);
+      if (registros.length > 0) {
+        const res = await insertarConDedup('servicios', registros, ['hembra', 'fecha', 'toro']);
+        resultado.servicios = { total: registros.length, ...res };
+      }
+    }
+
+    // ---- DESTETE ----
+    const hojaDest = hojas.find(h => h.toUpperCase().includes('DESTETE') || h.toUpperCase().includes('DESTE'));
+    if (hojaDest) {
+      const registros = procesarDestete(wb.Sheets[hojaDest]);
+      if (registros.length > 0) {
+        const res = await insertarConDedup('destetes', registros, ['animal', 'fecha_destete', 'peso_destete']);
+        resultado.destetes = { total: registros.length, ...res };
+      }
+    }
+
+    return { archivo: file.name, hojas: resultado };
+  };
+
+  const procesarArchivos = useCallback(async (files) => {
+    const fileList = Array.from(files).filter(f => f.name.match(/\.xlsx?$/i)).sort((a, b) => a.name.localeCompare(b.name));
+    if (fileList.length === 0) return;
+
     setProcesando(true);
     setError(null);
-    setResultado(null);
+    setResultados([]);
+    setTotalArchivos(fileList.length);
 
-    try {
-      const buffer = await file.arrayBuffer();
-      const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
-      const hojas = wb.SheetNames;
-      console.log('[Movimientos] Hojas encontradas:', hojas);
+    const results = [];
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList[i];
+      setArchivoIdx(i + 1);
+      setArchivoActual(file.name);
+      setProgreso(`Archivo ${i + 1} de ${fileList.length}: ${file.name}`);
 
-      const resultados = {};
-
-      // ---- PESAJE ----
-      const hojaPesaje = hojas.find(h => h.toUpperCase().includes('PESAJE'));
-      if (hojaPesaje) {
-        setProgreso('Procesando pesajes...');
-        const ws = wb.Sheets[hojaPesaje];
-        const registros = procesarPesaje(ws);
-        console.log(`[Pesajes] ${registros.length} registros encontrados`);
-        if (registros.length > 0) {
-          const res = await insertarConDedup('pesajes', registros, ['animal', 'finca', 'fecha_pesaje', 'peso']);
-          resultados.pesajes = { total: registros.length, ...res };
-        }
+      try {
+        const res = await procesarUnArchivo(file);
+        results.push({ ...res, ok: true });
+      } catch (err) {
+        console.error(`[Movimientos] Error en ${file.name}:`, err);
+        results.push({ archivo: file.name, ok: false, error: err.message });
       }
-
-      // ---- PALPACION ----
-      const hojaPalp = hojas.find(h => h.toUpperCase().includes('PALPACION'));
-      if (hojaPalp) {
-        setProgreso('Procesando palpaciones...');
-        const ws = wb.Sheets[hojaPalp];
-        const registros = procesarPalpacion(ws);
-        console.log(`[Palpaciones] ${registros.length} registros encontrados`);
-        if (registros.length > 0) {
-          const res = await insertarConDedup('palpaciones', registros, ['hembra', 'finca', 'fecha', 'estado', 'dias_gestacion']);
-          resultados.palpaciones = { total: registros.length, ...res };
-        }
-      }
-
-      // ---- SERVICIOS ----
-      const hojaServ = hojas.find(h => h.toUpperCase().includes('SERVICIO'));
-      if (hojaServ) {
-        setProgreso('Procesando servicios...');
-        const ws = wb.Sheets[hojaServ];
-        const registros = procesarServicios(ws);
-        console.log(`[Servicios] ${registros.length} registros encontrados`);
-        if (registros.length > 0) {
-          const res = await insertarConDedup('servicios', registros, ['hembra', 'fecha', 'toro']);
-          resultados.servicios = { total: registros.length, ...res };
-        }
-      }
-
-      // ---- DESTETE ----
-      const hojaDest = hojas.find(h => h.toUpperCase().includes('DESTETE') || h.toUpperCase().includes('DESTE'));
-      if (hojaDest) {
-        setProgreso('Procesando destetes...');
-        const ws = wb.Sheets[hojaDest];
-        const registros = procesarDestete(ws);
-        console.log(`[Destetes] ${registros.length} registros encontrados`);
-        if (registros.length > 0) {
-          const res = await insertarConDedup('destetes', registros, ['animal', 'fecha_destete', 'peso_destete']);
-          resultados.destetes = { total: registros.length, ...res };
-        }
-      }
-
-      const totalNuevos = Object.values(resultados).reduce((s, r) => s + r.nuevos, 0);
-      setResultado({ hojas: resultados, archivo: file.name, totalNuevos });
-      console.log('[Movimientos] Resultado:', resultados);
-
-    } catch (err) {
-      console.error('[Movimientos] Error:', err);
-      setError(err.message || 'Error procesando archivo');
-    } finally {
-      setProcesando(false);
-      setProgreso('');
+      setResultados([...results]);
     }
+
+    setProcesando(false);
+    setProgreso('');
   }, []);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
-    const file = e.dataTransfer?.files[0];
-    if (file) { setArchivo(file); procesarArchivo(file); }
-  }, [procesarArchivo]);
+    const files = e.dataTransfer?.files;
+    if (files?.length) procesarArchivos(files);
+  }, [procesarArchivos]);
 
   const handleFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) { setArchivo(file); procesarArchivo(file); }
+    const files = e.target.files;
+    if (files?.length) procesarArchivos(files);
   };
+
+  const totalNuevos = resultados.reduce((s, r) => {
+    if (!r.ok || !r.hojas) return s;
+    return s + Object.values(r.hojas).reduce((s2, h) => s2 + (h.nuevos || 0), 0);
+  }, 0);
+  const totalDups = resultados.reduce((s, r) => {
+    if (!r.ok || !r.hojas) return s;
+    return s + Object.values(r.hojas).reduce((s2, h) => s2 + (h.duplicados || 0), 0);
+  }, 0);
+  const archivosOk = resultados.filter(r => r.ok).length;
+  const archivosError = resultados.filter(r => !r.ok).length;
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold flex items-center gap-2">
@@ -458,7 +472,7 @@ export default function CargaMovimientos({ user, onClose, onSuccess }) {
             <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
           </div>
 
-          {!resultado && !procesando && (
+          {resultados.length === 0 && !procesando && (
             <div
               onDrop={handleDrop}
               onDragOver={e => e.preventDefault()}
@@ -466,68 +480,96 @@ export default function CargaMovimientos({ user, onClose, onSuccess }) {
               onClick={() => document.getElementById('fileInputMov').click()}
             >
               <Upload size={48} className="mx-auto text-blue-400 mb-4" />
-              <p className="text-gray-600 font-medium">Arrastra un archivo de Movimientos del Mes</p>
-              <p className="text-gray-400 text-sm mt-2">Archivos .xlsx del software ganadero</p>
+              <p className="text-gray-600 font-medium">Arrastra archivos de Movimientos del Mes</p>
+              <p className="text-gray-400 text-sm mt-2">Puedes seleccionar varios archivos a la vez</p>
               <p className="text-gray-400 text-xs mt-1">Procesa: Pesajes, Palpaciones, Servicios, Destetes</p>
-              <input id="fileInputMov" type="file" accept=".xlsx,.xls" onChange={handleFileSelect} className="hidden" />
+              <input id="fileInputMov" type="file" accept=".xlsx,.xls" multiple onChange={handleFileSelect} className="hidden" />
             </div>
           )}
 
           {procesando && (
-            <div className="text-center py-12">
-              <Loader2 size={48} className="mx-auto text-blue-500 animate-spin mb-4" />
-              <p className="text-gray-600 font-medium">Procesando archivo...</p>
-              <p className="text-blue-600 text-sm mt-2">{progreso}</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
-              <div className="flex items-center gap-2 text-red-600 font-medium mb-1">
-                <AlertTriangle size={18} /> Error
+            <div className="py-8">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Loader2 size={32} className="text-blue-500 animate-spin" />
+                <div>
+                  <p className="text-gray-700 font-medium">Procesando archivo {archivoIdx} de {totalArchivos}</p>
+                  <p className="text-blue-600 text-sm">{archivoActual}</p>
+                </div>
               </div>
-              <p className="text-red-600 text-sm">{error}</p>
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${(archivoIdx / totalArchivos) * 100}%` }} />
+              </div>
+
+              {/* Show partial results while processing */}
+              {resultados.length > 0 && (
+                <div className="mt-4 max-h-40 overflow-y-auto">
+                  {resultados.map((r, i) => (
+                    <div key={i} className={`text-xs py-1 flex items-center gap-2 ${r.ok ? 'text-green-600' : 'text-red-500'}`}>
+                      {r.ok ? <CheckCircle size={12} /> : <AlertTriangle size={12} />}
+                      <span className="truncate">{r.archivo}</span>
+                      {r.ok && r.hojas && <span className="text-gray-400 ml-auto">{Object.values(r.hojas).reduce((s, h) => s + h.nuevos, 0)} nuevos</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          {resultado && (
-            <div className="text-center">
-              <CheckCircle size={64} className="mx-auto text-green-500 mb-4" />
-              <h3 className="text-xl font-bold text-green-700 mb-4">¡Archivo procesado exitosamente!</h3>
-              <p className="text-sm text-gray-500 mb-4">{resultado.archivo}</p>
+          {!procesando && resultados.length > 0 && (
+            <div>
+              <div className="text-center mb-4">
+                <CheckCircle size={48} className="mx-auto text-green-500 mb-3" />
+                <h3 className="text-xl font-bold text-green-700">¡{archivosOk} archivo{archivosOk !== 1 ? 's' : ''} procesado{archivosOk !== 1 ? 's' : ''} exitosamente!</h3>
+                {archivosError > 0 && <p className="text-red-500 text-sm mt-1">{archivosError} con errores</p>}
+              </div>
 
-              <div className="space-y-3 text-left bg-gray-50 rounded-xl p-4">
-                {Object.entries(resultado.hojas).map(([tipo, data]) => (
-                  <div key={tipo} className="border-b border-gray-200 pb-2 last:border-0 last:pb-0">
-                    <p className="font-semibold text-gray-700 capitalize flex items-center gap-2">
-                      {tipo === 'pesajes' && '⚖️'}
-                      {tipo === 'palpaciones' && '🔬'}
-                      {tipo === 'servicios' && '🐂'}
-                      {tipo === 'destetes' && '🍼'}
-                      {' '}{tipo}:
-                    </p>
-                    <p className="text-sm text-gray-600 ml-6">
-                      ✅ {data.nuevos} nuevos insertados de {data.total} encontrados
-                    </p>
-                    {data.duplicados > 0 && (
-                      <p className="text-sm text-gray-400 ml-6">
-                        ⏭️ {data.duplicados} ya existían y fueron omitidos
-                      </p>
+              {/* Summary totals */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-green-50 rounded-xl p-3 text-center">
+                  <p className="text-2xl font-bold text-green-700">{totalNuevos}</p>
+                  <p className="text-xs text-green-600">Registros nuevos</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3 text-center">
+                  <p className="text-2xl font-bold text-gray-500">{totalDups}</p>
+                  <p className="text-xs text-gray-400">Duplicados omitidos</p>
+                </div>
+              </div>
+
+              {/* Per-file results */}
+              <div className="max-h-64 overflow-y-auto space-y-2">
+                {resultados.map((r, i) => (
+                  <div key={i} className={`rounded-lg p-3 text-sm ${r.ok ? 'bg-gray-50' : 'bg-red-50'}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      {r.ok ? <CheckCircle size={14} className="text-green-500 shrink-0" /> : <AlertTriangle size={14} className="text-red-500 shrink-0" />}
+                      <span className="font-medium text-gray-700 truncate">{r.archivo}</span>
+                    </div>
+                    {r.ok && r.hojas && Object.keys(r.hojas).length > 0 && (
+                      <div className="ml-6 text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-0.5">
+                        {Object.entries(r.hojas).map(([tipo, data]) => (
+                          <span key={tipo}>
+                            {tipo === 'pesajes' && '⚖️'}
+                            {tipo === 'palpaciones' && '🔬'}
+                            {tipo === 'servicios' && '🐂'}
+                            {tipo === 'destetes' && '🍼'}
+                            {' '}{tipo}: {data.nuevos} nuevos{data.duplicados > 0 ? `, ${data.duplicados} dup` : ''}
+                          </span>
+                        ))}
+                      </div>
                     )}
+                    {r.ok && r.hojas && Object.keys(r.hojas).length === 0 && (
+                      <p className="ml-6 text-xs text-gray-400">Sin hojas de pesajes/palpaciones/servicios/destetes</p>
+                    )}
+                    {!r.ok && <p className="ml-6 text-xs text-red-500">{r.error}</p>}
                   </div>
                 ))}
-
-                {Object.keys(resultado.hojas).length === 0 && (
-                  <p className="text-sm text-gray-400">No se encontraron hojas de pesajes, palpaciones, servicios o destetes.</p>
-                )}
               </div>
 
               <div className="flex gap-3 mt-6">
                 <button
-                  onClick={() => { setResultado(null); setArchivo(null); setError(null); }}
+                  onClick={() => { setResultados([]); setError(null); }}
                   className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors"
                 >
-                  Cargar otro archivo
+                  Cargar más archivos
                 </button>
                 <button
                   onClick={() => { onSuccess?.(); onClose(); }}
