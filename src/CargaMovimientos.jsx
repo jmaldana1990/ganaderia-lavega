@@ -177,6 +177,20 @@ const procesarPesaje = (ws) => {
   for (const sec of secciones) {
     const headers = (sec.headerRow || []).map(h => limpiarTexto(h).toLowerCase());
     
+    // Try to get date from header column (e.g. "16-02-24       Este pesaje Kg.")
+    let fechaPesaje = sec.fechaTitulo;
+    if (!fechaPesaje && sec.headerRow) {
+      for (const h of sec.headerRow) {
+        const ht = limpiarTexto(h);
+        const m = ht.match(/(\d{1,2})-(\d{1,2})-(\d{2,4})/);
+        if (m) {
+          let y = m[3]; if (y.length === 2) y = '20' + y;
+          fechaPesaje = `${y}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+          break;
+        }
+      }
+    }
+
     // Detect column positions
     const colAnimal = headers.findIndex(h => h.includes('animal') || h.includes('número'));
     const colEdad = headers.findIndex(h => h.includes('edad'));
@@ -194,12 +208,12 @@ const procesarPesaje = (ws) => {
 
     for (const row of sec.dataRows) {
       const animal = limpiarTexto(row[colAnimal >= 0 ? colAnimal : 0]);
-      if (!animal) continue;
+      if (!animal || !fechaPesaje) continue;
 
       registros.push({
         animal,
         finca: sec.finca,
-        fecha_pesaje: sec.fechaTitulo,
+        fecha_pesaje: fechaPesaje,
         edad_meses: limpiarNumero(row[colEdad >= 0 ? colEdad : 1]),
         peso: limpiarNumero(row[pesoCol]),
         peso_anterior: colPesoAnt >= 0 ? limpiarNumero(row[colPesoAnt]) : null,
