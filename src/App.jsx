@@ -390,13 +390,13 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
   // Ventas del año filtrado — computado dinámicamente desde datos
   const ventasAñoLabel = useMemo(() => {
     if (añoFiltro) return añoFiltro;
-    const añosVentas = [...new Set((ventas || []).map(v => v.año))].sort((a, b) => b - a);
-    return añosVentas[0] || new Date().getFullYear();
-  }, [añoFiltro, ventas]);
+    return 'Totales';
+  }, [añoFiltro]);
 
   const ventasAño = useMemo(() => {
-    return (ventas || []).filter(v => v.año === ventasAñoLabel).reduce((s, v) => s + (v.valor || 0), 0);
-  }, [ventas, ventasAñoLabel]);
+    if (añoFiltro) return (ventas || []).filter(v => v.año === añoFiltro).reduce((s, v) => s + (v.valor || 0), 0);
+    return (ventas || []).reduce((s, v) => s + (v.valor || 0), 0);
+  }, [ventas, añoFiltro]);
 
   // Inventario último por finca
   const invLaVega = useMemo(() =>
@@ -787,9 +787,14 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
   const CENTROS_EXCLUIDOS = ['Yegua MAG', 'Apicultura', 'Aparco'];
 
   const añosDisponibles = useMemo(() => {
-    const a = [...new Set(inventario.filter(i => i.finca === finca).map(i => i.año))].sort((a, b) => b - a);
-    return a.length ? a : [2025];
-  }, [inventario, finca]);
+    const aInv = inventario.filter(i => i.finca === finca).map(i => i.año);
+    const aGastos = gastos
+      .filter(g => g.fecha && (g.centro === finca || g.centro === 'Global'))
+      .map(g => parseInt(g.fecha.split('-')[0]))
+      .filter(a => !isNaN(a));
+    const a = [...new Set([...aInv, ...aGastos])].sort((a, b) => b - a);
+    return a.length ? a : [new Date().getFullYear()];
+  }, [inventario, gastos, finca]);
 
   const invFinca = useMemo(() =>
     inventario.filter(i => i.finca === finca).sort((a, b) => (b.año * 12 + b.mes) - (a.año * 12 + a.mes)),
