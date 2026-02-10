@@ -7,6 +7,7 @@ import { INVENTARIO_FINCAS } from './inventario-fincas';
 import * as db from './supabase';
 import Login from './Login';
 import CargaArchivos from './CargaArchivos';
+import CargaMovimientos from './CargaMovimientos';
 import CargaInventario from './CargaInventario';
 import { VENTAS_GANADO, TIPO_ANIMAL_LABELS } from './ventas-ganado';
 
@@ -55,6 +56,7 @@ export default function GanaderiaApp() {
   const [showForm, setShowForm] = useState(false);
   const [showCarga, setShowCarga] = useState(false);
   const [showCargaInv, setShowCargaInv] = useState(false);
+  const [showCargaMov, setShowCargaMov] = useState(false);
   const [editGasto, setEditGasto] = useState(null);
   const [filtros, setFiltros] = useState({ mes: '', año: new Date().getFullYear().toString(), centro: '', categoria: '', busqueda: '' });
   const [menuOpen, setMenuOpen] = useState(false);
@@ -305,6 +307,9 @@ export default function GanaderiaApp() {
                 <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar costos/nacimientos">
                   <Upload size={16} /><span className="hidden sm:inline">Costos</span>
                 </button>
+                <button onClick={() => setShowCargaMov(true)} className="flex items-center gap-1.5 bg-blue-400/30 hover:bg-blue-400/50 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar movimientos mensuales">
+                  <FileText size={16} /><span className="hidden sm:inline">Movimientos</span>
+                </button>
                 <button onClick={() => setShowCargaInv(true)} className="flex items-center gap-1.5 bg-emerald-400/30 hover:bg-emerald-400/50 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar movimientos de inventario">
                   <FileText size={16} /><span className="hidden sm:inline">Inventario</span>
                 </button>
@@ -376,6 +381,7 @@ export default function GanaderiaApp() {
       {showForm && <Form gasto={editGasto} onSave={save} onClose={() => { setShowForm(false); setEditGasto(null); }} />}
       {showCarga && <CargaArchivos user={user} onClose={() => setShowCarga(false)} onSuccess={() => { setShowCarga(false); loadCloudData(); }} />}
       {showCargaInv && <CargaInventario user={user} onClose={() => setShowCargaInv(false)} onSuccess={() => { setShowCargaInv(false); loadCloudData(); }} />}
+      {showCargaMov && <CargaMovimientos user={user} onClose={() => setShowCargaMov(false)} onSuccess={() => { setShowCargaMov(false); loadCloudData(); }} />}
       {menuOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setMenuOpen(false)} />}
     </div>
   );
