@@ -1,11 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Upload, X, FileText, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from './supabase';
 
 // ==================== HELPERS ====================
 const limpiarTexto = (v) => (v || '').toString().trim();
