@@ -9,6 +9,7 @@ import Login from './Login';
 import CargaArchivos from './CargaArchivos';
 import CargaMovimientos from './CargaMovimientos';
 import CargaInventario from './CargaInventario';
+import KPITrends from './KPITrends';
 import { VENTAS_GANADO, TIPO_ANIMAL_LABELS } from './ventas-ganado';
 
 // ==================== HELPERS ====================
@@ -50,6 +51,10 @@ export default function GanaderiaApp() {
   const [gastos, setGastos] = useState(GASTOS_HISTORICOS);
   const [inventario, setInventario] = useState(INVENTARIO_FINCAS);
   const [ventas, setVentas] = useState(VENTAS_GANADO);
+  const [pesajes, setPesajes] = useState([]);
+  const [palpaciones, setPalpaciones] = useState([]);
+  const [servicios, setServicios] = useState([]);
+  const [destetes, setDestetes] = useState([]);
 
   // UI
   const [view, setView] = useState('dashboard');
@@ -110,8 +115,10 @@ export default function GanaderiaApp() {
   const loadCloudData = async () => {
     setSyncing(true);
     try {
-      const [nacData, costosData, invData, ventasData] = await Promise.all([
-        db.getNacimientos(), db.getCostos(), db.getInventario(), db.getVentas().catch(() => null)
+      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData] = await Promise.all([
+        db.getNacimientos(), db.getCostos(), db.getInventario(), db.getVentas().catch(() => null),
+        db.getPesajes().catch(() => []), db.getPalpaciones().catch(() => []),
+        db.getServicios().catch(() => []), db.getDestetes().catch(() => [])
       ]);
       if (nacData?.length > 0) {
         setNacimientos(nacData);
@@ -124,6 +131,22 @@ export default function GanaderiaApp() {
       if (ventasData?.length > 0) {
         setVentas(ventasData);
         try { localStorage.setItem('cache_ventas', JSON.stringify(ventasData)); } catch(e) {}
+      }
+      if (pesData?.length > 0) {
+        setPesajes(pesData);
+        try { localStorage.setItem('cache_pesajes', JSON.stringify(pesData)); } catch(e) {}
+      }
+      if (palpData?.length > 0) {
+        setPalpaciones(palpData);
+        try { localStorage.setItem('cache_palpaciones', JSON.stringify(palpData)); } catch(e) {}
+      }
+      if (servData?.length > 0) {
+        setServicios(servData);
+        try { localStorage.setItem('cache_servicios', JSON.stringify(servData)); } catch(e) {}
+      }
+      if (destData?.length > 0) {
+        setDestetes(destData);
+        try { localStorage.setItem('cache_destetes', JSON.stringify(destData)); } catch(e) {}
       }
       // Inventario: combinar nube + local, deduplicando por finca+periodo
       if (invData?.length > 0) {
@@ -152,10 +175,18 @@ export default function GanaderiaApp() {
       const cachedCostos = localStorage.getItem('cache_costos');
       const cachedVentas = localStorage.getItem('cache_ventas');
       const cachedInv = localStorage.getItem('cache_inventario');
+      const cachedPes = localStorage.getItem('cache_pesajes');
+      const cachedPalp = localStorage.getItem('cache_palpaciones');
+      const cachedServ = localStorage.getItem('cache_servicios');
+      const cachedDest = localStorage.getItem('cache_destetes');
       if (cachedNac) setNacimientos(JSON.parse(cachedNac));
       if (cachedCostos) setGastos(JSON.parse(cachedCostos));
       if (cachedVentas) setVentas(JSON.parse(cachedVentas));
       if (cachedInv) setInventario(JSON.parse(cachedInv));
+      if (cachedPes) setPesajes(JSON.parse(cachedPes));
+      if (cachedPalp) setPalpaciones(JSON.parse(cachedPalp));
+      if (cachedServ) setServicios(JSON.parse(cachedServ));
+      if (cachedDest) setDestetes(JSON.parse(cachedDest));
       const ts = localStorage.getItem('cache_timestamp');
       if (ts) setDataSource('cache');
       console.log('[Offline] Datos cargados desde caché local', ts ? `(${ts})` : '');
@@ -360,11 +391,13 @@ export default function GanaderiaApp() {
           )}
           {view === 'lavega' && (
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
-              inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años} />
+              inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
+              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} />
           )}
           {view === 'bariloche' && (
             <FincaView finca="Bariloche" subtitulo="Finca de Levante" color="blue"
-              inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años} />
+              inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
+              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} />
           )}
           {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} />}
@@ -784,10 +817,11 @@ function VentasTotales({ ventas: ventasData }) {
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años, pesajes, palpaciones, servicios, destetes }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
-  const añoNum = parseInt(añoSel);
+  const esTodos = añoSel === 'todos';
+  const añoNum = esTodos ? new Date().getFullYear() : parseInt(añoSel);
 
   // Categorías y centros excluidos de totales operativos
   const CATEGORIAS_EXCLUIDAS = ['Las Victorias', 'Yegua Mauricio Aldana', 'Apicultura', 'Montaje finca'];
@@ -866,21 +900,41 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
     const pesoNacerProm = conPesoNacer.length
       ? conPesoNacer.reduce((s, n) => s + n.pesoNacer, 0) / conPesoNacer.length : null;
 
-    // Peso destete por sexo
-    const destetados = nacimientos.filter(n => {
+    // Peso destete por sexo (from nacimientos or destetes table)
+    const destetadosNac = nacimientos.filter(n => {
       const ad = n.añoDestete || n.año_destete;
       return n.estado === 'Activo' && (n.pesoDestete || n.peso_destete) && ad === añoNum;
     });
-    const getPeso = n => n.pesoDestete || n.peso_destete || 0;
-    const destM = destetados.filter(n => n.sexo === 'M');
-    const destH = destetados.filter(n => n.sexo === 'H');
-    const pesoDestM = destM.length ? destM.reduce((s, n) => s + getPeso(n), 0) / destM.length : null;
-    const pesoDestH = destH.length ? destH.reduce((s, n) => s + getPeso(n), 0) / destH.length : null;
+    const destetadosTab = (destetes || []).filter(d => {
+      if (!d.fecha_destete) return false;
+      return parseInt(d.fecha_destete.split('-')[0]) === añoNum;
+    });
+    // Use destetes table if it has more data for this year
+    const usarTablaDestetes = destetadosTab.length > destetadosNac.length;
+    const getPesoNac = n => n.pesoDestete || n.peso_destete || 0;
 
-    // Ganancia diaria pre-destete (g/día)
-    const conGDP = destetados.filter(n => n.grDiaVida && n.grDiaVida > 0);
-    const gdpProm = conGDP.length
-      ? conGDP.reduce((s, n) => s + n.grDiaVida, 0) / conGDP.length : null;
+    let pesoDestM, pesoDestH, destM, destH, destetadosTotal, gdpProm;
+    if (usarTablaDestetes && destetadosTab.length > 0) {
+      const dm = destetadosTab.filter(d => d.sexo === 'M');
+      const dh = destetadosTab.filter(d => d.sexo === 'H');
+      pesoDestM = dm.length ? dm.reduce((s, d) => s + (d.peso_destete || 0), 0) / dm.length : null;
+      pesoDestH = dh.length ? dh.reduce((s, d) => s + (d.peso_destete || 0), 0) / dh.length : null;
+      destM = dm.length;
+      destH = dh.length;
+      destetadosTotal = destetadosTab.length;
+      const conGDP = destetadosTab.filter(d => d.gdp_predestete && d.gdp_predestete > 0);
+      gdpProm = conGDP.length ? conGDP.reduce((s, d) => s + d.gdp_predestete, 0) / conGDP.length : null;
+    } else {
+      const dm = destetadosNac.filter(n => n.sexo === 'M');
+      const dh = destetadosNac.filter(n => n.sexo === 'H');
+      pesoDestM = dm.length ? dm.reduce((s, n) => s + getPesoNac(n), 0) / dm.length : null;
+      pesoDestH = dh.length ? dh.reduce((s, n) => s + getPesoNac(n), 0) / dh.length : null;
+      destM = dm.length;
+      destH = dh.length;
+      destetadosTotal = destetadosNac.length;
+      const conGDP = destetadosNac.filter(n => n.grDiaVida && n.grDiaVida > 0);
+      gdpProm = conGDP.length ? conGDP.reduce((s, n) => s + n.grDiaVida, 0) / conGDP.length : null;
+    }
 
     // Tasa de mortalidad
     const mortalidad = nacTodos.length > 0
@@ -905,11 +959,30 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       ? intervalos.reduce((s, d) => s + d, 0) / intervalos.length : null;
 
     // Costo por animal destetado
-    const costoAnimal = destetados.length > 0 ? costosAño / destetados.length : null;
+    const costoAnimal = destetadosTotal > 0 ? costosAño / destetadosTotal : null;
 
     // Proporción sexos
     const machos = nacActivos.filter(n => n.sexo === 'M').length;
     const hembras = nacActivos.filter(n => n.sexo === 'H').length;
+
+    // ---- FERTILIDAD (from palpaciones) ----
+    const palpAño = (palpaciones || []).filter(p => p.finca === 'La Vega' && p.fecha && parseInt(p.fecha.split('-')[0]) === añoNum);
+    // Get latest palpation per hembra in the year
+    const ultimaPalp = {};
+    palpAño.forEach(p => {
+      const key = p.hembra;
+      if (!ultimaPalp[key] || p.fecha > ultimaPalp[key].fecha) ultimaPalp[key] = p;
+    });
+    const palpUnicas = Object.values(ultimaPalp);
+    const totalPalpadas = palpUnicas.length;
+    const preñadas = palpUnicas.filter(p => {
+      const gest = (p.dias_gestacion || '').toString().trim().toUpperCase();
+      return gest !== 'VACIA' && gest !== '' && !isNaN(parseInt(gest));
+    }).length;
+    const fertilidad = totalPalpadas > 0 ? (preñadas / totalPalpadas) * 100 : null;
+
+    // ---- SERVICIOS del año ----
+    const servAño = (servicios || []).filter(s => s.finca === 'La Vega' && s.fecha && parseInt(s.fecha.split('-')[0]) === añoNum);
 
     return {
       nacidos: nacTodos.length,
@@ -918,17 +991,21 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       pesoNacerProm,
       pesoDestM,
       pesoDestH,
-      destM: destM.length,
-      destH: destH.length,
-      destetados: destetados.length,
+      destM,
+      destH,
+      destetados: destetadosTotal,
       gdpProm,
       mortalidad,
       iepProm,
       costoAnimal,
       machos,
       hembras,
+      fertilidad,
+      totalPalpadas,
+      preñadas,
+      totalServicios: servAño.length,
     };
-  }, [nacimientos, añoNum, finca, costosAño]);
+  }, [nacimientos, añoNum, finca, costosAño, palpaciones, servicios, destetes]);
 
   // ---- KPIs Bariloche ----
   const kpisBariloche = useMemo(() => {
@@ -953,12 +1030,56 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
     });
     const topCostos = Object.entries(costosCat).sort((a, b) => b[1] - a[1]).slice(0, 6);
 
+    // ---- PESAJES Bariloche ----
+    const pesAño = (pesajes || []).filter(p => p.finca === 'Bariloche' && p.fecha_pesaje && parseInt(p.fecha_pesaje.split('-')[0]) === añoNum);
+    
+    // GDP entre pesajes (meta: 500 g/día)
+    const conGDPEntre = pesAño.filter(p => p.gdp_entre_pesajes && p.gdp_entre_pesajes > 0);
+    const gdpEntreProm = conGDPEntre.length
+      ? conGDPEntre.reduce((s, p) => s + p.gdp_entre_pesajes, 0) / conGDPEntre.length : null;
+
+    // GDP vida promedio
+    const conGDPVida = pesAño.filter(p => p.gdp_vida && p.gdp_vida > 0);
+    const gdpVidaProm = conGDPVida.length
+      ? conGDPVida.reduce((s, p) => s + p.gdp_vida, 0) / conGDPVida.length : null;
+
+    // Peso promedio actual (último pesaje por animal)
+    const ultimoPesaje = {};
+    pesAño.forEach(p => {
+      if (!ultimoPesaje[p.animal] || p.fecha_pesaje > ultimoPesaje[p.animal].fecha_pesaje) {
+        ultimoPesaje[p.animal] = p;
+      }
+    });
+    const ultimos = Object.values(ultimoPesaje);
+    const pesoProm = ultimos.length
+      ? ultimos.reduce((s, p) => s + (p.peso || 0), 0) / ultimos.length : null;
+
+    // GDP por categoría
+    const gdpPorCat = {};
+    conGDPEntre.forEach(p => {
+      const cat = p.categoria || 'Otro';
+      if (!gdpPorCat[cat]) gdpPorCat[cat] = { sum: 0, count: 0 };
+      gdpPorCat[cat].sum += p.gdp_entre_pesajes;
+      gdpPorCat[cat].count++;
+    });
+    const gdpCategorias = Object.entries(gdpPorCat).map(([cat, d]) => ({
+      cat,
+      gdp: d.sum / d.count,
+      n: d.count,
+    })).sort((a, b) => b.gdp - a.gdp);
+
     return {
       totalCabezas,
       costoAnimal,
       topCostos,
+      pesajesTotal: pesAño.length,
+      gdpEntreProm,
+      gdpVidaProm,
+      pesoProm,
+      gdpCategorias,
+      animalesPesados: ultimos.length,
     };
-  }, [gastos, añoSel, finca, costosAño, ultimo]);
+  }, [gastos, añoSel, finca, costosAño, ultimo, pesajes, añoNum]);
 
   const colorClasses = {
     green: { bg: 'bg-green-100', text: 'text-green-600', bar: 'bg-green-500', gradient: 'from-green-500 to-green-600', border: 'border-green-500' },
@@ -973,6 +1094,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
           <p className="text-gray-500">{subtitulo}</p>
         </div>
         <select value={añoSel} onChange={e => setAñoSel(e.target.value)} className="px-4 py-2 border rounded-xl">
+          <option value="todos">📈 Todos</option>
           {añosDisponibles.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
       </div>
@@ -980,17 +1102,31 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
         {[
-          { key: 'resumen', label: '📊 Resumen', icon: BarChart3 },
-          { key: 'kpis', label: '🎯 KPIs', icon: Target },
-        ].map(tab => (
+          { key: 'resumen', label: '📊 Resumen', icon: BarChart3, hide: esTodos },
+          { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
+        ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key ? 'bg-white shadow text-gray-800' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-white shadow text-gray-800' : 'text-gray-500 hover:text-gray-700'}`}>
             {tab.label}
           </button>
         ))}
       </div>
 
-      {subView === 'resumen' && (<>
+      {/* KPI Trends - when "Todos" is selected */}
+      {esTodos && (
+        <KPITrends
+          finca={finca}
+          nacimientos={nacimientos}
+          gastos={gastos}
+          inventario={inventario}
+          pesajes={pesajes}
+          palpaciones={palpaciones}
+          servicios={servicios}
+          destetes={destetes}
+        />
+      )}
+
+      {!esTodos && subView === 'resumen' && (<>
       {/* Cards resumen */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className={`bg-gradient-to-br ${colorClasses.gradient} rounded-2xl p-4 text-white shadow-lg`}>
@@ -1091,7 +1227,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       </>)}
 
       {/* ===== KPI PANEL ===== */}
-      {subView === 'kpis' && finca === 'La Vega' && kpisLaVega && (
+      {!esTodos && subView === 'kpis' && finca === 'La Vega' && kpisLaVega && (
         <div className="space-y-6">
           {/* KPI Cards principales */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1191,21 +1327,55 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
             </div>
           )}
 
-          {/* Fertilidad pendiente */}
-          <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> Índice de Fertilidad</h3>
-            <p className="text-sm text-gray-400">⏳ Disponible cuando se cargue la base de datos del hato (vacas y novillas). Meta: &gt;80%</p>
-          </div>
+          {/* Fertilidad from palpaciones */}
+          {kpisLaVega.fertilidad !== null ? (
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Activity size={20} className="text-emerald-600" /> Índice de Fertilidad — {añoSel}</h3>
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <p className={`text-4xl font-bold ${kpisLaVega.fertilidad >= 80 ? 'text-green-600' : 'text-red-500'}`}>{kpisLaVega.fertilidad.toFixed(1)}%</p>
+                  <p className="text-sm text-gray-500">fertilidad</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-gray-700">{kpisLaVega.preñadas}</p>
+                  <p className="text-sm text-gray-500">preñadas</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-gray-700">{kpisLaVega.totalPalpadas}</p>
+                  <p className="text-sm text-gray-500">palpadas</p>
+                </div>
+                <div className="text-center px-4 py-2 bg-emerald-50 rounded-xl">
+                  <p className="text-sm font-semibold text-emerald-700">Meta: ≥ 80%</p>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${kpisLaVega.fertilidad >= 80 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {kpisLaVega.fertilidad >= 80 ? '✓ Cumple' : '✗ Por debajo'}
+                  </span>
+                </div>
+              </div>
+              {kpisLaVega.totalServicios > 0 && (
+                <p className="text-xs text-gray-400 mt-3">🐂 {kpisLaVega.totalServicios} servicios realizados en {añoSel}</p>
+              )}
+            </div>
+          ) : (
+            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6">
+              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> Índice de Fertilidad</h3>
+              <p className="text-sm text-gray-400">No hay datos de palpaciones para {añoSel}. Meta: &gt;80%</p>
+            </div>
+          )}
         </div>
       )}
 
-      {subView === 'kpis' && finca === 'Bariloche' && kpisBariloche && (
+      {!esTodos && subView === 'kpis' && finca === 'Bariloche' && kpisBariloche && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
               <div className="flex items-center gap-2 text-blue-600 mb-1"><Beef size={18} /><span className="text-xs font-semibold uppercase">Cabezas</span></div>
               <p className="text-3xl font-bold text-gray-800">{kpisBariloche.totalCabezas}</p>
               <p className="text-xs text-gray-500 mt-1">Inventario actual</p>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-amber-500">
+              <div className="flex items-center gap-2 text-amber-600 mb-1"><Scale size={18} /><span className="text-xs font-semibold uppercase">Peso Promedio</span></div>
+              <p className="text-3xl font-bold text-gray-800">{kpisBariloche.pesoProm ? kpisBariloche.pesoProm.toFixed(0) + ' kg' : '—'}</p>
+              <p className="text-xs text-gray-500 mt-1">{kpisBariloche.animalesPesados} animales pesados</p>
             </div>
             <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
               <div className="flex items-center gap-2 text-purple-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Animal</span></div>
@@ -1218,6 +1388,69 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
               <p className="text-xs text-gray-500 mt-1">{añoSel}</p>
             </div>
           </div>
+
+          {/* GDP entre pesajes vs meta */}
+          {kpisBariloche.gdpEntreProm !== null ? (
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Target size={20} className="text-blue-600" /> Ganancia Diaria de Peso — {añoSel}</h3>
+              <div className="space-y-4">
+                <div className="py-2">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm font-medium text-gray-700">GDP Entre Pesajes</span>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-lg font-bold ${kpisBariloche.gdpEntreProm >= 500 ? 'text-green-600' : 'text-red-500'}`}>
+                        {kpisBariloche.gdpEntreProm.toFixed(0)} g/día
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {kpisBariloche.gdpEntreProm >= 500 ? '✓ Meta 500' : 'Meta: 500'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-blue-500' : 'bg-red-400'}`}
+                        style={{ width: `${Math.min((kpisBariloche.gdpEntreProm / 500) * 100, 150)}%` }} />
+                    </div>
+                    <span className="text-xs text-gray-400 w-12 text-right">{((kpisBariloche.gdpEntreProm / 500) * 100).toFixed(0)}%</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">{kpisBariloche.pesajesTotal} pesajes registrados</p>
+                </div>
+
+                {kpisBariloche.gdpVidaProm && (
+                  <div className="py-2 border-t border-gray-100">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-sm font-medium text-gray-700">GDP Promedio Vida</span>
+                      <span className="text-lg font-bold text-gray-700">{kpisBariloche.gdpVidaProm.toFixed(0)} g/día</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* GDP por categoría */}
+              {kpisBariloche.gdpCategorias.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <h4 className="text-sm font-semibold text-gray-600 mb-3">GDP por Categoría</h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {kpisBariloche.gdpCategorias.map((c, i) => {
+                      const catNames = { NV: 'Novillas', HL: 'Hembras Lev.', ML: 'Machos Lev.', CM: 'Cría Macho', CH: 'Cría Hembra', TR: 'Toro' };
+                      return (
+                        <div key={i} className="bg-gray-50 rounded-xl p-3 text-center">
+                          <p className={`text-xl font-bold ${c.gdp >= 500 ? 'text-green-600' : 'text-amber-600'}`}>{c.gdp.toFixed(0)}</p>
+                          <p className="text-xs text-gray-500">g/día</p>
+                          <p className="text-xs font-medium text-gray-700 mt-1">{catNames[c.cat] || c.cat} ({c.n})</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6">
+              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> GDP Levante</h3>
+              <p className="text-sm text-gray-400">No hay datos de pesajes para Bariloche en {añoSel}. Meta: 500 g/día entre pesajes.</p>
+            </div>
+          )}
 
           {/* Top costos por categoría */}
           {kpisBariloche.topCostos.length > 0 && (
@@ -1241,12 +1474,6 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
               </div>
             </div>
           )}
-
-          {/* KPIs pendientes */}
-          <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> KPIs de Levante</h3>
-            <p className="text-sm text-gray-400">⏳ Ganancia diaria de peso (meta: 500 g/día entre pesajes), costo por kg producido y días al peso objetivo estarán disponibles cuando se carguen los datos de pesajes por lote.</p>
-          </div>
         </div>
       )}
     </div>
