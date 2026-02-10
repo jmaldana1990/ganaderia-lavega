@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart } from 'lucide-react';
+import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 import { NACIMIENTOS_LA_VEGA } from './nacimientos-lavega';
@@ -780,6 +780,7 @@ function VentasTotales({ ventas: ventasData }) {
 // ==================== COMPONENTE FINCA (reutilizable) ====================
 function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
+  const [subView, setSubView] = useState('resumen');
   const añoNum = parseInt(añoSel);
 
   // Categorías y centros excluidos de totales operativos
@@ -847,6 +848,112 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       .reduce((sum, g) => sum + ((g.centro === 'Global' ? (g.monto || 0) * 0.5 : (g.monto || 0))), 0);
   }, [gastos, añoSel, finca]);
 
+  // ---- KPIs La Vega ----
+  const kpisLaVega = useMemo(() => {
+    if (finca !== 'La Vega') return null;
+    const nacTodos = nacimientos.filter(n => n.año === añoNum);
+    const nacActivos = nacTodos.filter(n => n.estado === 'Activo');
+    const nacMuertos = nacTodos.filter(n => n.estado === 'Muerto');
+
+    // Peso al nacer promedio
+    const conPesoNacer = nacActivos.filter(n => n.pesoNacer && n.pesoNacer > 0);
+    const pesoNacerProm = conPesoNacer.length
+      ? conPesoNacer.reduce((s, n) => s + n.pesoNacer, 0) / conPesoNacer.length : null;
+
+    // Peso destete por sexo
+    const destetados = nacimientos.filter(n => {
+      const ad = n.añoDestete || n.año_destete;
+      return n.estado === 'Activo' && (n.pesoDestete || n.peso_destete) && ad === añoNum;
+    });
+    const getPeso = n => n.pesoDestete || n.peso_destete || 0;
+    const destM = destetados.filter(n => n.sexo === 'M');
+    const destH = destetados.filter(n => n.sexo === 'H');
+    const pesoDestM = destM.length ? destM.reduce((s, n) => s + getPeso(n), 0) / destM.length : null;
+    const pesoDestH = destH.length ? destH.reduce((s, n) => s + getPeso(n), 0) / destH.length : null;
+
+    // Ganancia diaria pre-destete (g/día)
+    const conGDP = destetados.filter(n => n.grDiaVida && n.grDiaVida > 0);
+    const gdpProm = conGDP.length
+      ? conGDP.reduce((s, n) => s + n.grDiaVida, 0) / conGDP.length : null;
+
+    // Tasa de mortalidad
+    const mortalidad = nacTodos.length > 0
+      ? (nacMuertos.length / nacTodos.length) * 100 : null;
+
+    // Intervalo entre partos (usando todas las madres históricas)
+    const porMadre = {};
+    nacimientos.filter(n => n.madre && n.fecha).forEach(n => {
+      if (!porMadre[n.madre]) porMadre[n.madre] = [];
+      porMadre[n.madre].push(new Date(n.fecha));
+    });
+    const intervalos = [];
+    Object.values(porMadre).forEach(fechas => {
+      if (fechas.length < 2) return;
+      fechas.sort((a, b) => a - b);
+      for (let i = 1; i < fechas.length; i++) {
+        const dias = (fechas[i] - fechas[i - 1]) / (1000 * 60 * 60 * 24);
+        if (dias > 200 && dias < 800) intervalos.push(dias);
+      }
+    });
+    const iepProm = intervalos.length
+      ? intervalos.reduce((s, d) => s + d, 0) / intervalos.length : null;
+
+    // Costo por animal destetado
+    const costoAnimal = destetados.length > 0 ? costosAño / destetados.length : null;
+
+    // Proporción sexos
+    const machos = nacActivos.filter(n => n.sexo === 'M').length;
+    const hembras = nacActivos.filter(n => n.sexo === 'H').length;
+
+    return {
+      nacidos: nacTodos.length,
+      nacActivos: nacActivos.length,
+      muertos: nacMuertos.length,
+      pesoNacerProm,
+      pesoDestM,
+      pesoDestH,
+      destM: destM.length,
+      destH: destH.length,
+      destetados: destetados.length,
+      gdpProm,
+      mortalidad,
+      iepProm,
+      costoAnimal,
+      machos,
+      hembras,
+    };
+  }, [nacimientos, añoNum, finca, costosAño]);
+
+  // ---- KPIs Bariloche ----
+  const kpisBariloche = useMemo(() => {
+    if (finca !== 'Bariloche') return null;
+    const totalCabezas = ultimo?.total || 0;
+    const costoAnimal = totalCabezas > 0 ? costosAño / totalCabezas : null;
+
+    // Desglose costos por categoría
+    const costosCat = {};
+    gastos.filter(g => {
+      if (!g.fecha) return false;
+      const año = g.fecha.split('-')[0];
+      const cat = (g.categoria || '').trim();
+      const centro = (g.centro || '').trim();
+      const esExcluido = CATEGORIAS_EXCLUIDAS.some(exc => cat.toLowerCase() === exc.toLowerCase()) ||
+                         CENTROS_EXCLUIDOS.some(exc => centro.toLowerCase() === exc.toLowerCase());
+      return !esExcluido && año === añoSel && (g.centro === 'Bariloche' || g.centro === 'Global');
+    }).forEach(g => {
+      const cat = g.categoria || 'Sin categoría';
+      const monto = g.centro === 'Global' ? (g.monto || 0) * 0.5 : (g.monto || 0);
+      costosCat[cat] = (costosCat[cat] || 0) + monto;
+    });
+    const topCostos = Object.entries(costosCat).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+    return {
+      totalCabezas,
+      costoAnimal,
+      topCostos,
+    };
+  }, [gastos, añoSel, finca, costosAño, ultimo]);
+
   const colorClasses = {
     green: { bg: 'bg-green-100', text: 'text-green-600', bar: 'bg-green-500', gradient: 'from-green-500 to-green-600', border: 'border-green-500' },
     blue: { bg: 'bg-blue-100', text: 'text-blue-600', bar: 'bg-blue-500', gradient: 'from-blue-500 to-blue-600', border: 'border-blue-500' }
@@ -864,6 +971,20 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         </select>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+        {[
+          { key: 'resumen', label: '📊 Resumen', icon: BarChart3 },
+          { key: 'kpis', label: '🎯 KPIs', icon: Target },
+        ].map(tab => (
+          <button key={tab.key} onClick={() => setSubView(tab.key)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key ? 'bg-white shadow text-gray-800' : 'text-gray-500 hover:text-gray-700'}`}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {subView === 'resumen' && (<>
       {/* Cards resumen */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className={`bg-gradient-to-br ${colorClasses.gradient} rounded-2xl p-4 text-white shadow-lg`}>
@@ -958,6 +1079,167 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+      </>)}
+
+      {/* ===== KPI PANEL ===== */}
+      {subView === 'kpis' && finca === 'La Vega' && kpisLaVega && (
+        <div className="space-y-6">
+          {/* KPI Cards principales */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
+              <div className="flex items-center gap-2 text-green-600 mb-1"><Baby size={18} /><span className="text-xs font-semibold uppercase">Nacimientos</span></div>
+              <p className="text-3xl font-bold text-gray-800">{kpisLaVega.nacidos}</p>
+              <p className="text-xs text-gray-500 mt-1">♂ {kpisLaVega.machos} • ♀ {kpisLaVega.hembras}</p>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
+              <div className="flex items-center gap-2 text-blue-600 mb-1"><Scale size={18} /><span className="text-xs font-semibold uppercase">Destetados</span></div>
+              <p className="text-3xl font-bold text-gray-800">{kpisLaVega.destetados}</p>
+              <p className="text-xs text-gray-500 mt-1">♂ {kpisLaVega.destM} • ♀ {kpisLaVega.destH}</p>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-red-500">
+              <div className="flex items-center gap-2 text-red-600 mb-1"><AlertTriangle size={18} /><span className="text-xs font-semibold uppercase">Mortalidad</span></div>
+              <p className="text-3xl font-bold text-gray-800">{kpisLaVega.mortalidad !== null ? kpisLaVega.mortalidad.toFixed(1) + '%' : '—'}</p>
+              <p className="text-xs text-gray-500 mt-1">{kpisLaVega.muertos} muertos de {kpisLaVega.nacidos}</p>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
+              <div className="flex items-center gap-2 text-purple-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Destetado</span></div>
+              <p className="text-3xl font-bold text-gray-800">{kpisLaVega.costoAnimal ? formatCurrency(kpisLaVega.costoAnimal) : '—'}</p>
+              <p className="text-xs text-gray-500 mt-1">{kpisLaVega.destetados} animales</p>
+            </div>
+          </div>
+
+          {/* KPIs con metas */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold mb-5 flex items-center gap-2"><Target size={20} className="text-green-600" /> Indicadores vs Metas — {añoSel}</h3>
+            <div className="space-y-5">
+              {[
+                { label: 'Peso al Nacer', valor: kpisLaVega.pesoNacerProm, meta: 28, unidad: 'kg', color: 'green', invertido: false },
+                { label: 'Peso Destete ♂', valor: kpisLaVega.pesoDestM, meta: 220, unidad: 'kg', color: 'blue', invertido: false },
+                { label: 'Peso Destete ♀', valor: kpisLaVega.pesoDestH, meta: 210, unidad: 'kg', color: 'purple', invertido: false },
+                { label: 'Ganancia Diaria (GDP)', valor: kpisLaVega.gdpProm, meta: 800, unidad: 'g/día', color: 'amber', invertido: false },
+                { label: 'Intervalo Entre Partos', valor: kpisLaVega.iepProm, meta: 400, unidad: 'días', color: 'red', invertido: true },
+              ].map((kpi, idx) => {
+                const actual = kpi.valor;
+                if (actual === null) return (
+                  <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                    <span className="text-sm font-medium text-gray-600 w-44">{kpi.label}</span>
+                    <span className="text-sm text-gray-400">Sin datos para {añoSel}</span>
+                    <span className="text-xs text-gray-400 w-24 text-right">Meta: {kpi.meta} {kpi.unidad}</span>
+                  </div>
+                );
+                const pct = kpi.invertido
+                  ? Math.min((kpi.meta / actual) * 100, 150)
+                  : Math.min((actual / kpi.meta) * 100, 150);
+                const cumple = kpi.invertido ? actual <= kpi.meta : actual >= kpi.meta;
+                const barColor = cumple ? `bg-${kpi.color}-500` : 'bg-red-400';
+                const colors = { green: 'bg-green-500', blue: 'bg-blue-500', purple: 'bg-purple-500', amber: 'bg-amber-500', red: 'bg-red-500' };
+
+                return (
+                  <div key={idx} className="py-2 border-b border-gray-100 last:border-0">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-sm font-medium text-gray-700 w-44">{kpi.label}</span>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-lg font-bold ${cumple ? 'text-green-600' : 'text-red-500'}`}>
+                          {actual.toFixed(1)} {kpi.unidad}
+                        </span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cumple ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {cumple ? '✓ Meta' : `Meta: ${kpi.meta}`}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full transition-all duration-500 ${cumple ? colors[kpi.color] : 'bg-red-400'}`}
+                          style={{ width: `${Math.min(pct, 100)}%` }} />
+                      </div>
+                      <span className="text-xs text-gray-400 w-12 text-right">{pct.toFixed(0)}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Intervalo entre partos detalle */}
+          {kpisLaVega.iepProm && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2"><Clock size={20} className="text-blue-600" /> Intervalo Entre Partos (Histórico)</h3>
+              <p className="text-sm text-gray-500 mb-2">Calculado con base en todas las madres con más de 1 parto registrado.</p>
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-gray-800">{kpisLaVega.iepProm.toFixed(0)}</p>
+                  <p className="text-sm text-gray-500">días promedio</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-gray-800">{(kpisLaVega.iepProm / 30.4).toFixed(1)}</p>
+                  <p className="text-sm text-gray-500">meses promedio</p>
+                </div>
+                <div className="text-center px-4 py-2 bg-amber-50 rounded-xl">
+                  <p className="text-sm font-semibold text-amber-700">Meta: ≤ 400 días</p>
+                  <p className="text-xs text-amber-600">(13.2 meses)</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Fertilidad pendiente */}
+          <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> Índice de Fertilidad</h3>
+            <p className="text-sm text-gray-400">⏳ Disponible cuando se cargue la base de datos del hato (vacas y novillas). Meta: &gt;80%</p>
+          </div>
+        </div>
+      )}
+
+      {subView === 'kpis' && finca === 'Bariloche' && kpisBariloche && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
+              <div className="flex items-center gap-2 text-blue-600 mb-1"><Beef size={18} /><span className="text-xs font-semibold uppercase">Cabezas</span></div>
+              <p className="text-3xl font-bold text-gray-800">{kpisBariloche.totalCabezas}</p>
+              <p className="text-xs text-gray-500 mt-1">Inventario actual</p>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
+              <div className="flex items-center gap-2 text-purple-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Animal</span></div>
+              <p className="text-3xl font-bold text-gray-800">{kpisBariloche.costoAnimal ? formatCurrency(kpisBariloche.costoAnimal) : '—'}</p>
+              <p className="text-xs text-gray-500 mt-1">Costos {añoSel} / cabezas</p>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
+              <div className="flex items-center gap-2 text-green-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costos Total</span></div>
+              <p className="text-3xl font-bold text-gray-800">{formatCurrency(costosAño)}</p>
+              <p className="text-xs text-gray-500 mt-1">{añoSel}</p>
+            </div>
+          </div>
+
+          {/* Top costos por categoría */}
+          {kpisBariloche.topCostos.length > 0 && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-blue-600" /> Distribución de Costos — {añoSel}</h3>
+              <div className="space-y-3">
+                {kpisBariloche.topCostos.map(([cat, total], idx) => {
+                  const pct = (total / costosAño) * 100;
+                  return (
+                    <div key={idx}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="font-medium text-gray-700">{cat}</span>
+                        <span className="text-gray-500">{formatCurrency(total)} ({pct.toFixed(1)}%)</span>
+                      </div>
+                      <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* KPIs pendientes */}
+          <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> KPIs de Levante</h3>
+            <p className="text-sm text-gray-400">⏳ Ganancia diaria de peso (meta: 500 g/día entre pesajes), costo por kg producido y días al peso objetivo estarán disponibles cuando se carguen los datos de pesajes por lote.</p>
           </div>
         </div>
       )}
