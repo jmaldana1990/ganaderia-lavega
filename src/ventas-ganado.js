@@ -56,6 +56,10 @@ export const VENTAS_GANADO = [
   { año: 2025, fecha: '2025-04-18', factura: 'FEV-78', cliente: 'Alfonso Galviz', kg: 906, precio: 7300, valor: 6613800, tipo: 'VD', comentarios: 'Venta 2 vacas horras' },
   { año: 2025, fecha: '2025-08-26', factura: 'FEV-80', cliente: 'A Schwitzer', kg: 2505, precio: 10000, valor: 25050000, tipo: 'ML', comentarios: 'Venta 11 machos levante' },
   { año: 2025, fecha: '2025-12-09', factura: 'FEV-81', cliente: 'Rolando Ramirez', kg: 193, precio: 20000, valor: 3860000, tipo: 'ML', comentarios: 'Venta torete BON puro' },
+
+  // ===== 2026 =====
+  { año: 2026, fecha: '2026-01-03', factura: 'FEV-82', cliente: 'Hernan Acosta', kg: 473, precio: 7600, valor: 3594800, tipo: 'VD', comentarios: 'Venta vaca brangus despaje' },
+  { año: 2026, fecha: '2026-01-29', factura: 'FEV-83', cliente: 'Subasta Dorexpo', kg: 1650, precio: 9290, valor: 15329270, tipo: 'HL', comentarios: 'Venta 9 terneras destetas' },
 ];
 
 // Resúmenes por año (de las tablas resumen del Excel)
@@ -75,6 +79,10 @@ export const VENTAS_RESUMEN = {
   2025: {
     tipos: { ML: { kg: 2698, precio: 10715 }, CM: { kg: 927, precio: 6000 }, HL: { kg: 4884, precio: 7568 }, CH: { kg: 661, precio: 6000 }, VD: { kg: 17396, precio: 6720 }, T: { kg: 1170, precio: 11538 } },
     totalKg: 27736, precioPromedio: 7420, ingresosTotales: 205794900
+  },
+  2026: {
+    tipos: { HL: { kg: 1650, precio: 9290 }, VD: { kg: 473, precio: 7600 } },
+    totalKg: 2123, precioPromedio: 8914, ingresosTotales: 18924070
   }
 };
 
