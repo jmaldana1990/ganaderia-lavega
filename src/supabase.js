@@ -185,6 +185,86 @@ export async function deleteCosto(id) {
   if (error) throw error
 }
 
+// ==================== PESAJES ====================
+export async function getPesajes() {
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('pesajes')
+      .select('*')
+      .order('fecha_pesaje', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
+}
+
+// ==================== PALPACIONES ====================
+export async function getPalpaciones() {
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('palpaciones')
+      .select('*')
+      .order('fecha', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
+}
+
+// ==================== SERVICIOS ====================
+export async function getServicios() {
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('servicios')
+      .select('*')
+      .order('fecha', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
+}
+
+// ==================== DESTETES ====================
+export async function getDestetes() {
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('destetes')
+      .select('*')
+      .order('fecha_destete', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
+}
+
 // ==================== LOG DE CARGAS ====================
 export async function logCarga(tipo, nombre, procesados, nuevos, actualizados, email) {
   const { error } = await supabase
