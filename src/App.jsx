@@ -312,30 +312,30 @@ export default function GanaderiaApp() {
   return (
     <div className="min-h-screen bg-gray-950">
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-900 to-green-800 text-white shadow-lg border-b border-green-700/50 sticky top-0 z-50">
+      <header className="bg-gray-900 text-white shadow-lg border-b border-gray-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 hover:bg-gray-900/10 rounded-lg"><Menu size={24} /></button>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 hover:bg-white/10 rounded-lg"><Menu size={24} /></button>
             <div className="flex items-center gap-3">
-              <img src="/logo_lavega.jpg" alt="Hierro La Vega" className="h-12 w-12 object-contain rounded-lg bg-gray-800 p-1 shadow-sm" />
+              <img src="/logo_lavega.jpg" alt="Hierro La Vega" className="h-12 w-12 object-contain rounded-lg bg-white p-1 shadow-sm" />
               <div>
                 <h1 className="text-xl font-bold">Ganadería La Vega</h1>
-                <p className="text-xs text-green-200 hidden sm:block">Sistema de Gestión</p>
+                <p className="text-xs text-gray-400 hidden sm:block">Sistema de Gestión</p>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${isOnline ? 'bg-green-900/200/30' : 'bg-red-900/200/30'}`}>
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${isOnline ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
               {syncing ? <RefreshCw size={14} className="animate-spin" /> : isOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
               <span className="hidden sm:inline">{syncing ? 'Sincronizando...' : isOnline ? 'En línea' : 'Sin conexión'}</span>
             </div>
             {isOnline && !syncing && (
-              <button onClick={loadCloudData} className="p-2 hover:bg-gray-900/20 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
+              <button onClick={loadCloudData} className="p-2 hover:bg-white/10 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
             )}
             {user && isOnline && (
               <div className="flex items-center gap-1">
-                <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-gray-900/20 hover:bg-gray-900/30 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar costos/nacimientos">
+                <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar costos/nacimientos">
                   <Upload size={16} /><span className="hidden sm:inline">Costos</span>
                 </button>
                 <button onClick={() => setShowCargaMov(true)} className="flex items-center gap-1.5 bg-blue-400/30 hover:bg-blue-400/50 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar movimientos mensuales">
@@ -348,11 +348,11 @@ export default function GanaderiaApp() {
             )}
             {user ? (
               <div className="flex items-center gap-2">
-                <span className="text-sm bg-gray-900/20 px-3 py-1 rounded-full hidden md:block truncate max-w-[150px]">{user.email}</span>
-                <button onClick={handleLogout} className="p-2 hover:bg-gray-900/20 rounded-lg" title="Cerrar sesión"><LogOut size={18} /></button>
+                <span className="text-sm bg-white/10 px-3 py-1 rounded-full hidden md:block truncate max-w-[150px]">{user.email}</span>
+                <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-lg" title="Cerrar sesión"><LogOut size={18} /></button>
               </div>
             ) : (
-              <button onClick={() => setShowLogin(true)} className="flex items-center gap-2 bg-gray-900/20 hover:bg-gray-900/30 px-3 py-1.5 rounded-lg text-sm">Iniciar sesión</button>
+              <button onClick={() => setShowLogin(true)} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">Iniciar sesión</button>
             )}
           </div>
         </div>
