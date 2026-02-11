@@ -1093,6 +1093,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         {[
           { key: 'resumen', label: '📊 Resumen', icon: BarChart3, hide: esTodos },
           { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
+          { key: 'hato', label: '🐄 Hato', icon: Search, hide: esTodos },
         ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-gray-900 shadow text-gray-100' : 'text-gray-400 hover:text-gray-300'}`}>
@@ -1465,11 +1466,423 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
           )}
         </div>
       )}
+
+      {/* ==================== HATO ==================== */}
+      {!esTodos && subView === 'hato' && (
+        <HatoView finca={finca} nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} />
+      )}
+
     </div>
   );
 }
 
-// ==================== COMPONENTE NACIMIENTOS ====================
+// ==================== COMPONENTE HATO ====================
+function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
+  const [busqueda, setBusqueda] = useState('');
+  const [animalSel, setAnimalSel] = useState(null);
+
+  const esLaVega = finca === 'La Vega';
+
+  // Build animal list depending on finca type
+  const animales = useMemo(() => {
+    if (esLaVega) {
+      // Get all unique animals: mothers from nacimientos + all crías
+      const madresSet = new Set();
+      const crias = {};
+      nacimientos.forEach(n => {
+        if (n.madre) madresSet.add(n.madre.trim());
+        if (n.cria) crias[n.cria.trim()] = n;
+      });
+      
+      const lista = [];
+      // Add mothers
+      madresSet.forEach(m => {
+        const partos = nacimientos.filter(n => n.madre && n.madre.trim() === m);
+        const ultimaPalp = (palpaciones || []).filter(p => p.hembra === m && p.finca === finca).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0];
+        const ultimoServ = (servicios || []).filter(s => s.hembra === m && s.finca === finca).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0];
+        lista.push({
+          id: m, tipo: 'madre', numPartos: partos.length,
+          ultimoParto: partos.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0],
+          estadoRepro: ultimaPalp?.estado || null,
+          ultimaPalp, ultimoServ, partos
+        });
+      });
+      // Add crías that are not mothers
+      Object.entries(crias).forEach(([cria, data]) => {
+        if (!madresSet.has(cria)) {
+          lista.push({ id: cria, tipo: 'cria', data });
+        }
+      });
+      return lista.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+    } else {
+      // Bariloche: group pesajes by animal
+      const animMap = {};
+      (pesajes || []).filter(p => p.finca === 'Bariloche').forEach(p => {
+        if (!animMap[p.animal]) animMap[p.animal] = [];
+        animMap[p.animal].push(p);
+      });
+      return Object.entries(animMap).map(([animal, pesos]) => {
+        const sorted = pesos.sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || ''));
+        const ultimo = sorted[0];
+        return {
+          id: animal, tipo: 'levante', pesajes: sorted, ultimo,
+          categoria: ultimo?.categoria || '-',
+          pesoActual: ultimo?.peso,
+          gdpVida: ultimo?.gdp_vida,
+        };
+      }).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+    }
+  }, [nacimientos, pesajes, palpaciones, servicios, finca, esLaVega]);
+
+  // Filter by search
+  const filtrados = useMemo(() => {
+    if (!busqueda.trim()) return animales.slice(0, 50);
+    const q = busqueda.trim().toLowerCase();
+    return animales.filter(a => a.id.toLowerCase().includes(q));
+  }, [animales, busqueda]);
+
+  // Select animal details
+  const detalle = useMemo(() => {
+    if (!animalSel) return null;
+    return animales.find(a => a.id === animalSel) || null;
+  }, [animalSel, animales]);
+
+  const formatDate = (d) => {
+    if (!d) return '-';
+    const parts = d.split('-');
+    if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    return d;
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Search bar */}
+      <div className="relative">
+        <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+        <input
+          type="text"
+          value={busqueda}
+          onChange={e => { setBusqueda(e.target.value); setAnimalSel(null); }}
+          placeholder={esLaVega ? "Buscar por número de animal (ej: 120, VP-03)..." : "Buscar por número de animal (ej: 209, 19-5)..."}
+          className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 placeholder-gray-500 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none"
+        />
+        {busqueda && (
+          <button onClick={() => { setBusqueda(''); setAnimalSel(null); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+            <X size={18} />
+          </button>
+        )}
+      </div>
+
+      {/* Results list */}
+      {!animalSel && (
+        <div className="space-y-1">
+          <p className="text-xs text-gray-500 mb-2">{filtrados.length} de {animales.length} animales{busqueda ? ` • buscando "${busqueda}"` : ''}</p>
+          <div className="grid gap-2 max-h-[60vh] overflow-y-auto">
+            {filtrados.map(a => (
+              <button key={a.id} onClick={() => setAnimalSel(a.id)}
+                className="flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700/50 border border-gray-700 hover:border-green-500/50 rounded-xl text-left transition-all group">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold text-green-400 group-hover:text-green-300 min-w-[60px]">{a.id}</span>
+                  {esLaVega ? (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.tipo === 'madre' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                        {a.tipo === 'madre' ? `🐄 Madre • ${a.numPartos} partos` : `${a.data?.sexo === 'M' ? '♂' : '♀'} Cría`}
+                      </span>
+                      {a.estadoRepro && <span className="text-xs text-gray-400">{a.estadoRepro}</span>}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">{a.categoria}</span>
+                      <span className="text-gray-400">{a.pesoActual ? `${a.pesoActual} kg` : '-'}</span>
+                      {a.gdpVida && <span className="text-gray-500 text-xs">GDP: {Math.round(a.gdpVida)} g/d</span>}
+                    </div>
+                  )}
+                </div>
+                <ChevronRight size={16} className="text-gray-600 group-hover:text-green-400" />
+              </button>
+            ))}
+            {filtrados.length === 0 && (
+              <p className="text-center text-gray-500 py-8">No se encontraron animales{busqueda ? ` con "${busqueda}"` : ''}</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Animal detail card */}
+      {animalSel && detalle && (
+        <div className="space-y-4">
+          <button onClick={() => setAnimalSel(null)} className="flex items-center gap-2 text-sm text-gray-400 hover:text-green-400 transition-colors">
+            <ChevronLeft size={16} /> Volver a la lista
+          </button>
+
+          {esLaVega ? (
+            <FichaLaVega animal={detalle} nacimientos={nacimientos} formatDate={formatDate} />
+          ) : (
+            <FichaBariloche animal={detalle} formatDate={formatDate} />
+          )}
+        </div>
+      )}
+
+      {animalSel && !detalle && (
+        <p className="text-center text-gray-500 py-8">Animal "{animalSel}" no encontrado</p>
+      )}
+    </div>
+  );
+}
+
+// ==================== FICHA LA VEGA (CRÍA) ====================
+function FichaLaVega({ animal, nacimientos, formatDate }) {
+  if (animal.tipo === 'madre') {
+    const { partos, ultimaPalp, ultimoServ } = animal;
+    const partosOrden = [...partos].sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+    const pesosDestete = partos.filter(p => p.pesoDestete || p.peso_destete).map(p => p.pesoDestete || p.peso_destete);
+    const promDestete = pesosDestete.length ? (pesosDestete.reduce((s, v) => s + v, 0) / pesosDestete.length).toFixed(1) : null;
+    
+    // Calculate inter-calving interval
+    const fechasPartos = partos.map(p => p.fecha).filter(Boolean).sort();
+    let iep = null;
+    if (fechasPartos.length >= 2) {
+      const intervalos = [];
+      for (let i = 1; i < fechasPartos.length; i++) {
+        const d1 = new Date(fechasPartos[i - 1]);
+        const d2 = new Date(fechasPartos[i]);
+        const dias = Math.abs((d2 - d1) / (1000 * 60 * 60 * 24));
+        if (dias > 200) intervalos.push(dias);
+      }
+      if (intervalos.length > 0) iep = Math.round(intervalos.reduce((s, v) => s + v, 0) / intervalos.length);
+    }
+
+    return (
+      <div className="space-y-4">
+        {/* Header */}
+        <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl font-bold text-green-400">{animal.id}</span>
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-400">🐄 Vientre</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Stat label="Total Partos" value={animal.numPartos} />
+            <Stat label="Prom. Peso Destete" value={promDestete ? `${promDestete} kg` : '-'} />
+            <Stat label="IEP Promedio" value={iep ? `${iep} días` : '-'} sub={iep ? (iep <= 400 ? '✅ Bueno' : '⚠️ Alto') : ''} />
+            <Stat label="Estado Repro." value={ultimaPalp?.estado || 'Sin palpar'} sub={ultimaPalp?.fecha ? formatDate(ultimaPalp.fecha) : ''} />
+          </div>
+        </div>
+
+        {/* Reproductive info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Last palpación */}
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <h4 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">🔬 Última Palpación</h4>
+            {ultimaPalp ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-gray-400">Fecha</span><span className="text-gray-200">{formatDate(ultimaPalp.fecha)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Estado</span><span className="text-gray-200 font-medium">{ultimaPalp.estado || '-'}</span></div>
+                {ultimaPalp.detalle && <div className="flex justify-between"><span className="text-gray-400">Detalle</span><span className="text-gray-200">{ultimaPalp.detalle}</span></div>}
+                {ultimaPalp.dias_gestacion && <div className="flex justify-between"><span className="text-gray-400">Días gestación</span><span className="text-gray-200">{ultimaPalp.dias_gestacion}</span></div>}
+                {ultimaPalp.dias_abiertos && <div className="flex justify-between"><span className="text-gray-400">Días abiertos</span><span className="text-gray-200">{ultimaPalp.dias_abiertos}</span></div>}
+                {ultimaPalp.reproductor && <div className="flex justify-between"><span className="text-gray-400">Reproductor</span><span className="text-gray-200">{ultimaPalp.reproductor}</span></div>}
+              </div>
+            ) : <p className="text-sm text-gray-500">Sin datos de palpación</p>}
+          </div>
+
+          {/* Last service */}
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+            <h4 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">🐂 Último Servicio</h4>
+            {ultimoServ ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-gray-400">Fecha</span><span className="text-gray-200">{formatDate(ultimoServ.fecha)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Toro</span><span className="text-gray-200 font-medium">{ultimoServ.toro || '-'}</span></div>
+                {ultimoServ.tipo && <div className="flex justify-between"><span className="text-gray-400">Tipo</span><span className="text-gray-200">{ultimoServ.tipo}</span></div>}
+                {ultimoServ.num_servicio && <div className="flex justify-between"><span className="text-gray-400"># Servicio</span><span className="text-gray-200">{ultimoServ.num_servicio}</span></div>}
+              </div>
+            ) : <p className="text-sm text-gray-500">Sin datos de servicio</p>}
+          </div>
+        </div>
+
+        {/* Birth history */}
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <h4 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">🍼 Historial de Partos ({partos.length})</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-gray-500 border-b border-gray-700">
+                  <th className="text-left py-2 px-2">Cría</th>
+                  <th className="text-left py-2 px-2">Fecha</th>
+                  <th className="text-center py-2 px-2">Sexo</th>
+                  <th className="text-right py-2 px-2">Peso Nacer</th>
+                  <th className="text-right py-2 px-2">Peso Destete</th>
+                  <th className="text-right py-2 px-2">GDP Vida</th>
+                  <th className="text-left py-2 px-2">Padre</th>
+                  <th className="text-left py-2 px-2">Estado</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {partosOrden.map((p, i) => (
+                  <tr key={i} className="hover:bg-gray-700/50">
+                    <td className="py-2 px-2 font-medium text-green-400">{p.cria}</td>
+                    <td className="py-2 px-2 text-gray-300">{formatDate(p.fecha)}</td>
+                    <td className="py-2 px-2 text-center">{p.sexo === 'M' ? <span className="text-blue-400">♂</span> : <span className="text-pink-400">♀</span>}</td>
+                    <td className="py-2 px-2 text-right text-gray-300">{p.pesoNacer || p.peso_nacer ? `${p.pesoNacer || p.peso_nacer} kg` : '-'}</td>
+                    <td className="py-2 px-2 text-right text-gray-300">{(p.pesoDestete || p.peso_destete) ? `${p.pesoDestete || p.peso_destete} kg` : '-'}</td>
+                    <td className="py-2 px-2 text-right text-gray-300">{(p.grDiaVida || p.gr_dia_vida) ? `${Math.round(p.grDiaVida || p.gr_dia_vida)} g` : '-'}</td>
+                    <td className="py-2 px-2 text-gray-400">{p.padre || '-'}</td>
+                    <td className="py-2 px-2">
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${p.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : p.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>
+                        {p.estado || '-'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Cría card
+  const n = animal.data;
+  return (
+    <div className="bg-gray-800 rounded-xl p-5 border border-gray-700 space-y-4">
+      <div className="flex items-center gap-3 mb-2">
+        <span className="text-3xl font-bold text-green-400">{animal.id}</span>
+        <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
+          {n.sexo === 'M' ? '♂ Macho' : '♀ Hembra'} • Cría
+        </span>
+        {n.estado && (
+          <span className={`px-2 py-0.5 rounded-full text-xs ${n.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : n.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>
+            {n.estado}
+          </span>
+        )}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Stat label="Fecha Nacimiento" value={formatDate(n.fecha)} />
+        <Stat label="Madre" value={n.madre || '-'} />
+        <Stat label="Padre" value={n.padre || '-'} />
+        <Stat label="Peso Nacer" value={n.pesoNacer || n.peso_nacer ? `${n.pesoNacer || n.peso_nacer} kg` : '-'} />
+        <Stat label="Peso Destete" value={(n.pesoDestete || n.peso_destete) ? `${n.pesoDestete || n.peso_destete} kg` : '-'} />
+        <Stat label="Fecha Destete" value={formatDate(n.fechaDestete || n.fecha_destete)} />
+        <Stat label="Edad Destete" value={(n.edadDestete || n.edad_destete) ? `${n.edadDestete || n.edad_destete} días` : '-'} />
+        <Stat label="GDP Vida" value={(n.grDiaVida || n.gr_dia_vida) ? `${Math.round(n.grDiaVida || n.gr_dia_vida)} g/día` : '-'} />
+      </div>
+      {n.comentario && <p className="text-sm text-gray-400 mt-2">📝 {n.comentario}</p>}
+    </div>
+  );
+}
+
+// ==================== FICHA BARILOCHE (LEVANTE) ====================
+function FichaBariloche({ animal, formatDate }) {
+  const { pesajes, ultimo } = animal;
+  const pesajesOrden = [...pesajes].sort((a, b) => (a.fecha_pesaje || '').localeCompare(b.fecha_pesaje || ''));
+
+  // GDP promedio entre pesajes (all records)
+  const conGDP = pesajes.filter(p => p.gdp_entre_pesajes && p.gdp_entre_pesajes > 0);
+  const gdpPromEntre = conGDP.length ? Math.round(conGDP.reduce((s, p) => s + p.gdp_entre_pesajes, 0) / conGDP.length) : null;
+
+  // Weight gain since first pesaje
+  const primero = pesajesOrden[0];
+  const gananciaTotal = ultimo && primero && ultimo.peso && primero.peso ? ultimo.peso - primero.peso : null;
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-3xl font-bold text-green-400">{animal.id}</span>
+          <span className="px-3 py-1 rounded-full text-sm font-medium bg-amber-500/20 text-amber-400">{ultimo?.categoria || '-'}</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Stat label="Peso Actual" value={ultimo?.peso ? `${ultimo.peso} kg` : '-'} sub={ultimo?.fecha_pesaje ? formatDate(ultimo.fecha_pesaje) : ''} />
+          <Stat label="GDP Vida" value={ultimo?.gdp_vida ? `${Math.round(ultimo.gdp_vida)} g/día` : '-'} sub={ultimo?.gdp_vida ? (ultimo.gdp_vida >= 500 ? '✅ Meta' : '⚠️ Bajo meta') : ''} />
+          <Stat label="GDP Prom. Entre Pesajes" value={gdpPromEntre ? `${gdpPromEntre} g/día` : '-'} sub={gdpPromEntre ? (gdpPromEntre >= 500 ? '✅ Meta' : '⚠️ Bajo meta') : ''} />
+          <Stat label="Edad" value={ultimo?.edad_meses ? `${ultimo.edad_meses.toFixed(1)} meses` : '-'} />
+        </div>
+        {gananciaTotal !== null && (
+          <div className="mt-3 pt-3 border-t border-gray-700 flex items-center gap-4 text-sm">
+            <span className="text-gray-400">Ganancia total:</span>
+            <span className={`font-medium ${gananciaTotal >= 0 ? 'text-green-400' : 'text-red-400'}`}>{gananciaTotal >= 0 ? '+' : ''}{gananciaTotal} kg</span>
+            <span className="text-gray-500">({pesajes.length} pesajes registrados)</span>
+          </div>
+        )}
+      </div>
+
+      {/* Weight evolution chart (simple bar representation) */}
+      {pesajesOrden.length > 1 && (
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <h4 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">📈 Evolución de Peso</h4>
+          <div className="flex items-end gap-1 h-32">
+            {pesajesOrden.map((p, i) => {
+              const maxPeso = Math.max(...pesajesOrden.map(x => x.peso || 0));
+              const minPeso = Math.min(...pesajesOrden.filter(x => x.peso).map(x => x.peso));
+              const range = maxPeso - minPeso || 1;
+              const height = p.peso ? Math.max(10, ((p.peso - minPeso) / range) * 100) : 0;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-700 text-gray-200 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-10 transition-opacity pointer-events-none">
+                    {p.peso} kg • {formatDate(p.fecha_pesaje)}
+                  </div>
+                  <div className={`w-full rounded-t transition-all ${p.gdp_entre_pesajes && p.gdp_entre_pesajes >= 500 ? 'bg-green-500' : p.gdp_entre_pesajes && p.gdp_entre_pesajes < 0 ? 'bg-red-500' : 'bg-amber-500'}`} style={{ height: `${height}%` }} />
+                  <span className="text-[9px] text-gray-500 leading-none">{(p.fecha_pesaje || '').slice(5)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Pesajes table */}
+      <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+        <h4 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">⚖️ Historial de Pesajes ({pesajes.length})</h4>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-gray-500 border-b border-gray-700">
+                <th className="text-left py-2 px-2">Fecha</th>
+                <th className="text-right py-2 px-2">Peso</th>
+                <th className="text-right py-2 px-2">Anterior</th>
+                <th className="text-right py-2 px-2">Δ kg</th>
+                <th className="text-right py-2 px-2">Días</th>
+                <th className="text-right py-2 px-2">GDP Entre</th>
+                <th className="text-right py-2 px-2">GDP Vida</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700">
+              {[...pesajes].sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || '')).map((p, i) => (
+                <tr key={i} className="hover:bg-gray-700/50">
+                  <td className="py-2 px-2 text-gray-300">{formatDate(p.fecha_pesaje)}</td>
+                  <td className="py-2 px-2 text-right font-medium text-gray-200">{p.peso ? `${p.peso} kg` : '-'}</td>
+                  <td className="py-2 px-2 text-right text-gray-400">{p.peso_anterior ? `${p.peso_anterior} kg` : '-'}</td>
+                  <td className={`py-2 px-2 text-right font-medium ${p.incremento_kg > 0 ? 'text-green-400' : p.incremento_kg < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                    {p.incremento_kg != null ? `${p.incremento_kg > 0 ? '+' : ''}${p.incremento_kg}` : '-'}
+                  </td>
+                  <td className="py-2 px-2 text-right text-gray-400">{p.diferencia_dias || '-'}</td>
+                  <td className={`py-2 px-2 text-right font-medium ${p.gdp_entre_pesajes >= 500 ? 'text-green-400' : p.gdp_entre_pesajes > 0 ? 'text-amber-400' : p.gdp_entre_pesajes < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                    {p.gdp_entre_pesajes != null ? `${Math.round(p.gdp_entre_pesajes)} g` : '-'}
+                  </td>
+                  <td className={`py-2 px-2 text-right ${p.gdp_vida >= 500 ? 'text-green-400' : p.gdp_vida > 0 ? 'text-amber-400' : 'text-gray-400'}`}>
+                    {p.gdp_vida != null ? `${Math.round(p.gdp_vida)} g` : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Helper stat component
+function Stat({ label, value, sub }) {
+  return (
+    <div>
+      <p className="text-xs text-gray-500 mb-0.5">{label}</p>
+      <p className="text-lg font-semibold text-gray-200">{value}</p>
+      {sub && <p className="text-xs text-gray-500">{sub}</p>}
+    </div>
+  );
+}
 function Nacimientos({ data, inventario }) {
   const [filtros, setFiltros] = useState({ año: '2025', sexo: '', padre: '', busqueda: '', estado: 'Activo' });
   const años = [...new Set(data.map(n => n.año))].filter(Boolean).sort().reverse();
