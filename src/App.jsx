@@ -21,7 +21,7 @@ const formatDate = (d) => {
 const ITEMS_PER_PAGE = 50;
 const MESES = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const centroColor = (c) => ({ 'La Vega': 'bg-green-900/40 text-green-400', 'Bariloche': 'bg-blue-900/40 text-blue-400', 'Global': 'bg-purple-900/40 text-purple-400' }[c] || 'bg-gray-800 text-gray-300');
-const centroBarColor = (c) => ({ 'La Vega': 'bg-green-900/200', 'Bariloche': 'bg-blue-900/200', 'Global': 'bg-purple-900/200' }[c] || 'bg-gray-800/500');
+const centroBarColor = (c) => ({ 'La Vega': 'bg-green-500', 'Bariloche': 'bg-blue-500', 'Global': 'bg-purple-500' }[c] || 'bg-gray-500');
 
 const HATO_CATEGORIAS = [
   { key: 'vp', label: 'Vacas Paridas', color: 'bg-green-900/30 text-green-400' },
@@ -289,7 +289,7 @@ export default function GanaderiaApp() {
   // ---- Loading ----
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 text-gray-200 flex items-center justify-center">
         <div className="text-center">
           <Loader2 size={48} className="animate-spin text-green-500 mx-auto mb-4" />
           <p className="text-gray-400">Cargando sistema...</p>
@@ -310,7 +310,7 @@ export default function GanaderiaApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-gray-950 text-gray-200">
       {/* Header */}
       <header className="bg-gray-900 text-white shadow-lg border-b border-gray-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -524,7 +524,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
             <div className="flex items-end justify-between h-full gap-1 px-2">
               {nacimientosPorMes.map(({ mes, count, label }) => (
                 <div key={mes} className="flex-1 flex flex-col items-center h-full justify-end">
-                  {count > 0 && <span className="text-xs font-semibold text-green-700 mb-1">{count}</span>}
+                  {count > 0 && <span className="text-xs font-semibold text-green-400 mb-1">{count}</span>}
                   <div className={`w-full rounded-t transition-all duration-300 ${count > 0 ? 'bg-gradient-to-t from-green-600 to-green-400' : 'bg-gray-800'}`}
                     style={{ height: count > 0 ? `${Math.max((count / maxNac) * 100, 8)}%` : '4px' }} />
                   <span className="text-xs text-gray-400 mt-2 font-medium">{label}</span>
@@ -539,7 +539,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
             {porCategoria.slice(0, 8).map(({ categoria, total }) => (
               <div key={categoria}>
                 <div className="flex justify-between text-sm mb-1"><span className="truncate">{categoria}</span><span className="font-medium">{formatCurrency(total)}</span></div>
-                <div className="h-2 bg-gray-800 rounded-full"><div className="h-full bg-green-900/200 rounded-full" style={{ width: `${(total / maxCat) * 100}%` }} /></div>
+                <div className="h-2 bg-gray-800 rounded-full"><div className="h-full bg-green-500 rounded-full" style={{ width: `${(total / maxCat) * 100}%` }} /></div>
               </div>
             ))}
           </div>
@@ -575,8 +575,8 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
                   <p className="text-sm text-gray-400">{formatDate(g.fecha)}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-green-700">{formatCurrency(g.monto)}</span>
-                  <button onClick={() => onApprove(g.id)} className="p-2 bg-green-900/200 text-white rounded-lg hover:bg-green-600"><Check size={16} /></button>
+                  <span className="font-semibold text-green-400">{formatCurrency(g.monto)}</span>
+                  <button onClick={() => onApprove(g.id)} className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"><Check size={16} /></button>
                 </div>
               </div>
             ))}
@@ -596,12 +596,12 @@ function VentasTotales({ ventas: ventasData }) {
     [allVentas]);
 
   const COLORES_TIPO = {
-    ML: { bg: 'bg-blue-900/40', text: 'text-blue-700', bar: 'bg-blue-900/200' },
-    HL: { bg: 'bg-pink-900/40', text: 'text-pink-700', bar: 'bg-pink-900/200' },
-    VD: { bg: 'bg-amber-900/40', text: 'text-amber-700', bar: 'bg-amber-900/200' },
-    T: { bg: 'bg-red-900/40', text: 'text-red-700', bar: 'bg-red-900/200' },
-    CM: { bg: 'bg-cyan-900/40', text: 'text-cyan-700', bar: 'bg-cyan-500' },
-    CH: { bg: 'bg-purple-900/40', text: 'text-purple-700', bar: 'bg-purple-900/200' },
+    ML: { bg: 'bg-blue-900/40', text: 'text-blue-400', bar: 'bg-blue-500' },
+    HL: { bg: 'bg-pink-900/40', text: 'text-pink-400', bar: 'bg-pink-500' },
+    VD: { bg: 'bg-amber-900/40', text: 'text-amber-400', bar: 'bg-amber-500' },
+    T: { bg: 'bg-red-900/40', text: 'text-red-400', bar: 'bg-red-500' },
+    CM: { bg: 'bg-cyan-900/40', text: 'text-cyan-400', bar: 'bg-cyan-500' },
+    CH: { bg: 'bg-purple-900/40', text: 'text-purple-400', bar: 'bg-purple-500' },
   };
 
   // Ventas filtradas
@@ -698,7 +698,7 @@ function VentasTotales({ ventas: ventasData }) {
                 </div>
               </div>
               <div className="h-3 bg-gray-800 rounded-full">
-                <div className={`h-full rounded-full transition-all duration-300 ${COLORES_TIPO[tipo]?.bar || 'bg-gray-800/500'}`} style={{ width: `${(kg / maxKg) * 100}%` }} />
+                <div className={`h-full rounded-full transition-all duration-300 ${COLORES_TIPO[tipo]?.bar || 'bg-gray-500'}`} style={{ width: `${(kg / maxKg) * 100}%` }} />
               </div>
             </div>
           ))}
@@ -711,7 +711,7 @@ function VentasTotales({ ventas: ventasData }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b">
+              <tr className="border-b border-gray-800">
                 <th className="text-left py-3 px-2 font-semibold text-gray-400">Año</th>
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">Kg Totales</th>
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">Precio Prom/kg</th>
@@ -720,11 +720,11 @@ function VentasTotales({ ventas: ventasData }) {
             </thead>
             <tbody>
               {porAño.map(({ año, totalKg, precioPromedio, ingresosTotales }) => (
-                <tr key={año} className={`border-b hover:bg-amber-900/20 ${añoSel && parseInt(añoSel) === año ? 'bg-amber-900/20 font-semibold' : ''}`}>
+                <tr key={año} className={`border-b border-gray-800 hover:bg-amber-900/20 ${añoSel && parseInt(añoSel) === año ? 'bg-amber-900/20 font-semibold' : ''}`}>
                   <td className="py-3 px-2 font-medium">{año}</td>
                   <td className="py-3 px-2 text-right">{totalKg.toLocaleString('es-CO')}</td>
                   <td className="py-3 px-2 text-right">{formatCurrency(precioPromedio)}</td>
-                  <td className="py-3 px-2 text-right font-medium text-amber-700">{formatCurrency(ingresosTotales)}</td>
+                  <td className="py-3 px-2 text-right font-medium text-amber-400">{formatCurrency(ingresosTotales)}</td>
                 </tr>
               ))}
             </tbody>
@@ -733,7 +733,7 @@ function VentasTotales({ ventas: ventasData }) {
                 <td className="py-3 px-2">Total</td>
                 <td className="py-3 px-2 text-right">{porAño.reduce((s, r) => s + r.totalKg, 0).toLocaleString('es-CO')}</td>
                 <td className="py-3 px-2 text-right">{formatCurrency(Math.round(porAño.reduce((s, r) => s + r.ingresosTotales, 0) / porAño.reduce((s, r) => s + r.totalKg, 0)))}</td>
-                <td className="py-3 px-2 text-right text-amber-700">{formatCurrency(porAño.reduce((s, r) => s + r.ingresosTotales, 0))}</td>
+                <td className="py-3 px-2 text-right text-amber-400">{formatCurrency(porAño.reduce((s, r) => s + r.ingresosTotales, 0))}</td>
               </tr>
             </tfoot>
           </table>
@@ -746,7 +746,7 @@ function VentasTotales({ ventas: ventasData }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b">
+              <tr className="border-b border-gray-800">
                 <th className="text-left py-3 px-2 font-semibold text-gray-400">Año</th>
                 <th className="text-left py-3 px-2 font-semibold text-gray-400">Tipo</th>
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">Kg</th>
@@ -760,7 +760,7 @@ function VentasTotales({ ventas: ventasData }) {
                 return tipoKeys.map((tipo, idx) => {
                   const t = tipos[tipo];
                   return (
-                    <tr key={`${año}-${tipo}`} className={`border-b hover:bg-gray-800/50 ${idx === 0 ? 'border-t-2 border-t-gray-200' : ''}`}>
+                    <tr key={`${año}-${tipo}`} className={`border-b hover:bg-gray-800/50 ${idx === 0 ? 'border-t-2 border-t-gray-700' : ''}`}>
                       {idx === 0 && <td className="py-2 px-2 font-bold text-gray-100" rowSpan={tipoKeys.length}>{año}</td>}
                       <td className="py-2 px-2">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[tipo]?.bg || 'bg-gray-800'} ${COLORES_TIPO[tipo]?.text || 'text-gray-300'}`}>{tipo}</span>
@@ -784,7 +784,7 @@ function VentasTotales({ ventas: ventasData }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b">
+              <tr className="border-b border-gray-800">
                 <th className="text-left py-3 px-2 font-semibold text-gray-400">Fecha</th>
                 <th className="text-left py-3 px-2 font-semibold text-gray-400">Factura</th>
                 <th className="text-left py-3 px-2 font-semibold text-gray-400">Cliente</th>
@@ -796,7 +796,7 @@ function VentasTotales({ ventas: ventasData }) {
             </thead>
             <tbody>
               {transacciones.map((v, i) => (
-                <tr key={i} className="border-b hover:bg-gray-800/50">
+                <tr key={i} className="border-b border-gray-800 hover:bg-gray-800/50">
                   <td className="py-2 px-2 whitespace-nowrap">{v.fecha}</td>
                   <td className="py-2 px-2 text-gray-400">{v.factura || '—'}</td>
                   <td className="py-2 px-2 truncate max-w-[150px]">{v.cliente}</td>
@@ -805,7 +805,7 @@ function VentasTotales({ ventas: ventasData }) {
                   </td>
                   <td className="py-2 px-2 text-right">{v.kg.toLocaleString('es-CO')}</td>
                   <td className="py-2 px-2 text-right">{formatCurrency(v.precio)}</td>
-                  <td className="py-2 px-2 text-right font-medium text-amber-700">{formatCurrency(v.valor)}</td>
+                  <td className="py-2 px-2 text-right font-medium text-amber-400">{formatCurrency(v.valor)}</td>
                 </tr>
               ))}
             </tbody>
@@ -1082,8 +1082,8 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
   }, [gastos, añoSel, finca, costosAño, ultimo, pesajes, añoNum]);
 
   const colorClasses = {
-    green: { bg: 'bg-green-900/40', text: 'text-green-500', bar: 'bg-green-900/200', gradient: 'from-green-500 to-green-600', border: 'border-green-500' },
-    blue: { bg: 'bg-blue-900/40', text: 'text-blue-500', bar: 'bg-blue-900/200', gradient: 'from-blue-500 to-blue-600', border: 'border-blue-500' }
+    green: { bg: 'bg-green-900/40', text: 'text-green-500', bar: 'bg-green-500', gradient: 'from-green-500 to-green-600', border: 'border-green-500' },
+    blue: { bg: 'bg-blue-900/40', text: 'text-blue-500', bar: 'bg-blue-500', gradient: 'from-blue-500 to-blue-600', border: 'border-blue-500' }
   }[color];
 
   return (
@@ -1195,12 +1195,12 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       {/* Tabla detalle mensual */}
       {invAño.length > 0 && (
         <div className="bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-4 border-b">
+          <div className="p-4 border-b border-gray-800">
             <h3 className="font-semibold">Detalle Mensual {añoSel}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-800/50 border-b">
+              <thead className="bg-gray-800/50 border-b border-gray-700">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Mes</th>
                   {HATO_CATEGORIAS.map(c => (
@@ -1209,7 +1209,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                   <th className="px-4 py-3 text-right text-xs font-bold text-gray-100">Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-800">
                 {invAño.map((inv, idx) => (
                   <tr key={idx} className="hover:bg-gray-800/50">
                     <td className="px-4 py-2 text-sm font-medium">{MESES[inv.mes]}</td>
@@ -1277,7 +1277,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                   : Math.min((actual / kpi.meta) * 100, 150);
                 const cumple = kpi.invertido ? actual <= kpi.meta : actual >= kpi.meta;
                 const barColor = cumple ? `bg-${kpi.color}-500` : 'bg-red-400';
-                const colors = { green: 'bg-green-900/200', blue: 'bg-blue-900/200', purple: 'bg-purple-900/200', amber: 'bg-amber-900/200', red: 'bg-red-900/200' };
+                const colors = { green: 'bg-green-500', blue: 'bg-blue-500', purple: 'bg-purple-500', amber: 'bg-amber-500', red: 'bg-red-500' };
 
                 return (
                   <div key={idx} className="py-2 border-b border-gray-800 last:border-0">
@@ -1320,7 +1320,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                   <p className="text-sm text-gray-400">meses promedio</p>
                 </div>
                 <div className="text-center px-4 py-2 bg-amber-900/20 rounded-xl">
-                  <p className="text-sm font-semibold text-amber-700">Meta: ≤ 400 días</p>
+                  <p className="text-sm font-semibold text-amber-400">Meta: ≤ 400 días</p>
                   <p className="text-xs text-amber-500">(13.2 meses)</p>
                 </div>
               </div>
@@ -1345,7 +1345,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                   <p className="text-sm text-gray-400">palpadas</p>
                 </div>
                 <div className="text-center px-4 py-2 bg-emerald-900/20 rounded-xl">
-                  <p className="text-sm font-semibold text-emerald-700">Meta: ≥ 80%</p>
+                  <p className="text-sm font-semibold text-emerald-400">Meta: ≥ 80%</p>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${kpisLaVega.fertilidad >= 80 ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}>
                     {kpisLaVega.fertilidad >= 80 ? '✓ Cumple' : '✗ Por debajo'}
                   </span>
@@ -1408,7 +1408,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-2.5 bg-gray-800 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-500 ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-blue-900/200' : 'bg-red-400'}`}
+                      <div className={`h-full rounded-full transition-all duration-500 ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-blue-500' : 'bg-red-400'}`}
                         style={{ width: `${Math.min((kpisBariloche.gdpEntreProm / 500) * 100, 150)}%` }} />
                     </div>
                     <span className="text-xs text-gray-400 w-12 text-right">{((kpisBariloche.gdpEntreProm / 500) * 100).toFixed(0)}%</span>
@@ -1466,7 +1466,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                         <span className="text-gray-400">{formatCurrency(total)} ({pct.toFixed(1)}%)</span>
                       </div>
                       <div className="h-2.5 bg-gray-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-900/200 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                        <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
@@ -1591,7 +1591,7 @@ function Nacimientos({ data, inventario }) {
                   const mesNum = parseInt(m.split('-')[1]);
                   return (
                     <div key={m} className="flex-1 flex flex-col items-center h-full justify-end">
-                      <span className="text-xs font-semibold text-green-700 mb-1">{c}</span>
+                      <span className="text-xs font-semibold text-green-400 mb-1">{c}</span>
                       <div className="w-full rounded-t transition-all duration-300 bg-gradient-to-t from-green-600 to-green-400"
                         style={{ height: `${Math.max((c / max) * 100, 8)}%` }} />
                       <span className="text-xs text-gray-400 mt-2 font-medium">{MESES[mesNum]}</span>
@@ -1615,15 +1615,15 @@ function Nacimientos({ data, inventario }) {
             </div>
           </div>
           <div className="space-y-2">
-            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-900/200 rounded-full" />Machos</span><span className="font-medium">{stats.machos}</span></div>
-            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-pink-900/200 rounded-full" />Hembras</span><span className="font-medium">{stats.hembras}</span></div>
+            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-full" />Machos</span><span className="font-medium">{stats.machos}</span></div>
+            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-pink-500 rounded-full" />Hembras</span><span className="font-medium">{stats.hembras}</span></div>
           </div>
         </div>
       </div>
 
       {/* Tabla */}
       <div className="bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b flex flex-wrap gap-3">
+        <div className="p-4 border-b border-gray-800 flex flex-wrap gap-3">
           <select value={filtros.sexo} onChange={e => setFiltros({ ...filtros, sexo: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
             <option value="">Sexo</option>
             <option value="M">Macho</option>
@@ -1640,7 +1640,7 @@ function Nacimientos({ data, inventario }) {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-800/50 border-b">
+            <thead className="bg-gray-800/50 border-b border-gray-700">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Cría</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Fecha</th>
@@ -1652,7 +1652,7 @@ function Nacimientos({ data, inventario }) {
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-gray-800">
               {filtered.slice(0, 50).map(n => (
                 <tr key={n.id || n.cria} className={`hover:bg-gray-800/50 ${n.estado !== 'Activo' ? 'bg-red-900/20' : ''}`}>
                   <td className="px-4 py-3 font-medium text-sm">{n.cria}</td>
@@ -1726,7 +1726,7 @@ function Costos({ gastos, total, totales, filtros, setFiltros, onNew, onEdit, on
       <div className="bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-800/50 border-b">
+            <thead className="bg-gray-800/50 border-b border-gray-700">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Fecha</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Proveedor</th>
@@ -1736,7 +1736,7 @@ function Costos({ gastos, total, totales, filtros, setFiltros, onNew, onEdit, on
                 {canEdit && <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Acc.</th>}
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-gray-800">
               {gastos.map(g => (
                 <tr key={g.id} className={`hover:bg-gray-800/50 ${g.estado === 'pendiente' ? 'bg-orange-900/20' : ''}`}>
                   <td className="px-4 py-3 text-sm">{formatDate(g.fecha)}</td>
@@ -1798,7 +1798,7 @@ function Form({ gasto, onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-900 rounded-2xl w-full max-w-lg">
-        <div className="p-6 border-b flex justify-between">
+        <div className="p-6 border-b border-gray-800 flex justify-between">
           <h3 className="text-lg font-semibold">{gasto ? 'Editar' : 'Nuevo'} Registro</h3>
           <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-lg"><X size={20} /></button>
         </div>
