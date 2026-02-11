@@ -459,12 +459,9 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       try {
         const nacimientos = extraerNacimientosMov(workbook, año);
         if (nacimientos.length > 0) {
-          const { error } = await supabase
-            .from('nacimientos')
-            .upsert(nacimientos, { onConflict: 'cria' })
-            .select();
-          if (error) throw error;
+          const res = await insertarConDedup('nacimientos', nacimientos, ['cria']);
           resultados.nacimientos = nacimientos;
+          resultados.nacimientosRes = res;
         }
       } catch (err) { resultados.errores.push(`Nacimientos: ${err.message}`); }
     }
@@ -692,9 +689,8 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
         comentario: comentario ? String(comentario).trim() : ''
       });
     }
-    const { data, error } = await supabase.from('nacimientos').upsert(registros, { onConflict: 'cria', ignoreDuplicates: false }).select();
-    if (error) throw error;
-    return { procesados: registros.length, insertados: data?.length || 0 };
+    const res = await insertarConDedup('nacimientos', registros, ['cria']);
+    return { procesados: registros.length, insertados: res.nuevos };
   };
 
   // ==================== PROCESAR COSTOS ====================
