@@ -111,10 +111,11 @@ export default function GanaderiaApp() {
   const loadCloudData = async () => {
     setSyncing(true);
     try {
+      const safeCall = (fn, fallback = []) => { try { const r = fn(); return r && r.catch ? r.catch(() => fallback) : Promise.resolve(fallback); } catch(e) { return Promise.resolve(fallback); } };
       const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData] = await Promise.all([
-        db.getNacimientos(), db.getCostos(), db.getInventario(), db.getVentas().catch(() => null),
-        db.getPesajes().catch(() => []), db.getPalpaciones().catch(() => []),
-        db.getServicios().catch(() => []), db.getDestetes().catch(() => [])
+        safeCall(() => db.getNacimientos()), safeCall(() => db.getCostos()), safeCall(() => db.getInventario()), safeCall(() => db.getVentas(), null),
+        safeCall(() => db.getPesajes()), safeCall(() => db.getPalpaciones()),
+        safeCall(() => db.getServicios()), safeCall(() => db.getDestetes())
       ]);
       if (nacData?.length > 0) {
         setNacimientos(nacData);
