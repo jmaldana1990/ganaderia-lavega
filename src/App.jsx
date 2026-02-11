@@ -291,7 +291,7 @@ export default function GanaderiaApp() {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 size={48} className="animate-spin text-green-600 mx-auto mb-4" />
+          <Loader2 size={48} className="animate-spin text-green-500 mx-auto mb-4" />
           <p className="text-gray-400">Cargando sistema...</p>
         </div>
       </div>
@@ -302,10 +302,10 @@ export default function GanaderiaApp() {
 
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
-    { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-600' },
-    { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-600' },
+    { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500' },
+    { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500' },
     { id: 'nacimientos', icon: Baby, label: 'Nacimientos' },
-    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-600' },
+    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500' },
     { id: 'costos', icon: Receipt, label: 'Costos y Gastos' },
   ];
 
@@ -487,27 +487,27 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-gray-900 p-5 rounded-2xl shadow-sm border-l-4 border-green-500">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-green-900/40 rounded-lg"><Beef size={20} className="text-green-600" /></div>
+            <div className="p-2 bg-green-900/40 rounded-lg"><Beef size={20} className="text-green-500" /></div>
             <div>
               <h3 className="font-semibold text-gray-100">La Vega <span className="text-xs font-normal text-gray-400">(Cría)</span></h3>
               <p className="text-xs text-gray-400">{MESES[invLaVega?.mes]} {invLaVega?.año}</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-green-600">{invLaVega?.total || 0} <span className="text-sm font-normal text-gray-500">cabezas</span></p>
-          <div className="flex gap-3 mt-2 text-xs text-gray-500">
+          <p className="text-3xl font-bold text-green-500">{invLaVega?.total || 0} <span className="text-sm font-normal text-gray-400">cabezas</span></p>
+          <div className="flex gap-3 mt-2 text-xs text-gray-400">
             <span>VP:{invLaVega?.vp || 0}</span><span>VH:{invLaVega?.vh || 0}</span><span>NAS:{invLaVega?.nas || 0}</span><span>Crías:{(invLaVega?.cm || 0) + (invLaVega?.ch || 0)}</span>
           </div>
         </div>
         <div className="bg-gray-900 p-5 rounded-2xl shadow-sm border-l-4 border-blue-500">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-900/40 rounded-lg"><Beef size={20} className="text-blue-600" /></div>
+            <div className="p-2 bg-blue-900/40 rounded-lg"><Beef size={20} className="text-blue-500" /></div>
             <div>
               <h3 className="font-semibold text-gray-100">Bariloche <span className="text-xs font-normal text-gray-400">(Levante)</span></h3>
               <p className="text-xs text-gray-400">{MESES[invBariloche?.mes]} {invBariloche?.año}</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-blue-600">{invBariloche?.total || 0} <span className="text-sm font-normal text-gray-500">cabezas</span></p>
-          <div className="flex gap-3 mt-2 text-xs text-gray-500">
+          <p className="text-3xl font-bold text-blue-500">{invBariloche?.total || 0} <span className="text-sm font-normal text-gray-400">cabezas</span></p>
+          <div className="flex gap-3 mt-2 text-xs text-gray-400">
             <span>NAS:{invBariloche?.nas || 0}</span><span>HL:{invBariloche?.hl || 0}</span><span>ML:{invBariloche?.ml || 0}</span><span>VP:{invBariloche?.vp || 0}</span>
           </div>
         </div>
@@ -517,8 +517,8 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold flex items-center gap-2"><Baby size={20} className="text-green-600" />Nacimientos por Mes</h3>
-            <span className="text-sm text-gray-500">Total: {statsNac.total} (♂{statsNac.machos} / ♀{statsNac.hembras})</span>
+            <h3 className="font-semibold flex items-center gap-2"><Baby size={20} className="text-green-500" />Nacimientos por Mes</h3>
+            <span className="text-sm text-gray-400">Total: {statsNac.total} (♂{statsNac.machos} / ♀{statsNac.hembras})</span>
           </div>
           <div className="h-48">
             <div className="flex items-end justify-between h-full gap-1 px-2">
@@ -527,14 +527,14 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
                   {count > 0 && <span className="text-xs font-semibold text-green-700 mb-1">{count}</span>}
                   <div className={`w-full rounded-t transition-all duration-300 ${count > 0 ? 'bg-gradient-to-t from-green-600 to-green-400' : 'bg-gray-800'}`}
                     style={{ height: count > 0 ? `${Math.max((count / maxNac) * 100, 8)}%` : '4px' }} />
-                  <span className="text-xs text-gray-500 mt-2 font-medium">{label}</span>
+                  <span className="text-xs text-gray-400 mt-2 font-medium">{label}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
         <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-          <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-600" />Egresos por Categoría</h3>
+          <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-500" />Egresos por Categoría</h3>
           <div className="space-y-3">
             {porCategoria.slice(0, 8).map(({ categoria, total }) => (
               <div key={categoria}>
@@ -548,7 +548,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
 
       {/* Egresos por Centro */}
       <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-        <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-green-600" />Egresos por Centro de Costos</h3>
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-green-500" />Egresos por Centro de Costos</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {porCentro.map(({ centro, total }) => (
             <div key={centro}>
@@ -565,14 +565,14 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
       {/* Pendientes */}
       {pendientes.length > 0 && (
         <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-          <h3 className="font-semibold mb-4">Pendientes <span className="bg-orange-900/40 text-orange-600 text-xs px-2 py-1 rounded-full ml-2">{pendientes.length}</span></h3>
+          <h3 className="font-semibold mb-4">Pendientes <span className="bg-orange-900/40 text-orange-500 text-xs px-2 py-1 rounded-full ml-2">{pendientes.length}</span></h3>
           <div className="space-y-2">
             {pendientes.map(g => (
               <div key={g.id} className="flex items-center justify-between p-3 bg-orange-900/20 rounded-xl">
                 <div>
                   <span className="font-medium">{g.proveedor}</span>
                   <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${centroColor(g.centro)}`}>{g.centro}</span>
-                  <p className="text-sm text-gray-500">{formatDate(g.fecha)}</p>
+                  <p className="text-sm text-gray-400">{formatDate(g.fecha)}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-semibold text-green-700">{formatCurrency(g.monto)}</span>
@@ -664,7 +664,7 @@ function VentasTotales({ ventas: ventasData }) {
     <div className="space-y-6">
       <div className="flex items-center gap-4 flex-wrap">
         <h2 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-          <ShoppingCart size={28} className="text-amber-600" /> Ventas Totales
+          <ShoppingCart size={28} className="text-amber-500" /> Ventas Totales
         </h2>
         <select value={añoSel} onChange={e => setAñoSel(e.target.value)} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="">Todos los años</option>
@@ -682,7 +682,7 @@ function VentasTotales({ ventas: ventasData }) {
 
       {/* Desglose por tipo de animal */}
       <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-        <h3 className="font-semibold mb-4 flex items-center gap-2"><Beef size={20} className="text-amber-600" />Ventas por Tipo de Animal</h3>
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><Beef size={20} className="text-amber-500" />Ventas por Tipo de Animal</h3>
         <div className="space-y-4">
           {porTipo.map(({ tipo, label, kg, valor, precioPromedio }) => (
             <div key={tipo}>
@@ -692,8 +692,8 @@ function VentasTotales({ ventas: ventasData }) {
                   <span className="text-sm font-medium text-gray-300">{label}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
-                  <span className="text-gray-500">{kg.toLocaleString('es-CO')} kg</span>
-                  <span className="text-gray-500">{formatCurrency(precioPromedio)}/kg</span>
+                  <span className="text-gray-400">{kg.toLocaleString('es-CO')} kg</span>
+                  <span className="text-gray-400">{formatCurrency(precioPromedio)}/kg</span>
                   <span className="font-semibold text-gray-100">{formatCurrency(valor)}</span>
                 </div>
               </div>
@@ -707,7 +707,7 @@ function VentasTotales({ ventas: ventasData }) {
 
       {/* Tabla comparativa por año */}
       <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-        <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-amber-600" />Comparativo Anual</h3>
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-amber-500" />Comparativo Anual</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -742,7 +742,7 @@ function VentasTotales({ ventas: ventasData }) {
 
       {/* Detalle por tipo por año */}
       <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-        <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-amber-600" />Detalle por Tipo de Animal y Año</h3>
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-amber-500" />Detalle por Tipo de Animal y Año</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -780,7 +780,7 @@ function VentasTotales({ ventas: ventasData }) {
 
       {/* Historial de transacciones */}
       <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-        <h3 className="font-semibold mb-4 flex items-center gap-2"><FileText size={20} className="text-amber-600" />Historial de Ventas ({transacciones.length})</h3>
+        <h3 className="font-semibold mb-4 flex items-center gap-2"><FileText size={20} className="text-amber-500" />Historial de Ventas ({transacciones.length})</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -798,7 +798,7 @@ function VentasTotales({ ventas: ventasData }) {
               {transacciones.map((v, i) => (
                 <tr key={i} className="border-b hover:bg-gray-800/50">
                   <td className="py-2 px-2 whitespace-nowrap">{v.fecha}</td>
-                  <td className="py-2 px-2 text-gray-500">{v.factura || '—'}</td>
+                  <td className="py-2 px-2 text-gray-400">{v.factura || '—'}</td>
                   <td className="py-2 px-2 truncate max-w-[150px]">{v.cliente}</td>
                   <td className="py-2 px-2">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[v.tipo]?.bg || 'bg-gray-800'} ${COLORES_TIPO[v.tipo]?.text || 'text-gray-300'}`}>{v.tipo}</span>
@@ -1082,8 +1082,8 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
   }, [gastos, añoSel, finca, costosAño, ultimo, pesajes, añoNum]);
 
   const colorClasses = {
-    green: { bg: 'bg-green-900/40', text: 'text-green-600', bar: 'bg-green-900/200', gradient: 'from-green-500 to-green-600', border: 'border-green-500' },
-    blue: { bg: 'bg-blue-900/40', text: 'text-blue-600', bar: 'bg-blue-900/200', gradient: 'from-blue-500 to-blue-600', border: 'border-blue-500' }
+    green: { bg: 'bg-green-900/40', text: 'text-green-500', bar: 'bg-green-900/200', gradient: 'from-green-500 to-green-600', border: 'border-green-500' },
+    blue: { bg: 'bg-blue-900/40', text: 'text-blue-500', bar: 'bg-blue-900/200', gradient: 'from-blue-500 to-blue-600', border: 'border-blue-500' }
   }[color];
 
   return (
@@ -1091,7 +1091,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-100">Finca {finca}</h2>
-          <p className="text-gray-500">{subtitulo}</p>
+          <p className="text-gray-400">{subtitulo}</p>
         </div>
         <select value={añoSel} onChange={e => setAñoSel(e.target.value)} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="todos">📈 Todos</option>
@@ -1106,7 +1106,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
           { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
         ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-gray-900 shadow text-gray-100' : 'text-gray-500 hover:text-gray-300'}`}>
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-gray-900 shadow text-gray-100' : 'text-gray-400 hover:text-gray-300'}`}>
             {tab.label}
           </button>
         ))}
@@ -1185,7 +1185,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                 <span className="text-xs font-semibold mb-1" style={{ color: color === 'green' ? '#16a34a' : '#2563eb' }}>{inv.total}</span>
                 <div className={`w-full rounded-t transition-all duration-300 ${colorClasses.bar}`}
                   style={{ height: `${Math.max((inv.total / maxInv) * 100, 8)}%` }} />
-                <span className="text-xs text-gray-500 mt-2 font-medium">{MESES[inv.mes]}</span>
+                <span className="text-xs text-gray-400 mt-2 font-medium">{MESES[inv.mes]}</span>
               </div>
             ))}
           </div>
@@ -1232,30 +1232,30 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
           {/* KPI Cards principales */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
-              <div className="flex items-center gap-2 text-green-600 mb-1"><Baby size={18} /><span className="text-xs font-semibold uppercase">Nacimientos</span></div>
+              <div className="flex items-center gap-2 text-green-500 mb-1"><Baby size={18} /><span className="text-xs font-semibold uppercase">Nacimientos</span></div>
               <p className="text-3xl font-bold text-gray-100">{kpisLaVega.nacidos}</p>
-              <p className="text-xs text-gray-500 mt-1">♂ {kpisLaVega.machos} • ♀ {kpisLaVega.hembras}</p>
+              <p className="text-xs text-gray-400 mt-1">♂ {kpisLaVega.machos} • ♀ {kpisLaVega.hembras}</p>
             </div>
             <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
-              <div className="flex items-center gap-2 text-blue-600 mb-1"><Scale size={18} /><span className="text-xs font-semibold uppercase">Destetados</span></div>
+              <div className="flex items-center gap-2 text-blue-500 mb-1"><Scale size={18} /><span className="text-xs font-semibold uppercase">Destetados</span></div>
               <p className="text-3xl font-bold text-gray-100">{kpisLaVega.destetados}</p>
-              <p className="text-xs text-gray-500 mt-1">♂ {kpisLaVega.destM} • ♀ {kpisLaVega.destH}</p>
+              <p className="text-xs text-gray-400 mt-1">♂ {kpisLaVega.destM} • ♀ {kpisLaVega.destH}</p>
             </div>
             <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-red-500">
-              <div className="flex items-center gap-2 text-red-600 mb-1"><AlertTriangle size={18} /><span className="text-xs font-semibold uppercase">Mortalidad</span></div>
+              <div className="flex items-center gap-2 text-red-500 mb-1"><AlertTriangle size={18} /><span className="text-xs font-semibold uppercase">Mortalidad</span></div>
               <p className="text-3xl font-bold text-gray-100">{kpisLaVega.mortalidad !== null ? kpisLaVega.mortalidad.toFixed(1) + '%' : '—'}</p>
-              <p className="text-xs text-gray-500 mt-1">{kpisLaVega.muertos} muertos de {kpisLaVega.nacidos}</p>
+              <p className="text-xs text-gray-400 mt-1">{kpisLaVega.muertos} muertos de {kpisLaVega.nacidos}</p>
             </div>
             <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
-              <div className="flex items-center gap-2 text-purple-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Destetado</span></div>
+              <div className="flex items-center gap-2 text-purple-500 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Destetado</span></div>
               <p className="text-3xl font-bold text-gray-100">{kpisLaVega.costoAnimal ? formatCurrency(kpisLaVega.costoAnimal) : '—'}</p>
-              <p className="text-xs text-gray-500 mt-1">{kpisLaVega.destetados} animales</p>
+              <p className="text-xs text-gray-400 mt-1">{kpisLaVega.destetados} animales</p>
             </div>
           </div>
 
           {/* KPIs con metas */}
           <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-lg font-semibold mb-5 flex items-center gap-2"><Target size={20} className="text-green-600" /> Indicadores vs Metas — {añoSel}</h3>
+            <h3 className="text-lg font-semibold mb-5 flex items-center gap-2"><Target size={20} className="text-green-500" /> Indicadores vs Metas — {añoSel}</h3>
             <div className="space-y-5">
               {[
                 { label: 'Peso al Nacer', valor: kpisLaVega.pesoNacerProm, meta: 28, unidad: 'kg', color: 'green', invertido: false },
@@ -1284,7 +1284,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-sm font-medium text-gray-300 w-44">{kpi.label}</span>
                       <div className="flex items-center gap-3">
-                        <span className={`text-lg font-bold ${cumple ? 'text-green-600' : 'text-red-500'}`}>
+                        <span className={`text-lg font-bold ${cumple ? 'text-green-500' : 'text-red-500'}`}>
                           {actual.toFixed(1)} {kpi.unidad}
                         </span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cumple ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}>
@@ -1308,20 +1308,20 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
           {/* Intervalo entre partos detalle */}
           {kpisLaVega.iepProm && (
             <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2"><Clock size={20} className="text-blue-600" /> Intervalo Entre Partos (Histórico)</h3>
-              <p className="text-sm text-gray-500 mb-2">Calculado con base en todas las madres con más de 1 parto registrado.</p>
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2"><Clock size={20} className="text-blue-500" /> Intervalo Entre Partos (Histórico)</h3>
+              <p className="text-sm text-gray-400 mb-2">Calculado con base en todas las madres con más de 1 parto registrado.</p>
               <div className="flex items-center gap-6">
                 <div className="text-center">
                   <p className="text-4xl font-bold text-gray-100">{kpisLaVega.iepProm.toFixed(0)}</p>
-                  <p className="text-sm text-gray-500">días promedio</p>
+                  <p className="text-sm text-gray-400">días promedio</p>
                 </div>
                 <div className="text-center">
                   <p className="text-4xl font-bold text-gray-100">{(kpisLaVega.iepProm / 30.4).toFixed(1)}</p>
-                  <p className="text-sm text-gray-500">meses promedio</p>
+                  <p className="text-sm text-gray-400">meses promedio</p>
                 </div>
                 <div className="text-center px-4 py-2 bg-amber-900/20 rounded-xl">
                   <p className="text-sm font-semibold text-amber-700">Meta: ≤ 400 días</p>
-                  <p className="text-xs text-amber-600">(13.2 meses)</p>
+                  <p className="text-xs text-amber-500">(13.2 meses)</p>
                 </div>
               </div>
             </div>
@@ -1330,19 +1330,19 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
           {/* Fertilidad from palpaciones */}
           {kpisLaVega.fertilidad !== null ? (
             <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Activity size={20} className="text-emerald-600" /> Índice de Fertilidad — {añoSel}</h3>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Activity size={20} className="text-emerald-500" /> Índice de Fertilidad — {añoSel}</h3>
               <div className="flex items-center gap-6">
                 <div className="text-center">
-                  <p className={`text-4xl font-bold ${kpisLaVega.fertilidad >= 80 ? 'text-green-600' : 'text-red-500'}`}>{kpisLaVega.fertilidad.toFixed(1)}%</p>
-                  <p className="text-sm text-gray-500">fertilidad</p>
+                  <p className={`text-4xl font-bold ${kpisLaVega.fertilidad >= 80 ? 'text-green-500' : 'text-red-500'}`}>{kpisLaVega.fertilidad.toFixed(1)}%</p>
+                  <p className="text-sm text-gray-400">fertilidad</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-gray-300">{kpisLaVega.preñadas}</p>
-                  <p className="text-sm text-gray-500">preñadas</p>
+                  <p className="text-sm text-gray-400">preñadas</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-gray-300">{kpisLaVega.totalPalpadas}</p>
-                  <p className="text-sm text-gray-500">palpadas</p>
+                  <p className="text-sm text-gray-400">palpadas</p>
                 </div>
                 <div className="text-center px-4 py-2 bg-emerald-900/20 rounded-xl">
                   <p className="text-sm font-semibold text-emerald-700">Meta: ≥ 80%</p>
@@ -1357,7 +1357,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
             </div>
           ) : (
             <div className="bg-gray-800/50 border border-dashed border-gray-700 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> Índice de Fertilidad</h3>
+              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-400"><Activity size={20} /> Índice de Fertilidad</h3>
               <p className="text-sm text-gray-400">No hay datos de palpaciones para {añoSel}. Meta: &gt;80%</p>
             </div>
           )}
@@ -1368,37 +1368,37 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         <div className="space-y-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
-              <div className="flex items-center gap-2 text-blue-600 mb-1"><Beef size={18} /><span className="text-xs font-semibold uppercase">Cabezas</span></div>
+              <div className="flex items-center gap-2 text-blue-500 mb-1"><Beef size={18} /><span className="text-xs font-semibold uppercase">Cabezas</span></div>
               <p className="text-3xl font-bold text-gray-100">{kpisBariloche.totalCabezas}</p>
-              <p className="text-xs text-gray-500 mt-1">Inventario actual</p>
+              <p className="text-xs text-gray-400 mt-1">Inventario actual</p>
             </div>
             <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-amber-500">
-              <div className="flex items-center gap-2 text-amber-600 mb-1"><Scale size={18} /><span className="text-xs font-semibold uppercase">Peso Promedio</span></div>
+              <div className="flex items-center gap-2 text-amber-500 mb-1"><Scale size={18} /><span className="text-xs font-semibold uppercase">Peso Promedio</span></div>
               <p className="text-3xl font-bold text-gray-100">{kpisBariloche.pesoProm ? kpisBariloche.pesoProm.toFixed(0) + ' kg' : '—'}</p>
-              <p className="text-xs text-gray-500 mt-1">{kpisBariloche.animalesPesados} animales pesados</p>
+              <p className="text-xs text-gray-400 mt-1">{kpisBariloche.animalesPesados} animales pesados</p>
             </div>
             <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
-              <div className="flex items-center gap-2 text-purple-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Animal</span></div>
+              <div className="flex items-center gap-2 text-purple-500 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Animal</span></div>
               <p className="text-3xl font-bold text-gray-100">{kpisBariloche.costoAnimal ? formatCurrency(kpisBariloche.costoAnimal) : '—'}</p>
-              <p className="text-xs text-gray-500 mt-1">Costos {añoSel} / cabezas</p>
+              <p className="text-xs text-gray-400 mt-1">Costos {añoSel} / cabezas</p>
             </div>
             <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
-              <div className="flex items-center gap-2 text-green-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costos Total</span></div>
+              <div className="flex items-center gap-2 text-green-500 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costos Total</span></div>
               <p className="text-3xl font-bold text-gray-100">{formatCurrency(costosAño)}</p>
-              <p className="text-xs text-gray-500 mt-1">{añoSel}</p>
+              <p className="text-xs text-gray-400 mt-1">{añoSel}</p>
             </div>
           </div>
 
           {/* GDP entre pesajes vs meta */}
           {kpisBariloche.gdpEntreProm !== null ? (
             <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Target size={20} className="text-blue-600" /> Ganancia Diaria de Peso — {añoSel}</h3>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Target size={20} className="text-blue-500" /> Ganancia Diaria de Peso — {añoSel}</h3>
               <div className="space-y-4">
                 <div className="py-2">
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-sm font-medium text-gray-300">GDP Entre Pesajes</span>
                     <div className="flex items-center gap-3">
-                      <span className={`text-lg font-bold ${kpisBariloche.gdpEntreProm >= 500 ? 'text-green-600' : 'text-red-500'}`}>
+                      <span className={`text-lg font-bold ${kpisBariloche.gdpEntreProm >= 500 ? 'text-green-500' : 'text-red-500'}`}>
                         {kpisBariloche.gdpEntreProm.toFixed(0)} g/día
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}>
@@ -1435,8 +1435,8 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                       const catNames = { NV: 'Novillas', HL: 'Hembras Lev.', ML: 'Machos Lev.', CM: 'Cría Macho', CH: 'Cría Hembra', TR: 'Toro' };
                       return (
                         <div key={i} className="bg-gray-800/50 rounded-xl p-3 text-center">
-                          <p className={`text-xl font-bold ${c.gdp >= 500 ? 'text-green-600' : 'text-amber-600'}`}>{c.gdp.toFixed(0)}</p>
-                          <p className="text-xs text-gray-500">g/día</p>
+                          <p className={`text-xl font-bold ${c.gdp >= 500 ? 'text-green-500' : 'text-amber-500'}`}>{c.gdp.toFixed(0)}</p>
+                          <p className="text-xs text-gray-400">g/día</p>
                           <p className="text-xs font-medium text-gray-300 mt-1">{catNames[c.cat] || c.cat} ({c.n})</p>
                         </div>
                       );
@@ -1447,7 +1447,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
             </div>
           ) : (
             <div className="bg-gray-800/50 border border-dashed border-gray-700 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> GDP Levante</h3>
+              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-400"><Activity size={20} /> GDP Levante</h3>
               <p className="text-sm text-gray-400">No hay datos de pesajes para Bariloche en {añoSel}. Meta: 500 g/día entre pesajes.</p>
             </div>
           )}
@@ -1455,7 +1455,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
           {/* Top costos por categoría */}
           {kpisBariloche.topCostos.length > 0 && (
             <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-blue-600" /> Distribución de Costos — {añoSel}</h3>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-blue-500" /> Distribución de Costos — {añoSel}</h3>
               <div className="space-y-3">
                 {kpisBariloche.topCostos.map(([cat, total], idx) => {
                   const pct = (total / costosAño) * 100;
@@ -1463,7 +1463,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                     <div key={idx}>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="font-medium text-gray-300">{cat}</span>
-                        <span className="text-gray-500">{formatCurrency(total)} ({pct.toFixed(1)}%)</span>
+                        <span className="text-gray-400">{formatCurrency(total)} ({pct.toFixed(1)}%)</span>
                       </div>
                       <div className="h-2.5 bg-gray-800 rounded-full overflow-hidden">
                         <div className="h-full bg-blue-900/200 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
@@ -1551,7 +1551,7 @@ function Nacimientos({ data, inventario }) {
           <option value="Vendido">Vendidos</option>
           <option value="Muerto">Muertos</option>
         </select>
-        <span className="text-sm text-gray-500">({stats.totalActivos} activos, {stats.totalVendidos} vendidos, {stats.totalMuertos} muertos)</span>
+        <span className="text-sm text-gray-400">({stats.totalActivos} activos, {stats.totalVendidos} vendidos, {stats.totalMuertos} muertos)</span>
       </div>
 
       {/* Cards */}
@@ -1582,7 +1582,7 @@ function Nacimientos({ data, inventario }) {
       {/* Gráficos */}
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="bg-gray-900 rounded-2xl p-6 shadow-sm lg:col-span-2">
-          <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-600" />Nacimientos por Mes</h3>
+          <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-500" />Nacimientos por Mes</h3>
           <div className="h-48">
             {porMes.length > 0 ? (
               <div className="flex items-end justify-between h-full gap-1 px-2">
@@ -1594,7 +1594,7 @@ function Nacimientos({ data, inventario }) {
                       <span className="text-xs font-semibold text-green-700 mb-1">{c}</span>
                       <div className="w-full rounded-t transition-all duration-300 bg-gradient-to-t from-green-600 to-green-400"
                         style={{ height: `${Math.max((c / max) * 100, 8)}%` }} />
-                      <span className="text-xs text-gray-500 mt-2 font-medium">{MESES[mesNum]}</span>
+                      <span className="text-xs text-gray-400 mt-2 font-medium">{MESES[mesNum]}</span>
                     </div>
                   );
                 })}
@@ -1605,7 +1605,7 @@ function Nacimientos({ data, inventario }) {
           </div>
         </div>
         <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-          <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-green-600" />Por Sexo</h3>
+          <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-green-500" />Por Sexo</h3>
           <div className="flex justify-center mb-4">
             <div className="relative w-32 h-32">
               <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
@@ -1676,7 +1676,7 @@ function Nacimientos({ data, inventario }) {
             </tbody>
           </table>
         </div>
-        {filtered.length > 50 && <div className="p-4 text-center text-sm text-gray-500">Mostrando 50 de {filtered.length}</div>}
+        {filtered.length > 50 && <div className="p-4 text-center text-sm text-gray-400">Mostrando 50 de {filtered.length}</div>}
       </div>
     </div>
   );
@@ -1689,7 +1689,7 @@ function Costos({ gastos, total, totales, filtros, setFiltros, onNew, onEdit, on
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-100">Costos y Gastos</h2>
-          <p className="text-gray-500 text-sm">{total.toLocaleString()} registros • {formatCurrency(totales.total)}</p>
+          <p className="text-gray-400 text-sm">{total.toLocaleString()} registros • {formatCurrency(totales.total)}</p>
         </div>
         {canEdit && (
           <button onClick={onNew} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-green-700">
@@ -1747,9 +1747,9 @@ function Costos({ gastos, total, totales, filtros, setFiltros, onNew, onEdit, on
                   {canEdit && (
                     <td className="px-4 py-3">
                       <div className="flex justify-center gap-1">
-                        {g.estado === 'pendiente' && <button onClick={() => onApprove(g.id)} className="p-1.5 text-green-600 hover:bg-green-900/20 rounded-lg"><Check size={16} /></button>}
-                        <button onClick={() => onEdit(g)} className="p-1.5 text-blue-600 hover:bg-blue-900/20 rounded-lg"><Edit2 size={16} /></button>
-                        <button onClick={() => onDel(g.id)} className="p-1.5 text-red-600 hover:bg-red-900/20 rounded-lg"><Trash2 size={16} /></button>
+                        {g.estado === 'pendiente' && <button onClick={() => onApprove(g.id)} className="p-1.5 text-green-500 hover:bg-green-900/20 rounded-lg"><Check size={16} /></button>}
+                        <button onClick={() => onEdit(g)} className="p-1.5 text-blue-500 hover:bg-blue-900/20 rounded-lg"><Edit2 size={16} /></button>
+                        <button onClick={() => onDel(g.id)} className="p-1.5 text-red-500 hover:bg-red-900/20 rounded-lg"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   )}
