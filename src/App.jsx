@@ -20,18 +20,18 @@ const formatDate = (d) => {
 };
 const ITEMS_PER_PAGE = 50;
 const MESES = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-const centroColor = (c) => ({ 'La Vega': 'bg-green-100 text-green-800', 'Bariloche': 'bg-blue-100 text-blue-800', 'Global': 'bg-purple-100 text-purple-800' }[c] || 'bg-gray-100 text-gray-800');
-const centroBarColor = (c) => ({ 'La Vega': 'bg-green-500', 'Bariloche': 'bg-blue-500', 'Global': 'bg-purple-500' }[c] || 'bg-gray-500');
+const centroColor = (c) => ({ 'La Vega': 'bg-green-900/40 text-green-400', 'Bariloche': 'bg-blue-900/40 text-blue-400', 'Global': 'bg-purple-900/40 text-purple-400' }[c] || 'bg-gray-800 text-gray-300');
+const centroBarColor = (c) => ({ 'La Vega': 'bg-green-900/200', 'Bariloche': 'bg-blue-900/200', 'Global': 'bg-purple-900/200' }[c] || 'bg-gray-800/500');
 
 const HATO_CATEGORIAS = [
-  { key: 'vp', label: 'Vacas Paridas', color: 'bg-green-50 text-green-700' },
-  { key: 'vh', label: 'Vacas Horras', color: 'bg-blue-50 text-blue-700' },
-  { key: 'nas', label: 'Novillas', color: 'bg-purple-50 text-purple-700' },
-  { key: 'cm', label: 'Crías ♂', color: 'bg-orange-50 text-orange-700' },
-  { key: 'ch', label: 'Crías ♀', color: 'bg-pink-50 text-pink-700' },
-  { key: 'hl', label: 'Hemb. Levante', color: 'bg-teal-50 text-teal-700' },
-  { key: 'ml', label: 'Machos Levante', color: 'bg-amber-50 text-amber-700' },
-  { key: 't', label: 'Toros', color: 'bg-red-50 text-red-700' },
+  { key: 'vp', label: 'Vacas Paridas', color: 'bg-green-900/30 text-green-400' },
+  { key: 'vh', label: 'Vacas Horras', color: 'bg-blue-900/30 text-blue-400' },
+  { key: 'nas', label: 'Novillas', color: 'bg-purple-900/30 text-purple-400' },
+  { key: 'cm', label: 'Crías ♂', color: 'bg-orange-900/30 text-orange-400' },
+  { key: 'ch', label: 'Crías ♀', color: 'bg-pink-900/30 text-pink-400' },
+  { key: 'hl', label: 'Hemb. Levante', color: 'bg-teal-900/30 text-teal-400' },
+  { key: 'ml', label: 'Machos Levante', color: 'bg-amber-900/30 text-amber-400' },
+  { key: 't', label: 'Toros', color: 'bg-red-900/30 text-red-400' },
 ];
 
 // ==================== COMPONENTE PRINCIPAL ====================
@@ -289,10 +289,10 @@ export default function GanaderiaApp() {
   // ---- Loading ----
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <Loader2 size={48} className="animate-spin text-green-600 mx-auto mb-4" />
-          <p className="text-gray-600">Cargando sistema...</p>
+          <p className="text-gray-400">Cargando sistema...</p>
         </div>
       </div>
     );
@@ -310,14 +310,14 @@ export default function GanaderiaApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-950">
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-700 to-green-600 text-white shadow-lg sticky top-0 z-50">
+      <header className="bg-gradient-to-r from-green-900 to-green-800 text-white shadow-lg border-b border-green-700/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 hover:bg-white/10 rounded-lg"><Menu size={24} /></button>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 hover:bg-gray-900/10 rounded-lg"><Menu size={24} /></button>
             <div className="flex items-center gap-3">
-              <img src="/logo_lavega.jpg" alt="Hierro La Vega" className="h-12 w-12 object-contain rounded-lg bg-white p-1 shadow-sm" />
+              <img src="/logo_lavega.jpg" alt="Hierro La Vega" className="h-12 w-12 object-contain rounded-lg bg-gray-800 p-1 shadow-sm" />
               <div>
                 <h1 className="text-xl font-bold">Ganadería La Vega</h1>
                 <p className="text-xs text-green-200 hidden sm:block">Sistema de Gestión</p>
@@ -326,16 +326,16 @@ export default function GanaderiaApp() {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${isOnline ? 'bg-green-500/30' : 'bg-red-500/30'}`}>
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${isOnline ? 'bg-green-900/200/30' : 'bg-red-900/200/30'}`}>
               {syncing ? <RefreshCw size={14} className="animate-spin" /> : isOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
               <span className="hidden sm:inline">{syncing ? 'Sincronizando...' : isOnline ? 'En línea' : 'Sin conexión'}</span>
             </div>
             {isOnline && !syncing && (
-              <button onClick={loadCloudData} className="p-2 hover:bg-white/20 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
+              <button onClick={loadCloudData} className="p-2 hover:bg-gray-900/20 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
             )}
             {user && isOnline && (
               <div className="flex items-center gap-1">
-                <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar costos/nacimientos">
+                <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-gray-900/20 hover:bg-gray-900/30 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar costos/nacimientos">
                   <Upload size={16} /><span className="hidden sm:inline">Costos</span>
                 </button>
                 <button onClick={() => setShowCargaMov(true)} className="flex items-center gap-1.5 bg-blue-400/30 hover:bg-blue-400/50 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar movimientos mensuales">
@@ -348,11 +348,11 @@ export default function GanaderiaApp() {
             )}
             {user ? (
               <div className="flex items-center gap-2">
-                <span className="text-sm bg-white/20 px-3 py-1 rounded-full hidden md:block truncate max-w-[150px]">{user.email}</span>
-                <button onClick={handleLogout} className="p-2 hover:bg-white/20 rounded-lg" title="Cerrar sesión"><LogOut size={18} /></button>
+                <span className="text-sm bg-gray-900/20 px-3 py-1 rounded-full hidden md:block truncate max-w-[150px]">{user.email}</span>
+                <button onClick={handleLogout} className="p-2 hover:bg-gray-900/20 rounded-lg" title="Cerrar sesión"><LogOut size={18} /></button>
               </div>
             ) : (
-              <button onClick={() => setShowLogin(true)} className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm">Iniciar sesión</button>
+              <button onClick={() => setShowLogin(true)} className="flex items-center gap-2 bg-gray-900/20 hover:bg-gray-900/30 px-3 py-1.5 rounded-lg text-sm">Iniciar sesión</button>
             )}
           </div>
         </div>
@@ -360,11 +360,11 @@ export default function GanaderiaApp() {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className={`${menuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transition-transform pt-16 lg:pt-0`}>
+        <aside className={`${menuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-40 w-64 bg-gray-900 shadow-lg border-r border-gray-800 transition-transform pt-16 lg:pt-0`}>
           <nav className="p-4 space-y-1">
             {menuItems.map(item => (
               <button key={item.id} onClick={() => { setView(item.id); setMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${view === item.id ? 'bg-green-50 text-green-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}>
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${view === item.id ? 'bg-green-900/50 text-green-400 font-medium' : 'text-gray-400 hover:bg-gray-800/50'}`}>
                 <item.icon size={20} className={item.accent || ''} />
                 <span>{item.label}</span>
               </button>
@@ -372,7 +372,7 @@ export default function GanaderiaApp() {
           </nav>
           <div className="p-4 border-t">
             <p className="text-xs text-gray-400 mb-2">Fuente: {dataSource === 'cloud' ? '☁️ Nube' : dataSource === 'cache' ? '📦 Caché offline' : '💾 Local'}</p>
-            <div className="space-y-1 text-sm text-gray-600">
+            <div className="space-y-1 text-sm text-gray-400">
               <p>📋 {nacimientos.length} nacimientos</p>
               <p>💰 {gastos.length} costos</p>
               <p>📊 {inventario.length} inventarios</p>
@@ -415,7 +415,7 @@ export default function GanaderiaApp() {
       {showCarga && <CargaArchivos user={user} onClose={() => setShowCarga(false)} onSuccess={() => { setShowCarga(false); loadCloudData(); }} />}
       {showCargaInv && <CargaInventario user={user} onClose={() => setShowCargaInv(false)} onSuccess={() => { setShowCargaInv(false); loadCloudData(); }} />}
       {showCargaMov && <CargaMovimientos user={user} onClose={() => setShowCargaMov(false)} onSuccess={() => { setShowCargaMov(false); loadCloudData(); }} />}
-      {menuOpen && <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setMenuOpen(false)} />}
+      {menuOpen && <div className="fixed inset-0 bg-black/60 z-30 lg:hidden" onClick={() => setMenuOpen(false)} />}
     </div>
   );
 }
@@ -468,8 +468,8 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
-        <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-4 py-2 border rounded-xl">
+        <h2 className="text-2xl font-bold text-gray-100">Dashboard</h2>
+        <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="">Todos</option>
           {años.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
@@ -485,11 +485,11 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
 
       {/* Inventario por finca */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-green-500">
+        <div className="bg-gray-900 p-5 rounded-2xl shadow-sm border-l-4 border-green-500">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-green-100 rounded-lg"><Beef size={20} className="text-green-600" /></div>
+            <div className="p-2 bg-green-900/40 rounded-lg"><Beef size={20} className="text-green-600" /></div>
             <div>
-              <h3 className="font-semibold text-gray-800">La Vega <span className="text-xs font-normal text-gray-400">(Cría)</span></h3>
+              <h3 className="font-semibold text-gray-100">La Vega <span className="text-xs font-normal text-gray-400">(Cría)</span></h3>
               <p className="text-xs text-gray-400">{MESES[invLaVega?.mes]} {invLaVega?.año}</p>
             </div>
           </div>
@@ -498,11 +498,11 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
             <span>VP:{invLaVega?.vp || 0}</span><span>VH:{invLaVega?.vh || 0}</span><span>NAS:{invLaVega?.nas || 0}</span><span>Crías:{(invLaVega?.cm || 0) + (invLaVega?.ch || 0)}</span>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-500">
+        <div className="bg-gray-900 p-5 rounded-2xl shadow-sm border-l-4 border-blue-500">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-100 rounded-lg"><Beef size={20} className="text-blue-600" /></div>
+            <div className="p-2 bg-blue-900/40 rounded-lg"><Beef size={20} className="text-blue-600" /></div>
             <div>
-              <h3 className="font-semibold text-gray-800">Bariloche <span className="text-xs font-normal text-gray-400">(Levante)</span></h3>
+              <h3 className="font-semibold text-gray-100">Bariloche <span className="text-xs font-normal text-gray-400">(Levante)</span></h3>
               <p className="text-xs text-gray-400">{MESES[invBariloche?.mes]} {invBariloche?.año}</p>
             </div>
           </div>
@@ -515,7 +515,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
 
       {/* Nacimientos + Egresos por categoría */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold flex items-center gap-2"><Baby size={20} className="text-green-600" />Nacimientos por Mes</h3>
             <span className="text-sm text-gray-500">Total: {statsNac.total} (♂{statsNac.machos} / ♀{statsNac.hembras})</span>
@@ -525,7 +525,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
               {nacimientosPorMes.map(({ mes, count, label }) => (
                 <div key={mes} className="flex-1 flex flex-col items-center h-full justify-end">
                   {count > 0 && <span className="text-xs font-semibold text-green-700 mb-1">{count}</span>}
-                  <div className={`w-full rounded-t transition-all duration-300 ${count > 0 ? 'bg-gradient-to-t from-green-600 to-green-400' : 'bg-gray-100'}`}
+                  <div className={`w-full rounded-t transition-all duration-300 ${count > 0 ? 'bg-gradient-to-t from-green-600 to-green-400' : 'bg-gray-800'}`}
                     style={{ height: count > 0 ? `${Math.max((count / maxNac) * 100, 8)}%` : '4px' }} />
                   <span className="text-xs text-gray-500 mt-2 font-medium">{label}</span>
                 </div>
@@ -533,13 +533,13 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
           <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-600" />Egresos por Categoría</h3>
           <div className="space-y-3">
             {porCategoria.slice(0, 8).map(({ categoria, total }) => (
               <div key={categoria}>
                 <div className="flex justify-between text-sm mb-1"><span className="truncate">{categoria}</span><span className="font-medium">{formatCurrency(total)}</span></div>
-                <div className="h-2 bg-gray-100 rounded-full"><div className="h-full bg-green-500 rounded-full" style={{ width: `${(total / maxCat) * 100}%` }} /></div>
+                <div className="h-2 bg-gray-800 rounded-full"><div className="h-full bg-green-900/200 rounded-full" style={{ width: `${(total / maxCat) * 100}%` }} /></div>
               </div>
             ))}
           </div>
@@ -547,7 +547,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
       </div>
 
       {/* Egresos por Centro */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
         <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-green-600" />Egresos por Centro de Costos</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {porCentro.map(({ centro, total }) => (
@@ -556,7 +556,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
                 <span className={`px-2 py-0.5 rounded-full text-xs ${centroColor(centro)}`}>{centro}</span>
                 <span className="font-medium">{formatCurrency(total)}</span>
               </div>
-              <div className="h-3 bg-gray-100 rounded-full"><div className={`h-full rounded-full ${centroBarColor(centro)}`} style={{ width: `${(total / maxCen) * 100}%` }} /></div>
+              <div className="h-3 bg-gray-800 rounded-full"><div className={`h-full rounded-full ${centroBarColor(centro)}`} style={{ width: `${(total / maxCen) * 100}%` }} /></div>
             </div>
           ))}
         </div>
@@ -564,11 +564,11 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
 
       {/* Pendientes */}
       {pendientes.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 className="font-semibold mb-4">Pendientes <span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full ml-2">{pendientes.length}</span></h3>
+        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
+          <h3 className="font-semibold mb-4">Pendientes <span className="bg-orange-900/40 text-orange-600 text-xs px-2 py-1 rounded-full ml-2">{pendientes.length}</span></h3>
           <div className="space-y-2">
             {pendientes.map(g => (
-              <div key={g.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl">
+              <div key={g.id} className="flex items-center justify-between p-3 bg-orange-900/20 rounded-xl">
                 <div>
                   <span className="font-medium">{g.proveedor}</span>
                   <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${centroColor(g.centro)}`}>{g.centro}</span>
@@ -576,7 +576,7 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-semibold text-green-700">{formatCurrency(g.monto)}</span>
-                  <button onClick={() => onApprove(g.id)} className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"><Check size={16} /></button>
+                  <button onClick={() => onApprove(g.id)} className="p-2 bg-green-900/200 text-white rounded-lg hover:bg-green-600"><Check size={16} /></button>
                 </div>
               </div>
             ))}
@@ -596,12 +596,12 @@ function VentasTotales({ ventas: ventasData }) {
     [allVentas]);
 
   const COLORES_TIPO = {
-    ML: { bg: 'bg-blue-100', text: 'text-blue-700', bar: 'bg-blue-500' },
-    HL: { bg: 'bg-pink-100', text: 'text-pink-700', bar: 'bg-pink-500' },
-    VD: { bg: 'bg-amber-100', text: 'text-amber-700', bar: 'bg-amber-500' },
-    T: { bg: 'bg-red-100', text: 'text-red-700', bar: 'bg-red-500' },
-    CM: { bg: 'bg-cyan-100', text: 'text-cyan-700', bar: 'bg-cyan-500' },
-    CH: { bg: 'bg-purple-100', text: 'text-purple-700', bar: 'bg-purple-500' },
+    ML: { bg: 'bg-blue-900/40', text: 'text-blue-700', bar: 'bg-blue-900/200' },
+    HL: { bg: 'bg-pink-900/40', text: 'text-pink-700', bar: 'bg-pink-900/200' },
+    VD: { bg: 'bg-amber-900/40', text: 'text-amber-700', bar: 'bg-amber-900/200' },
+    T: { bg: 'bg-red-900/40', text: 'text-red-700', bar: 'bg-red-900/200' },
+    CM: { bg: 'bg-cyan-900/40', text: 'text-cyan-700', bar: 'bg-cyan-500' },
+    CH: { bg: 'bg-purple-900/40', text: 'text-purple-700', bar: 'bg-purple-900/200' },
   };
 
   // Ventas filtradas
@@ -663,10 +663,10 @@ function VentasTotales({ ventas: ventasData }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4 flex-wrap">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
           <ShoppingCart size={28} className="text-amber-600" /> Ventas Totales
         </h2>
-        <select value={añoSel} onChange={e => setAñoSel(e.target.value)} className="px-4 py-2 border rounded-xl">
+        <select value={añoSel} onChange={e => setAñoSel(e.target.value)} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="">Todos los años</option>
           {añosDisponibles.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
@@ -681,24 +681,24 @@ function VentasTotales({ ventas: ventasData }) {
       </div>
 
       {/* Desglose por tipo de animal */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
         <h3 className="font-semibold mb-4 flex items-center gap-2"><Beef size={20} className="text-amber-600" />Ventas por Tipo de Animal</h3>
         <div className="space-y-4">
           {porTipo.map(({ tipo, label, kg, valor, precioPromedio }) => (
             <div key={tipo}>
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[tipo]?.bg || 'bg-gray-100'} ${COLORES_TIPO[tipo]?.text || 'text-gray-700'}`}>{tipo}</span>
-                  <span className="text-sm font-medium text-gray-700">{label}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[tipo]?.bg || 'bg-gray-800'} ${COLORES_TIPO[tipo]?.text || 'text-gray-300'}`}>{tipo}</span>
+                  <span className="text-sm font-medium text-gray-300">{label}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
                   <span className="text-gray-500">{kg.toLocaleString('es-CO')} kg</span>
                   <span className="text-gray-500">{formatCurrency(precioPromedio)}/kg</span>
-                  <span className="font-semibold text-gray-800">{formatCurrency(valor)}</span>
+                  <span className="font-semibold text-gray-100">{formatCurrency(valor)}</span>
                 </div>
               </div>
-              <div className="h-3 bg-gray-100 rounded-full">
-                <div className={`h-full rounded-full transition-all duration-300 ${COLORES_TIPO[tipo]?.bar || 'bg-gray-500'}`} style={{ width: `${(kg / maxKg) * 100}%` }} />
+              <div className="h-3 bg-gray-800 rounded-full">
+                <div className={`h-full rounded-full transition-all duration-300 ${COLORES_TIPO[tipo]?.bar || 'bg-gray-800/500'}`} style={{ width: `${(kg / maxKg) * 100}%` }} />
               </div>
             </div>
           ))}
@@ -706,21 +706,21 @@ function VentasTotales({ ventas: ventasData }) {
       </div>
 
       {/* Tabla comparativa por año */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
         <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-amber-600" />Comparativo Anual</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-2 font-semibold text-gray-600">Año</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">Kg Totales</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">Precio Prom/kg</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">Ingresos Totales</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-400">Año</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Kg Totales</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Precio Prom/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Ingresos Totales</th>
               </tr>
             </thead>
             <tbody>
               {porAño.map(({ año, totalKg, precioPromedio, ingresosTotales }) => (
-                <tr key={año} className={`border-b hover:bg-amber-50 ${añoSel && parseInt(añoSel) === año ? 'bg-amber-50 font-semibold' : ''}`}>
+                <tr key={año} className={`border-b hover:bg-amber-900/20 ${añoSel && parseInt(añoSel) === año ? 'bg-amber-900/20 font-semibold' : ''}`}>
                   <td className="py-3 px-2 font-medium">{año}</td>
                   <td className="py-3 px-2 text-right">{totalKg.toLocaleString('es-CO')}</td>
                   <td className="py-3 px-2 text-right">{formatCurrency(precioPromedio)}</td>
@@ -741,17 +741,17 @@ function VentasTotales({ ventas: ventasData }) {
       </div>
 
       {/* Detalle por tipo por año */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
         <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-amber-600" />Detalle por Tipo de Animal y Año</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-2 font-semibold text-gray-600">Año</th>
-                <th className="text-left py-3 px-2 font-semibold text-gray-600">Tipo</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">Kg</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">Precio/kg</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">Valor</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-400">Año</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-400">Tipo</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Precio/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Valor</th>
               </tr>
             </thead>
             <tbody>
@@ -760,11 +760,11 @@ function VentasTotales({ ventas: ventasData }) {
                 return tipoKeys.map((tipo, idx) => {
                   const t = tipos[tipo];
                   return (
-                    <tr key={`${año}-${tipo}`} className={`border-b hover:bg-gray-50 ${idx === 0 ? 'border-t-2 border-t-gray-200' : ''}`}>
-                      {idx === 0 && <td className="py-2 px-2 font-bold text-gray-800" rowSpan={tipoKeys.length}>{año}</td>}
+                    <tr key={`${año}-${tipo}`} className={`border-b hover:bg-gray-800/50 ${idx === 0 ? 'border-t-2 border-t-gray-200' : ''}`}>
+                      {idx === 0 && <td className="py-2 px-2 font-bold text-gray-100" rowSpan={tipoKeys.length}>{año}</td>}
                       <td className="py-2 px-2">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[tipo]?.bg || 'bg-gray-100'} ${COLORES_TIPO[tipo]?.text || 'text-gray-700'}`}>{tipo}</span>
-                        <span className="ml-2 text-gray-600">{TIPO_ANIMAL_LABELS[tipo] || tipo}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[tipo]?.bg || 'bg-gray-800'} ${COLORES_TIPO[tipo]?.text || 'text-gray-300'}`}>{tipo}</span>
+                        <span className="ml-2 text-gray-400">{TIPO_ANIMAL_LABELS[tipo] || tipo}</span>
                       </td>
                       <td className="py-2 px-2 text-right">{t.kg.toLocaleString('es-CO')}</td>
                       <td className="py-2 px-2 text-right">{formatCurrency(Math.round(t.precio))}</td>
@@ -779,29 +779,29 @@ function VentasTotales({ ventas: ventasData }) {
       </div>
 
       {/* Historial de transacciones */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
         <h3 className="font-semibold mb-4 flex items-center gap-2"><FileText size={20} className="text-amber-600" />Historial de Ventas ({transacciones.length})</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-2 font-semibold text-gray-600">Fecha</th>
-                <th className="text-left py-3 px-2 font-semibold text-gray-600">Factura</th>
-                <th className="text-left py-3 px-2 font-semibold text-gray-600">Cliente</th>
-                <th className="text-left py-3 px-2 font-semibold text-gray-600">Tipo</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">Kg</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">$/kg</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-600">Valor</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-400">Fecha</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-400">Factura</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-400">Cliente</th>
+                <th className="text-left py-3 px-2 font-semibold text-gray-400">Tipo</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">$/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Valor</th>
               </tr>
             </thead>
             <tbody>
               {transacciones.map((v, i) => (
-                <tr key={i} className="border-b hover:bg-gray-50">
+                <tr key={i} className="border-b hover:bg-gray-800/50">
                   <td className="py-2 px-2 whitespace-nowrap">{v.fecha}</td>
                   <td className="py-2 px-2 text-gray-500">{v.factura || '—'}</td>
                   <td className="py-2 px-2 truncate max-w-[150px]">{v.cliente}</td>
                   <td className="py-2 px-2">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[v.tipo]?.bg || 'bg-gray-100'} ${COLORES_TIPO[v.tipo]?.text || 'text-gray-700'}`}>{v.tipo}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[v.tipo]?.bg || 'bg-gray-800'} ${COLORES_TIPO[v.tipo]?.text || 'text-gray-300'}`}>{v.tipo}</span>
                   </td>
                   <td className="py-2 px-2 text-right">{v.kg.toLocaleString('es-CO')}</td>
                   <td className="py-2 px-2 text-right">{formatCurrency(v.precio)}</td>
@@ -1082,31 +1082,31 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
   }, [gastos, añoSel, finca, costosAño, ultimo, pesajes, añoNum]);
 
   const colorClasses = {
-    green: { bg: 'bg-green-100', text: 'text-green-600', bar: 'bg-green-500', gradient: 'from-green-500 to-green-600', border: 'border-green-500' },
-    blue: { bg: 'bg-blue-100', text: 'text-blue-600', bar: 'bg-blue-500', gradient: 'from-blue-500 to-blue-600', border: 'border-blue-500' }
+    green: { bg: 'bg-green-900/40', text: 'text-green-600', bar: 'bg-green-900/200', gradient: 'from-green-500 to-green-600', border: 'border-green-500' },
+    blue: { bg: 'bg-blue-900/40', text: 'text-blue-600', bar: 'bg-blue-900/200', gradient: 'from-blue-500 to-blue-600', border: 'border-blue-500' }
   }[color];
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Finca {finca}</h2>
+          <h2 className="text-2xl font-bold text-gray-100">Finca {finca}</h2>
           <p className="text-gray-500">{subtitulo}</p>
         </div>
-        <select value={añoSel} onChange={e => setAñoSel(e.target.value)} className="px-4 py-2 border rounded-xl">
+        <select value={añoSel} onChange={e => setAñoSel(e.target.value)} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="todos">📈 Todos</option>
           {añosDisponibles.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-gray-800 p-1 rounded-xl w-fit">
         {[
           { key: 'resumen', label: '📊 Resumen', icon: BarChart3, hide: esTodos },
           { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
         ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-white shadow text-gray-800' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-gray-900 shadow text-gray-100' : 'text-gray-500 hover:text-gray-300'}`}>
             {tab.label}
           </button>
         ))}
@@ -1163,7 +1163,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       </div>
 
       {/* Composición del hato */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
         <h3 className="text-lg font-semibold mb-4">Composición del Hato — {MESES[ultimo?.mes]} {ultimo?.año}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {HATO_CATEGORIAS.map(cat => (
@@ -1177,7 +1177,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
 
       {/* Evolución inventario */}
       {invAño.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
           <h3 className="text-lg font-semibold mb-4">Evolución del Inventario {añoSel}</h3>
           <div className="h-56 flex items-end gap-2 px-2">
             {invAño.map((inv, idx) => (
@@ -1194,24 +1194,24 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
 
       {/* Tabla detalle mensual */}
       {invAño.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
           <div className="p-4 border-b">
             <h3 className="font-semibold">Detalle Mensual {añoSel}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-800/50 border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Mes</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Mes</th>
                   {HATO_CATEGORIAS.map(c => (
-                    <th key={c.key} className="px-3 py-3 text-right text-xs font-semibold text-gray-600">{c.key.toUpperCase()}</th>
+                    <th key={c.key} className="px-3 py-3 text-right text-xs font-semibold text-gray-400">{c.key.toUpperCase()}</th>
                   ))}
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-800">Total</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-100">Total</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {invAño.map((inv, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
+                  <tr key={idx} className="hover:bg-gray-800/50">
                     <td className="px-4 py-2 text-sm font-medium">{MESES[inv.mes]}</td>
                     {HATO_CATEGORIAS.map(c => (
                       <td key={c.key} className="px-3 py-2 text-sm text-right">{inv[c.key] || 0}</td>
@@ -1231,30 +1231,30 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         <div className="space-y-6">
           {/* KPI Cards principales */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
+            <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
               <div className="flex items-center gap-2 text-green-600 mb-1"><Baby size={18} /><span className="text-xs font-semibold uppercase">Nacimientos</span></div>
-              <p className="text-3xl font-bold text-gray-800">{kpisLaVega.nacidos}</p>
+              <p className="text-3xl font-bold text-gray-100">{kpisLaVega.nacidos}</p>
               <p className="text-xs text-gray-500 mt-1">♂ {kpisLaVega.machos} • ♀ {kpisLaVega.hembras}</p>
             </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
+            <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
               <div className="flex items-center gap-2 text-blue-600 mb-1"><Scale size={18} /><span className="text-xs font-semibold uppercase">Destetados</span></div>
-              <p className="text-3xl font-bold text-gray-800">{kpisLaVega.destetados}</p>
+              <p className="text-3xl font-bold text-gray-100">{kpisLaVega.destetados}</p>
               <p className="text-xs text-gray-500 mt-1">♂ {kpisLaVega.destM} • ♀ {kpisLaVega.destH}</p>
             </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-red-500">
+            <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-red-500">
               <div className="flex items-center gap-2 text-red-600 mb-1"><AlertTriangle size={18} /><span className="text-xs font-semibold uppercase">Mortalidad</span></div>
-              <p className="text-3xl font-bold text-gray-800">{kpisLaVega.mortalidad !== null ? kpisLaVega.mortalidad.toFixed(1) + '%' : '—'}</p>
+              <p className="text-3xl font-bold text-gray-100">{kpisLaVega.mortalidad !== null ? kpisLaVega.mortalidad.toFixed(1) + '%' : '—'}</p>
               <p className="text-xs text-gray-500 mt-1">{kpisLaVega.muertos} muertos de {kpisLaVega.nacidos}</p>
             </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
+            <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
               <div className="flex items-center gap-2 text-purple-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Destetado</span></div>
-              <p className="text-3xl font-bold text-gray-800">{kpisLaVega.costoAnimal ? formatCurrency(kpisLaVega.costoAnimal) : '—'}</p>
+              <p className="text-3xl font-bold text-gray-100">{kpisLaVega.costoAnimal ? formatCurrency(kpisLaVega.costoAnimal) : '—'}</p>
               <p className="text-xs text-gray-500 mt-1">{kpisLaVega.destetados} animales</p>
             </div>
           </div>
 
           {/* KPIs con metas */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
             <h3 className="text-lg font-semibold mb-5 flex items-center gap-2"><Target size={20} className="text-green-600" /> Indicadores vs Metas — {añoSel}</h3>
             <div className="space-y-5">
               {[
@@ -1266,8 +1266,8 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
               ].map((kpi, idx) => {
                 const actual = kpi.valor;
                 if (actual === null) return (
-                  <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                    <span className="text-sm font-medium text-gray-600 w-44">{kpi.label}</span>
+                  <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
+                    <span className="text-sm font-medium text-gray-400 w-44">{kpi.label}</span>
                     <span className="text-sm text-gray-400">Sin datos para {añoSel}</span>
                     <span className="text-xs text-gray-400 w-24 text-right">Meta: {kpi.meta} {kpi.unidad}</span>
                   </div>
@@ -1277,23 +1277,23 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                   : Math.min((actual / kpi.meta) * 100, 150);
                 const cumple = kpi.invertido ? actual <= kpi.meta : actual >= kpi.meta;
                 const barColor = cumple ? `bg-${kpi.color}-500` : 'bg-red-400';
-                const colors = { green: 'bg-green-500', blue: 'bg-blue-500', purple: 'bg-purple-500', amber: 'bg-amber-500', red: 'bg-red-500' };
+                const colors = { green: 'bg-green-900/200', blue: 'bg-blue-900/200', purple: 'bg-purple-900/200', amber: 'bg-amber-900/200', red: 'bg-red-900/200' };
 
                 return (
-                  <div key={idx} className="py-2 border-b border-gray-100 last:border-0">
+                  <div key={idx} className="py-2 border-b border-gray-800 last:border-0">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm font-medium text-gray-700 w-44">{kpi.label}</span>
+                      <span className="text-sm font-medium text-gray-300 w-44">{kpi.label}</span>
                       <div className="flex items-center gap-3">
                         <span className={`text-lg font-bold ${cumple ? 'text-green-600' : 'text-red-500'}`}>
                           {actual.toFixed(1)} {kpi.unidad}
                         </span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cumple ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cumple ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}>
                           {cumple ? '✓ Meta' : `Meta: ${kpi.meta}`}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-2.5 bg-gray-800 rounded-full overflow-hidden">
                         <div className={`h-full rounded-full transition-all duration-500 ${cumple ? colors[kpi.color] : 'bg-red-400'}`}
                           style={{ width: `${Math.min(pct, 100)}%` }} />
                       </div>
@@ -1307,19 +1307,19 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
 
           {/* Intervalo entre partos detalle */}
           {kpisLaVega.iepProm && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2"><Clock size={20} className="text-blue-600" /> Intervalo Entre Partos (Histórico)</h3>
               <p className="text-sm text-gray-500 mb-2">Calculado con base en todas las madres con más de 1 parto registrado.</p>
               <div className="flex items-center gap-6">
                 <div className="text-center">
-                  <p className="text-4xl font-bold text-gray-800">{kpisLaVega.iepProm.toFixed(0)}</p>
+                  <p className="text-4xl font-bold text-gray-100">{kpisLaVega.iepProm.toFixed(0)}</p>
                   <p className="text-sm text-gray-500">días promedio</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-4xl font-bold text-gray-800">{(kpisLaVega.iepProm / 30.4).toFixed(1)}</p>
+                  <p className="text-4xl font-bold text-gray-100">{(kpisLaVega.iepProm / 30.4).toFixed(1)}</p>
                   <p className="text-sm text-gray-500">meses promedio</p>
                 </div>
-                <div className="text-center px-4 py-2 bg-amber-50 rounded-xl">
+                <div className="text-center px-4 py-2 bg-amber-900/20 rounded-xl">
                   <p className="text-sm font-semibold text-amber-700">Meta: ≤ 400 días</p>
                   <p className="text-xs text-amber-600">(13.2 meses)</p>
                 </div>
@@ -1329,7 +1329,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
 
           {/* Fertilidad from palpaciones */}
           {kpisLaVega.fertilidad !== null ? (
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Activity size={20} className="text-emerald-600" /> Índice de Fertilidad — {añoSel}</h3>
               <div className="flex items-center gap-6">
                 <div className="text-center">
@@ -1337,16 +1337,16 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                   <p className="text-sm text-gray-500">fertilidad</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-700">{kpisLaVega.preñadas}</p>
+                  <p className="text-2xl font-bold text-gray-300">{kpisLaVega.preñadas}</p>
                   <p className="text-sm text-gray-500">preñadas</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-700">{kpisLaVega.totalPalpadas}</p>
+                  <p className="text-2xl font-bold text-gray-300">{kpisLaVega.totalPalpadas}</p>
                   <p className="text-sm text-gray-500">palpadas</p>
                 </div>
-                <div className="text-center px-4 py-2 bg-emerald-50 rounded-xl">
+                <div className="text-center px-4 py-2 bg-emerald-900/20 rounded-xl">
                   <p className="text-sm font-semibold text-emerald-700">Meta: ≥ 80%</p>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${kpisLaVega.fertilidad >= 80 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${kpisLaVega.fertilidad >= 80 ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}>
                     {kpisLaVega.fertilidad >= 80 ? '✓ Cumple' : '✗ Por debajo'}
                   </span>
                 </div>
@@ -1356,7 +1356,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
               )}
             </div>
           ) : (
-            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6">
+            <div className="bg-gray-800/50 border border-dashed border-gray-700 rounded-2xl p-6">
               <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> Índice de Fertilidad</h3>
               <p className="text-sm text-gray-400">No hay datos de palpaciones para {añoSel}. Meta: &gt;80%</p>
             </div>
@@ -1367,48 +1367,48 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       {!esTodos && subView === 'kpis' && finca === 'Bariloche' && kpisBariloche && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
+            <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-blue-500">
               <div className="flex items-center gap-2 text-blue-600 mb-1"><Beef size={18} /><span className="text-xs font-semibold uppercase">Cabezas</span></div>
-              <p className="text-3xl font-bold text-gray-800">{kpisBariloche.totalCabezas}</p>
+              <p className="text-3xl font-bold text-gray-100">{kpisBariloche.totalCabezas}</p>
               <p className="text-xs text-gray-500 mt-1">Inventario actual</p>
             </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-amber-500">
+            <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-amber-500">
               <div className="flex items-center gap-2 text-amber-600 mb-1"><Scale size={18} /><span className="text-xs font-semibold uppercase">Peso Promedio</span></div>
-              <p className="text-3xl font-bold text-gray-800">{kpisBariloche.pesoProm ? kpisBariloche.pesoProm.toFixed(0) + ' kg' : '—'}</p>
+              <p className="text-3xl font-bold text-gray-100">{kpisBariloche.pesoProm ? kpisBariloche.pesoProm.toFixed(0) + ' kg' : '—'}</p>
               <p className="text-xs text-gray-500 mt-1">{kpisBariloche.animalesPesados} animales pesados</p>
             </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
+            <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-purple-500">
               <div className="flex items-center gap-2 text-purple-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costo/Animal</span></div>
-              <p className="text-3xl font-bold text-gray-800">{kpisBariloche.costoAnimal ? formatCurrency(kpisBariloche.costoAnimal) : '—'}</p>
+              <p className="text-3xl font-bold text-gray-100">{kpisBariloche.costoAnimal ? formatCurrency(kpisBariloche.costoAnimal) : '—'}</p>
               <p className="text-xs text-gray-500 mt-1">Costos {añoSel} / cabezas</p>
             </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
+            <div className="bg-gray-900 rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
               <div className="flex items-center gap-2 text-green-600 mb-1"><DollarSign size={18} /><span className="text-xs font-semibold uppercase">Costos Total</span></div>
-              <p className="text-3xl font-bold text-gray-800">{formatCurrency(costosAño)}</p>
+              <p className="text-3xl font-bold text-gray-100">{formatCurrency(costosAño)}</p>
               <p className="text-xs text-gray-500 mt-1">{añoSel}</p>
             </div>
           </div>
 
           {/* GDP entre pesajes vs meta */}
           {kpisBariloche.gdpEntreProm !== null ? (
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Target size={20} className="text-blue-600" /> Ganancia Diaria de Peso — {añoSel}</h3>
               <div className="space-y-4">
                 <div className="py-2">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm font-medium text-gray-700">GDP Entre Pesajes</span>
+                    <span className="text-sm font-medium text-gray-300">GDP Entre Pesajes</span>
                     <div className="flex items-center gap-3">
                       <span className={`text-lg font-bold ${kpisBariloche.gdpEntreProm >= 500 ? 'text-green-600' : 'text-red-500'}`}>
                         {kpisBariloche.gdpEntreProm.toFixed(0)} g/día
                       </span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-green-900/40 text-green-400' : 'bg-red-900/40 text-red-400'}`}>
                         {kpisBariloche.gdpEntreProm >= 500 ? '✓ Meta 500' : 'Meta: 500'}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-500 ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-blue-500' : 'bg-red-400'}`}
+                    <div className="flex-1 h-2.5 bg-gray-800 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${kpisBariloche.gdpEntreProm >= 500 ? 'bg-blue-900/200' : 'bg-red-400'}`}
                         style={{ width: `${Math.min((kpisBariloche.gdpEntreProm / 500) * 100, 150)}%` }} />
                     </div>
                     <span className="text-xs text-gray-400 w-12 text-right">{((kpisBariloche.gdpEntreProm / 500) * 100).toFixed(0)}%</span>
@@ -1417,10 +1417,10 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                 </div>
 
                 {kpisBariloche.gdpVidaProm && (
-                  <div className="py-2 border-t border-gray-100">
+                  <div className="py-2 border-t border-gray-800">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm font-medium text-gray-700">GDP Promedio Vida</span>
-                      <span className="text-lg font-bold text-gray-700">{kpisBariloche.gdpVidaProm.toFixed(0)} g/día</span>
+                      <span className="text-sm font-medium text-gray-300">GDP Promedio Vida</span>
+                      <span className="text-lg font-bold text-gray-300">{kpisBariloche.gdpVidaProm.toFixed(0)} g/día</span>
                     </div>
                   </div>
                 )}
@@ -1428,16 +1428,16 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
 
               {/* GDP por categoría */}
               {kpisBariloche.gdpCategorias.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <h4 className="text-sm font-semibold text-gray-600 mb-3">GDP por Categoría</h4>
+                <div className="mt-4 pt-4 border-t border-gray-800">
+                  <h4 className="text-sm font-semibold text-gray-400 mb-3">GDP por Categoría</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {kpisBariloche.gdpCategorias.map((c, i) => {
                       const catNames = { NV: 'Novillas', HL: 'Hembras Lev.', ML: 'Machos Lev.', CM: 'Cría Macho', CH: 'Cría Hembra', TR: 'Toro' };
                       return (
-                        <div key={i} className="bg-gray-50 rounded-xl p-3 text-center">
+                        <div key={i} className="bg-gray-800/50 rounded-xl p-3 text-center">
                           <p className={`text-xl font-bold ${c.gdp >= 500 ? 'text-green-600' : 'text-amber-600'}`}>{c.gdp.toFixed(0)}</p>
                           <p className="text-xs text-gray-500">g/día</p>
-                          <p className="text-xs font-medium text-gray-700 mt-1">{catNames[c.cat] || c.cat} ({c.n})</p>
+                          <p className="text-xs font-medium text-gray-300 mt-1">{catNames[c.cat] || c.cat} ({c.n})</p>
                         </div>
                       );
                     })}
@@ -1446,7 +1446,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
               )}
             </div>
           ) : (
-            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-6">
+            <div className="bg-gray-800/50 border border-dashed border-gray-700 rounded-2xl p-6">
               <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-gray-500"><Activity size={20} /> GDP Levante</h3>
               <p className="text-sm text-gray-400">No hay datos de pesajes para Bariloche en {añoSel}. Meta: 500 g/día entre pesajes.</p>
             </div>
@@ -1454,7 +1454,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
 
           {/* Top costos por categoría */}
           {kpisBariloche.topCostos.length > 0 && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-blue-600" /> Distribución de Costos — {añoSel}</h3>
               <div className="space-y-3">
                 {kpisBariloche.topCostos.map(([cat, total], idx) => {
@@ -1462,11 +1462,11 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
                   return (
                     <div key={idx}>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="font-medium text-gray-700">{cat}</span>
+                        <span className="font-medium text-gray-300">{cat}</span>
                         <span className="text-gray-500">{formatCurrency(total)} ({pct.toFixed(1)}%)</span>
                       </div>
-                      <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                      <div className="h-2.5 bg-gray-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-900/200 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );
@@ -1540,12 +1540,12 @@ function Nacimientos({ data, inventario }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4 flex-wrap">
-        <h2 className="text-2xl font-bold text-gray-800">🐮 Nacimientos</h2>
-        <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-4 py-2 border rounded-xl">
+        <h2 className="text-2xl font-bold text-gray-100">🐮 Nacimientos</h2>
+        <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="">Todos</option>
           {años.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
-        <select value={filtros.estado} onChange={e => setFiltros({ ...filtros, estado: e.target.value })} className="px-4 py-2 border rounded-xl">
+        <select value={filtros.estado} onChange={e => setFiltros({ ...filtros, estado: e.target.value })} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="">Todos</option>
           <option value="Activo">Activos</option>
           <option value="Vendido">Vendidos</option>
@@ -1581,7 +1581,7 @@ function Nacimientos({ data, inventario }) {
 
       {/* Gráficos */}
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm lg:col-span-2">
+        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm lg:col-span-2">
           <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-600" />Nacimientos por Mes</h3>
           <div className="h-48">
             {porMes.length > 0 ? (
@@ -1604,7 +1604,7 @@ function Nacimientos({ data, inventario }) {
             )}
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
           <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-green-600" />Por Sexo</h3>
           <div className="flex justify-center mb-4">
             <div className="relative w-32 h-32">
@@ -1615,50 +1615,50 @@ function Nacimientos({ data, inventario }) {
             </div>
           </div>
           <div className="space-y-2">
-            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-full" />Machos</span><span className="font-medium">{stats.machos}</span></div>
-            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-pink-500 rounded-full" />Hembras</span><span className="font-medium">{stats.hembras}</span></div>
+            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-900/200 rounded-full" />Machos</span><span className="font-medium">{stats.machos}</span></div>
+            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-pink-900/200 rounded-full" />Hembras</span><span className="font-medium">{stats.hembras}</span></div>
           </div>
         </div>
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
         <div className="p-4 border-b flex flex-wrap gap-3">
-          <select value={filtros.sexo} onChange={e => setFiltros({ ...filtros, sexo: e.target.value })} className="px-3 py-2 border rounded-xl text-sm">
+          <select value={filtros.sexo} onChange={e => setFiltros({ ...filtros, sexo: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
             <option value="">Sexo</option>
             <option value="M">Macho</option>
             <option value="H">Hembra</option>
           </select>
-          <select value={filtros.padre} onChange={e => setFiltros({ ...filtros, padre: e.target.value })} className="px-3 py-2 border rounded-xl text-sm">
+          <select value={filtros.padre} onChange={e => setFiltros({ ...filtros, padre: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
             <option value="">Padre</option>
             {[...new Set(data.map(n => n.padre))].filter(Boolean).sort().map(p => <option key={p} value={p}>{p}</option>)}
           </select>
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input type="text" placeholder="Buscar cría, madre o padre..." value={filtros.busqueda} onChange={e => setFiltros({ ...filtros, busqueda: e.target.value })} className="w-full pl-10 pr-4 py-2 border rounded-xl text-sm" />
+            <input type="text" placeholder="Buscar cría, madre o padre..." value={filtros.busqueda} onChange={e => setFiltros({ ...filtros, busqueda: e.target.value })} className="w-full pl-10 pr-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm" />
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-800/50 border-b">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Cría</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Fecha</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Sexo</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Madre</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Padre</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">P.Nacer</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">P.Destete</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Estado</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Cría</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Fecha</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Sexo</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Madre</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Padre</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Nacer</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Destete</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Estado</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {filtered.slice(0, 50).map(n => (
-                <tr key={n.id || n.cria} className={`hover:bg-gray-50 ${n.estado !== 'Activo' ? 'bg-red-50' : ''}`}>
+                <tr key={n.id || n.cria} className={`hover:bg-gray-800/50 ${n.estado !== 'Activo' ? 'bg-red-900/20' : ''}`}>
                   <td className="px-4 py-3 font-medium text-sm">{n.cria}</td>
                   <td className="px-4 py-3 text-sm">{formatDate(n.fecha)}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${n.sexo === 'M' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${n.sexo === 'M' ? 'bg-blue-900/40 text-blue-400' : 'bg-pink-900/40 text-pink-400'}`}>
                       {n.sexo === 'M' ? '♂' : '♀'}
                     </span>
                   </td>
@@ -1667,7 +1667,7 @@ function Nacimientos({ data, inventario }) {
                   <td className="px-4 py-3 text-sm text-right">{n.pesoNacer || n.peso_nacer || '-'}</td>
                   <td className="px-4 py-3 text-sm text-right font-medium">{n.pesoDestete || n.peso_destete || '-'}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${n.estado === 'Activo' ? 'bg-green-100 text-green-700' : n.estado === 'Vendido' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${n.estado === 'Activo' ? 'bg-green-900/40 text-green-400' : n.estado === 'Vendido' ? 'bg-yellow-900/40 text-yellow-400' : 'bg-red-900/40 text-red-400'}`}>
                       {n.estado}
                     </span>
                   </td>
@@ -1688,7 +1688,7 @@ function Costos({ gastos, total, totales, filtros, setFiltros, onNew, onEdit, on
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Costos y Gastos</h2>
+          <h2 className="text-2xl font-bold text-gray-100">Costos y Gastos</h2>
           <p className="text-gray-500 text-sm">{total.toLocaleString()} registros • {formatCurrency(totales.total)}</p>
         </div>
         {canEdit && (
@@ -1698,58 +1698,58 @@ function Costos({ gastos, total, totales, filtros, setFiltros, onNew, onEdit, on
         )}
       </div>
 
-      <div className="bg-white rounded-2xl p-4 shadow-sm">
+      <div className="bg-gray-900 rounded-2xl p-4 shadow-sm">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-3 py-2 border rounded-xl text-sm">
+          <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
             <option value="">Año</option>
             {años.map(a => <option key={a} value={a}>{a}</option>)}
           </select>
-          <select value={filtros.mes} onChange={e => setFiltros({ ...filtros, mes: e.target.value })} className="px-3 py-2 border rounded-xl text-sm">
+          <select value={filtros.mes} onChange={e => setFiltros({ ...filtros, mes: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
             <option value="">Mes</option>
             {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map((m, i) => <option key={m} value={m}>{MESES[i + 1]}</option>)}
           </select>
-          <select value={filtros.centro} onChange={e => setFiltros({ ...filtros, centro: e.target.value })} className="px-3 py-2 border rounded-xl text-sm">
+          <select value={filtros.centro} onChange={e => setFiltros({ ...filtros, centro: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
             <option value="">Centro</option>
             {CENTROS_COSTOS.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select value={filtros.categoria} onChange={e => setFiltros({ ...filtros, categoria: e.target.value })} className="px-3 py-2 border rounded-xl text-sm">
+          <select value={filtros.categoria} onChange={e => setFiltros({ ...filtros, categoria: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
             <option value="">Categoría</option>
             {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <div className="col-span-2 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input type="text" placeholder="Buscar..." value={filtros.busqueda} onChange={e => setFiltros({ ...filtros, busqueda: e.target.value })} className="w-full pl-10 pr-4 py-2 border rounded-xl text-sm" />
+            <input type="text" placeholder="Buscar..." value={filtros.busqueda} onChange={e => setFiltros({ ...filtros, busqueda: e.target.value })} className="w-full pl-10 pr-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm" />
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-800/50 border-b">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Fecha</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Proveedor</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 hidden md:table-cell">Comentarios</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Centro</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">Monto</th>
-                {canEdit && <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Acc.</th>}
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Fecha</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Proveedor</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 hidden md:table-cell">Comentarios</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Centro</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">Monto</th>
+                {canEdit && <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Acc.</th>}
               </tr>
             </thead>
             <tbody className="divide-y">
               {gastos.map(g => (
-                <tr key={g.id} className={`hover:bg-gray-50 ${g.estado === 'pendiente' ? 'bg-orange-50' : ''}`}>
+                <tr key={g.id} className={`hover:bg-gray-800/50 ${g.estado === 'pendiente' ? 'bg-orange-900/20' : ''}`}>
                   <td className="px-4 py-3 text-sm">{formatDate(g.fecha)}</td>
                   <td className="px-4 py-3 font-medium text-sm">{g.proveedor}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell truncate max-w-xs">{g.comentarios}</td>
+                  <td className="px-4 py-3 text-sm text-gray-400 hidden md:table-cell truncate max-w-xs">{g.comentarios}</td>
                   <td className="px-4 py-3"><span className={`text-xs px-2 py-1 rounded-full ${centroColor(g.centro)}`}>{g.centro}</span></td>
                   <td className="px-4 py-3 text-right font-semibold text-sm">{formatCurrency(g.monto)}</td>
                   {canEdit && (
                     <td className="px-4 py-3">
                       <div className="flex justify-center gap-1">
-                        {g.estado === 'pendiente' && <button onClick={() => onApprove(g.id)} className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg"><Check size={16} /></button>}
-                        <button onClick={() => onEdit(g)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={16} /></button>
-                        <button onClick={() => onDel(g.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                        {g.estado === 'pendiente' && <button onClick={() => onApprove(g.id)} className="p-1.5 text-green-600 hover:bg-green-900/20 rounded-lg"><Check size={16} /></button>}
+                        <button onClick={() => onEdit(g)} className="p-1.5 text-blue-600 hover:bg-blue-900/20 rounded-lg"><Edit2 size={16} /></button>
+                        <button onClick={() => onDel(g.id)} className="p-1.5 text-red-600 hover:bg-red-900/20 rounded-lg"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   )}
@@ -1759,11 +1759,11 @@ function Costos({ gastos, total, totales, filtros, setFiltros, onNew, onEdit, on
           </table>
         </div>
         {pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
-            <span className="text-sm text-gray-600">Pág {page}/{pages}</span>
+          <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-800/50">
+            <span className="text-sm text-gray-400">Pág {page}/{pages}</span>
             <div className="flex gap-2">
-              <button onClick={() => setPage(page - 1)} disabled={page === 1} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50"><ChevronLeft size={20} /></button>
-              <button onClick={() => setPage(page + 1)} disabled={page === pages} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50"><ChevronRight size={20} /></button>
+              <button onClick={() => setPage(page - 1)} disabled={page === 1} className="p-2 rounded-lg hover:bg-gray-700 disabled:opacity-50"><ChevronLeft size={20} /></button>
+              <button onClick={() => setPage(page + 1)} disabled={page === pages} className="p-2 rounded-lg hover:bg-gray-700 disabled:opacity-50"><ChevronRight size={20} /></button>
             </div>
           </div>
         )}
@@ -1796,48 +1796,48 @@ function Form({ gasto, onSave, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 rounded-2xl w-full max-w-lg">
         <div className="p-6 border-b flex justify-between">
           <h3 className="text-lg font-semibold">{gasto ? 'Editar' : 'Nuevo'} Registro</h3>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
+          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-lg"><X size={20} /></button>
         </div>
         <form onSubmit={submit} className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Fecha</label>
-              <input type="date" value={f.fecha} onChange={e => setF({ ...f, fecha: e.target.value })} className="w-full px-3 py-2 border rounded-xl" required />
+              <input type="date" value={f.fecha} onChange={e => setF({ ...f, fecha: e.target.value })} className="w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl" required />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Monto</label>
-              <input type="number" value={f.monto} onChange={e => setF({ ...f, monto: e.target.value })} className="w-full px-3 py-2 border rounded-xl" required />
+              <input type="number" value={f.monto} onChange={e => setF({ ...f, monto: e.target.value })} className="w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl" required />
             </div>
           </div>
           <div className="relative">
             <label className="block text-sm font-medium mb-1">Proveedor</label>
-            <input type="text" value={f.proveedor} onChange={e => handleProv(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required />
-            {sug.length > 0 && <div className="absolute z-10 w-full bg-white border rounded-xl mt-1 shadow-lg">{sug.map(p => <button key={p} type="button" onClick={() => selSug(p)} className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm">{p}</button>)}</div>}
+            <input type="text" value={f.proveedor} onChange={e => handleProv(e.target.value)} className="w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl" required />
+            {sug.length > 0 && <div className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-xl mt-1 shadow-lg">{sug.map(p => <button key={p} type="button" onClick={() => selSug(p)} className="w-full px-4 py-2 text-left hover:bg-gray-800/50 text-sm">{p}</button>)}</div>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Tipo</label>
-              <select value={f.tipo} onChange={e => setF({ ...f, tipo: e.target.value })} className="w-full px-3 py-2 border rounded-xl"><option>Costo</option><option>Gasto</option></select>
+              <select value={f.tipo} onChange={e => setF({ ...f, tipo: e.target.value })} className="w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl"><option>Costo</option><option>Gasto</option></select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Centro</label>
-              <select value={f.centro} onChange={e => setF({ ...f, centro: e.target.value })} className="w-full px-3 py-2 border rounded-xl">{CENTROS_COSTOS.map(c => <option key={c}>{c}</option>)}</select>
+              <select value={f.centro} onChange={e => setF({ ...f, centro: e.target.value })} className="w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">{CENTROS_COSTOS.map(c => <option key={c}>{c}</option>)}</select>
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Categoría</label>
-            <select value={f.categoria} onChange={e => setF({ ...f, categoria: e.target.value })} className="w-full px-3 py-2 border rounded-xl" required><option value="">Seleccione</option>{CATEGORIAS.map(c => <option key={c}>{c}</option>)}</select>
+            <select value={f.categoria} onChange={e => setF({ ...f, categoria: e.target.value })} className="w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl" required><option value="">Seleccione</option>{CATEGORIAS.map(c => <option key={c}>{c}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Comentarios</label>
-            <textarea value={f.comentarios} onChange={e => setF({ ...f, comentarios: e.target.value })} className="w-full px-3 py-2 border rounded-xl" rows={2} />
+            <textarea value={f.comentarios} onChange={e => setF({ ...f, comentarios: e.target.value })} className="w-full px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl" rows={2} />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border rounded-xl hover:bg-gray-50">Cancelar</button>
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-700 text-gray-300 rounded-xl hover:bg-gray-800">Cancelar</button>
             <button type="submit" className="flex-1 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">Guardar</button>
           </div>
         </form>
