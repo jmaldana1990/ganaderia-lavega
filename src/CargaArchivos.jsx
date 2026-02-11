@@ -327,6 +327,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     if (lower.includes('movimiento') || lower.includes('inventario')) return 'movimientos';
     if (lower.includes('costo') || lower.includes('gasto')) return 'costos';
     if (lower.includes('nacimiento') && !lower.includes('movimiento')) return 'nacimientos';
+    if (lower.includes('pesaje') || lower.includes('palpacion') || lower.includes('servicio')) return 'reporte_sg';
     if (sheetNames) {
       const upper = sheetNames.map(s => s.toUpperCase());
       if (upper.some(s => s.includes('PESAJE') || s.includes('PALPACION') || s.includes('SERVICIO'))) {
@@ -528,10 +529,24 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
   };
 
   // ==================== PROCESAR REPORTE SG (standalone) ====================
+  // Detects content type from sheet titles when sheet names are generic (e.g. "Hoja1")
+  const detectarTipoHojaSG = (ws) => {
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+    for (let i = 0; i < Math.min(rows.length, 5); i++) {
+      const cell = limpiarTexto(rows[i]?.[0]).toLowerCase();
+      if (cell.includes('pesaje')) return 'pesaje';
+      if (cell.includes('palpacion') || cell.includes('palpación')) return 'palpacion';
+      if (cell.includes('servicio')) return 'servicio';
+      if (cell.includes('destete') || cell.includes('destetado')) return 'destete';
+    }
+    return null;
+  };
+
   const procesarReporteSG = async (workbook) => {
     const hojas = workbook.SheetNames;
     const resultado = {};
 
+    // First try by sheet name
     const hojaPesaje = hojas.find(h => h.toUpperCase().includes('PESAJE'));
     if (hojaPesaje) {
       const registros = extraerPesajesSG(workbook.Sheets[hojaPesaje]);
@@ -561,6 +576,35 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       const registros = extraerDestetesSG(workbook.Sheets[hojaDest]);
       if (registros.length > 0) {
         resultado.destetes = { total: registros.length, ...(await insertarConDedup('destetes', registros, ['animal', 'fecha_destete', 'peso_destete'])) };
+      }
+    }
+
+    // Fallback: if no named sheets matched, detect content type from each sheet
+    if (Object.keys(resultado).length === 0) {
+      for (const hoja of hojas) {
+        const ws = workbook.Sheets[hoja];
+        const tipo = detectarTipoHojaSG(ws);
+        if (tipo === 'pesaje' && !resultado.pesajes) {
+          const registros = extraerPesajesSG(ws);
+          if (registros.length > 0) {
+            resultado.pesajes = { total: registros.length, ...(await insertarConDedup('pesajes', registros, ['animal', 'finca', 'fecha_pesaje', 'peso'])) };
+          }
+        } else if (tipo === 'palpacion' && !resultado.palpaciones) {
+          const registros = extraerPalpacionesSG(ws);
+          if (registros.length > 0) {
+            resultado.palpaciones = { total: registros.length, ...(await insertarConDedup('palpaciones', registros, ['hembra', 'finca', 'fecha', 'estado', 'dias_gestacion'])) };
+          }
+        } else if (tipo === 'servicio' && !resultado.servicios) {
+          const registros = extraerServiciosSG(ws);
+          if (registros.length > 0) {
+            resultado.servicios = { total: registros.length, ...(await insertarConDedup('servicios', registros, ['hembra', 'fecha', 'toro'])) };
+          }
+        } else if (tipo === 'destete' && !resultado.destetes) {
+          const registros = extraerDestetesSG(ws);
+          if (registros.length > 0) {
+            resultado.destetes = { total: registros.length, ...(await insertarConDedup('destetes', registros, ['animal', 'fecha_destete', 'peso_destete'])) };
+          }
+        }
       }
     }
 
