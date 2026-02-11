@@ -63,4 +63,6 @@ export const INVENTARIO_FINCAS = [
   { finca: "Bariloche", periodo: "2025-11", año: 2025, mes: 11, vp: 7, vh: 3, nas: 37, cm: 4, ch: 3, t: 0, hl: 33, ml: 15, hd: 0, md: 0, mc: 0, total: 102 },
   { finca: "Bariloche", periodo: "2025-12", año: 2025, mes: 12, vp: 6, vh: 4, nas: 40, cm: 3, ch: 3, t: 0, hl: 21, ml: 16, hd: 0, md: 0, mc: 0, total: 93 },
   { finca: "Bariloche", periodo: "2026-01", año: 2026, mes: 1, vp: 3, vh: 8, nas: 43, cm: 0, ch: 3, t: 0, hl: 10, ml: 30, hd: 0, md: 0, mc: 0, total: 97 },
+  { finca: "La Vega", periodo: "2026-02", año: 2026, mes: 2, vp: 45, vh: 42, nas: 9, cm: 23, ch: 22, t: 4, hl: 27, ml: 3, hd: 0, md: 0, mc: 0, total: 175 },
+  { finca: "Bariloche", periodo: "2026-02", año: 2026, mes: 2, vp: 3, vh: 8, nas: 43, cm: 0, ch: 3, t: 0, hl: 10, ml: 30, hd: 0, md: 0, mc: 0, total: 97 },
 ];
