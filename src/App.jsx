@@ -391,7 +391,15 @@ export default function GanaderiaApp() {
               pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} />
           )}
           {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
-          {view === 'ventas' && <VentasTotales ventas={ventas} />}
+          {view === 'ventas' && <VentasTotales ventas={ventas} onVentasChange={async () => {
+            try {
+              const ventasData = await db.getVentas();
+              if (ventasData?.length > 0) {
+                setVentas(ventasData);
+                try { localStorage.setItem('cache_ventas', JSON.stringify(ventasData)); } catch(e) {}
+              }
+            } catch(e) { console.error('Error refreshing ventas:', e); }
+          }} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
               filtros={filtros} setFiltros={updateFiltros} onNew={() => setShowForm(true)}
@@ -577,8 +585,12 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
 }
 
 // ==================== COMPONENTE VENTAS TOTALES ====================
-function VentasTotales({ ventas: ventasData }) {
+function VentasTotales({ ventas: ventasData, onVentasChange }) {
   const [añoSel, setAñoSel] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [editando, setEditando] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [operando, setOperando] = useState(false);
   const allVentas = ventasData || VENTAS_GANADO;
   const añosDisponibles = useMemo(() => 
     [...new Set(allVentas.map(v => v.año))].sort((a, b) => b - a).map(String), 
@@ -781,26 +793,183 @@ function VentasTotales({ ventas: ventasData }) {
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">Kg</th>
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">$/kg</th>
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">Valor</th>
+                {onVentasChange && <th className="text-center py-3 px-2 font-semibold text-gray-400 w-20">Acciones</th>}
               </tr>
             </thead>
             <tbody>
               {transacciones.map((v, i) => (
-                <tr key={i} className="border-b border-gray-800 hover:bg-gray-800/50">
+                <tr key={v.id || i} className="border-b border-gray-800 hover:bg-gray-800/50">
                   <td className="py-2 px-2 whitespace-nowrap">{v.fecha}</td>
                   <td className="py-2 px-2 text-gray-400">{v.factura || '—'}</td>
                   <td className="py-2 px-2 truncate max-w-[150px]">{v.cliente}</td>
                   <td className="py-2 px-2">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[v.tipo]?.bg || 'bg-gray-800'} ${COLORES_TIPO[v.tipo]?.text || 'text-gray-300'}`}>{v.tipo}</span>
                   </td>
-                  <td className="py-2 px-2 text-right">{v.kg.toLocaleString('es-CO')}</td>
+                  <td className="py-2 px-2 text-right">{v.kg?.toLocaleString('es-CO')}</td>
                   <td className="py-2 px-2 text-right">{formatCurrency(v.precio)}</td>
                   <td className="py-2 px-2 text-right font-medium text-amber-400">{formatCurrency(v.valor)}</td>
+                  {onVentasChange && v.id && (
+                    <td className="py-2 px-2 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <button onClick={() => { setEditando(v); setEditForm({ fecha: v.fecha || '', factura: v.factura || '', cliente: v.cliente || '', tipo: v.tipo || '', kg: v.kg || 0, precio: v.precio || 0, valor: v.valor || 0, comentarios: v.comentarios || '' }); }}
+                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-blue-400 transition-colors" title="Editar">
+                          <Edit2 size={14} />
+                        </button>
+                        <button onClick={() => setConfirmDelete(v)}
+                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors" title="Eliminar">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  )}
+                  {onVentasChange && !v.id && (
+                    <td className="py-2 px-2 text-center text-gray-600 text-xs">local</td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Modal Confirmar Eliminación */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-gray-800">
+            <h3 className="text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
+              <Trash2 size={20} className="text-red-400" /> Eliminar Venta
+            </h3>
+            <div className="bg-gray-800 rounded-xl p-4 mb-4 text-sm space-y-1">
+              <p className="text-gray-300"><span className="text-gray-500">Fecha:</span> {confirmDelete.fecha}</p>
+              <p className="text-gray-300"><span className="text-gray-500">Factura:</span> {confirmDelete.factura || '—'}</p>
+              <p className="text-gray-300"><span className="text-gray-500">Cliente:</span> {confirmDelete.cliente}</p>
+              <p className="text-gray-300"><span className="text-gray-500">Tipo:</span> {confirmDelete.tipo} — {confirmDelete.kg?.toLocaleString('es-CO')} kg</p>
+              <p className="text-amber-400 font-medium"><span className="text-gray-500">Valor:</span> {formatCurrency(confirmDelete.valor)}</p>
+            </div>
+            <p className="text-sm text-red-400/80 mb-4">Esta acción no se puede deshacer.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDelete(null)} disabled={operando}
+                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                setOperando(true);
+                try {
+                  await db.deleteVenta(confirmDelete.id);
+                  setConfirmDelete(null);
+                  if (onVentasChange) await onVentasChange();
+                } catch (e) {
+                  alert('Error al eliminar: ' + e.message);
+                } finally {
+                  setOperando(false);
+                }
+              }} disabled={operando}
+                className="flex-1 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+                {operando ? <><Loader2 size={16} className="animate-spin" />Eliminando...</> : <><Trash2 size={16} />Eliminar</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Venta */}
+      {editando && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 max-w-lg w-full border border-gray-800">
+            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+              <Edit2 size={20} className="text-blue-400" /> Editar Venta
+            </h3>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Fecha</label>
+                <input type="date" value={editForm.fecha} onChange={e => setEditForm(f => ({ ...f, fecha: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Factura</label>
+                <input type="text" value={editForm.factura} onChange={e => setEditForm(f => ({ ...f, factura: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Cliente</label>
+                <input type="text" value={editForm.cliente} onChange={e => setEditForm(f => ({ ...f, cliente: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Tipo</label>
+                <select value={editForm.tipo} onChange={e => setEditForm(f => ({ ...f, tipo: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
+                  <option value="ML">ML - Machos Levante</option>
+                  <option value="HL">HL - Hembras Levante</option>
+                  <option value="VD">VD - Vacas Despaje</option>
+                  <option value="T">T - Toros</option>
+                  <option value="CM">CM - Crías Macho</option>
+                  <option value="CH">CH - Crías Hembra</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Kg</label>
+                <input type="number" value={editForm.kg} onChange={e => {
+                  const kg = parseFloat(e.target.value) || 0;
+                  setEditForm(f => ({ ...f, kg, valor: Math.round(kg * f.precio) }));
+                }}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">$/kg</label>
+                <input type="number" value={editForm.precio} onChange={e => {
+                  const precio = parseFloat(e.target.value) || 0;
+                  setEditForm(f => ({ ...f, precio, valor: Math.round(f.kg * precio) }));
+                }}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-xs text-gray-500 mb-1">Valor Total</label>
+                <div className="px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-amber-400 font-semibold text-sm">
+                  {formatCurrency(editForm.valor)}
+                </div>
+              </div>
+              <div className="col-span-2">
+                <label className="block text-xs text-gray-500 mb-1">Comentarios</label>
+                <input type="text" value={editForm.comentarios} onChange={e => setEditForm(f => ({ ...f, comentarios: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => { setEditando(null); setEditForm({}); }} disabled={operando}
+                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                setOperando(true);
+                try {
+                  await db.updateVenta(editando.id, {
+                    fecha: editForm.fecha,
+                    factura: editForm.factura || null,
+                    cliente: editForm.cliente,
+                    tipo: editForm.tipo,
+                    kg: parseFloat(editForm.kg) || 0,
+                    precio: parseFloat(editForm.precio) || 0,
+                    valor: parseFloat(editForm.valor) || 0,
+                    comentarios: editForm.comentarios || '',
+                    año: editForm.fecha ? parseInt(editForm.fecha.split('-')[0]) : editando.año
+                  });
+                  setEditando(null);
+                  setEditForm({});
+                  if (onVentasChange) await onVentasChange();
+                } catch (e) {
+                  alert('Error al actualizar: ' + e.message);
+                } finally {
+                  setOperando(false);
+                }
+              }} disabled={operando}
+                className="flex-1 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+                {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Guardar Cambios</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

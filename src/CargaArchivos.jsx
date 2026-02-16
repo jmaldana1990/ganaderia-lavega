@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, X, Info } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { supabase, logCarga } from './supabase';
+import { supabase, logCarga, upsertHatoReproductivo } from './supabase';
 import { parseMovimientosExcel } from './parseMovimientos';
 
 // ==================== HELPERS ====================
@@ -271,6 +271,98 @@ const extraerDestetesSG = (ws) => {
   return registros.filter(r => r.fecha_destete);
 };
 
+// ==================== EXTRACTOR REPRODUCTIVO SG ====================
+const extraerReproductivoSG = (workbook) => {
+  const registros = [];
+
+  for (const sheetName of workbook.SheetNames) {
+    const ws = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+    const sheetUpper = sheetName.toUpperCase();
+    let categoria = null;
+    if (sheetUpper.includes('VACA')) categoria = 'VACA';
+    else if (sheetUpper.includes('NOVILLA')) categoria = 'NOVILLA';
+
+    let finca = 'La Vega';
+    for (let i = 0; i < Math.min(rows.length, 5); i++) {
+      const cell = limpiarTexto(rows[i]?.[0]).toUpperCase();
+      if (cell.includes('BARILOCHE')) { finca = 'Bariloche'; break; }
+      if (cell.includes('VEGA')) { finca = 'La Vega'; break; }
+    }
+
+    let headerIdx = -1;
+    for (let i = 0; i < Math.min(rows.length, 15); i++) {
+      const rowText = (rows[i] || []).map(c => limpiarTexto(c)).join('|');
+      if (rowText.includes('Número') && rowText.includes('EA')) {
+        headerIdx = i;
+        break;
+      }
+    }
+    if (headerIdx < 0) continue;
+
+    const headers = rows[headerIdx].map(h => limpiarTexto(h).toLowerCase());
+
+    const colNumero = headers.findIndex(h => h.includes('número'));
+    const colEdad = headers.findIndex(h => h.includes('años'));
+    const colEA = headers.findIndex(h => h === 'ea');
+    const colGrupo = headers.findIndex(h => h.includes('gru'));
+    const colDPar = headers.findIndex(h => h.includes('dpar'));
+    const colPartos = headers.findIndex(h => h === '#p');
+    const colCria = headers.findIndex(h => h.includes('nro/sx') || h.includes('cría'));
+    const colFechaParto = headers.findIndex(h => h.includes('f.últ') || h.includes('f.ult'));
+    const colGest = headers.findIndex(h => h.includes('gest'));
+    const colPIEP = headers.findIndex(h => h.includes('piep'));
+    const colPDUC = headers.findIndex(h => h.includes('pduc'));
+
+    if (!categoria) {
+      categoria = (colDPar >= 0 && colPartos >= 0) ? 'VACA' : 'NOVILLA';
+    }
+
+    for (let i = headerIdx + 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row || !row[colNumero >= 0 ? colNumero : 0]) continue;
+
+      const numero = limpiarTexto(row[colNumero >= 0 ? colNumero : 0]);
+      if (!numero || numero.toLowerCase().includes('total') || numero.toLowerCase().includes('promedio')) continue;
+
+      let criaActual = null, sexoCria = null;
+      if (colCria >= 0 && row[colCria]) {
+        const criaStr = limpiarTexto(row[colCria]).replace(/^\*\s*/, '');
+        const match = criaStr.match(/^(\S+)\s+([MH])$/);
+        if (match) {
+          criaActual = match[1];
+          sexoCria = match[2];
+        } else {
+          criaActual = criaStr || null;
+        }
+      }
+
+      let fechaUltParto = null;
+      if (colFechaParto >= 0 && row[colFechaParto]) {
+        fechaUltParto = formatearFechaSG(row[colFechaParto]);
+      }
+
+      registros.push({
+        numero, finca, categoria,
+        edad_anos: limpiarNumero(row[colEdad >= 0 ? colEdad : 1]),
+        estado_actual: limpiarTexto(row[colEA >= 0 ? colEA : 5]) || null,
+        grupo: limpiarTexto(row[colGrupo >= 0 ? colGrupo : 6]) || null,
+        dias_posparto: limpiarEntero(row[colDPar >= 0 ? colDPar : 7]) || 0,
+        num_partos: limpiarEntero(row[colPartos >= 0 ? colPartos : 8]) || 0,
+        cria_actual: criaActual,
+        sexo_cria: sexoCria,
+        fecha_ultimo_parto: fechaUltParto,
+        dias_gestacion: limpiarEntero(row[colGest >= 0 ? colGest : (headers.length - 1)]) || 0,
+        piep: colPIEP >= 0 ? (limpiarEntero(row[colPIEP]) || 0) : 0,
+        pduc: colPDUC >= 0 ? (limpiarEntero(row[colPDUC]) || 0) : 0,
+      });
+    }
+  }
+
+  return registros;
+};
+
 // ==================== DEDUPLICATION & INSERT ====================
 const insertarConDedup = async (tabla, registros, camposHuella) => {
   if (registros.length === 0) return { nuevos: 0, duplicados: 0 };
@@ -328,12 +420,14 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
     if (lower.includes('costo') || lower.includes('gasto')) return 'costos';
     if (lower.includes('nacimiento') && !lower.includes('movimiento')) return 'nacimientos';
     if (lower.includes('pesaje') || lower.includes('palpacion') || lower.includes('servicio')) return 'reporte_sg';
+    if (lower.includes('reproductivo') || lower.includes('hato')) return 'reproductivo';
     if (sheetNames) {
       const upper = sheetNames.map(s => s.toUpperCase());
       if (upper.some(s => s.includes('PESAJE') || s.includes('PALPACION') || s.includes('SERVICIO'))) {
         if (upper.some(s => s === 'MOV' || s === 'ESTADO')) return 'movimientos';
         return 'reporte_sg';
       }
+      if (upper.some(s => s === 'VACAS' || s === 'NOVILLAS')) return 'reproductivo';
     }
     return '';
   };
@@ -370,16 +464,16 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
       const tipo = detectarTipoArchivo(file.name, workbook.SheetNames);
       setTipoArchivo(tipo);
 
-      if (tipo === 'movimientos' || tipo === 'reporte_sg') {
+      if (tipo === 'movimientos' || tipo === 'reporte_sg' || tipo === 'reproductivo') {
         const hojasRelevantes = workbook.SheetNames.filter(s => {
           const u = s.toUpperCase();
-          return ['MOV', 'ESTADO', 'NACIMIENTOS', 'DESTETE', 'PESAJE', 'PALPACION', 'SERVICIO', 'VENTA', 'MUERTE', 'TRASLADOS', 'SUBASTA'].some(k => u.includes(k));
+          return ['MOV', 'ESTADO', 'NACIMIENTOS', 'DESTETE', 'PESAJE', 'PALPACION', 'SERVICIO', 'VENTA', 'MUERTE', 'TRASLADOS', 'SUBASTA', 'VACAS', 'NOVILLAS'].some(k => u.includes(k));
         });
         setDetalles({
           hojas: workbook.SheetNames,
           hojasRelevantes,
           mensaje: `${workbook.SheetNames.length} hojas: ${workbook.SheetNames.join(', ')}`,
-          tipo: tipo === 'movimientos' ? 'Movimientos del Mes' : 'Reporte Software Ganadero'
+          tipo: tipo === 'movimientos' ? 'Movimientos del Mes' : tipo === 'reproductivo' ? 'Reporte Reproductivo' : 'Reporte Software Ganadero'
         });
       }
 
@@ -929,6 +1023,32 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
           break;
         }
 
+        case 'reproductivo': {
+          const registros = extraerReproductivoSG(workbook);
+          if (registros.length === 0) throw new Error('No se encontraron datos de animales en el archivo');
+          
+          const res = await upsertHatoReproductivo(registros);
+          
+          const vacas = registros.filter(r => r.categoria === 'VACA');
+          const novillas = registros.filter(r => r.categoria === 'NOVILLA');
+          const gestantes = registros.filter(r => r.dias_gestacion > 0);
+          const vpCount = registros.filter(r => r.estado_actual === 'VP').length;
+          const vsCount = registros.filter(r => r.estado_actual === 'VS').length;
+          
+          result = {
+            procesados: registros.length,
+            insertados: res.total,
+            detalles: {
+              reporte_sg: `✅ ${registros.length} animales procesados (${res.total} actualizados)\n` +
+                `🐄 Vacas: ${vacas.length} (${vpCount} paridas, ${vsCount} secas)\n` +
+                `🐮 Novillas: ${novillas.length}\n` +
+                `🤰 Gestantes: ${gestantes.length}`,
+              errores: []
+            }
+          };
+          break;
+        }
+
         default:
           throw new Error('Tipo de archivo no soportado');
       }
@@ -1018,6 +1138,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
                   <option value="costos">💰 Costos y Gastos</option>
                   <option value="reporte_sg">📋 Reporte Software Ganadero (pesajes, palpaciones, servicios)</option>
                   <option value="nacimientos">🐄 Nacimientos (archivo dedicado)</option>
+                  <option value="reproductivo">🐮 Reproductivo (estado del hato - vacas y novillas)</option>
                 </select>
               </div>
 
