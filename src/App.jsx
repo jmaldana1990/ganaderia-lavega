@@ -191,7 +191,7 @@ export default function GanaderiaApp() {
     }
   };
 
-  const handleLogin = (user, session) => { setUser(user); setSession(session); setShowLogin(false); loadCloudData(); };
+  const handleLogin = (user, session) => { setUser(user); setSession(session); loadCloudData(); };
   const handleLogout = async () => { try { await db.signOut(); setUser(null); setSession(null); } catch (err) { console.error(err); } };
 
   // ---- Cálculos de costos ----
