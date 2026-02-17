@@ -872,7 +872,7 @@ export default function CargaArchivos({ user, onClose, onSuccess }) {
         centro: row[iCentro] ? String(row[iCentro]).trim() : 'La Vega',
         categoria: row[iCategoria] ? String(row[iCategoria]).trim() : 'General',
         comentarios: row[iComentarios] ? String(row[iComentarios]).trim() : '',
-        estado: 'pendiente'
+        estado: 'aprobado'
       });
     }
     if (registrosExcel.length === 0) throw new Error(`Sin registros válidos en "${sheetName}"`);
