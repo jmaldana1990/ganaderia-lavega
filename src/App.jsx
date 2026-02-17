@@ -2063,14 +2063,33 @@ function Stat({ label, value, sub }) {
 function Nacimientos({ data, inventario, onNacimientosChange }) {
   const [filtros, setFiltros] = useState({ año: '2025', sexo: '', padre: '', busqueda: '', estado: 'Activo' });
   const [showNuevo, setShowNuevo] = useState(false);
+  const [tipoRegistro, setTipoRegistro] = useState(null); // null = elegir, 'nacimiento', 'destete'
   const [operando, setOperando] = useState(false);
   const [nuevoForm, setNuevoForm] = useState({ cria: '', fecha: '', sexo: 'M', madre: '', padre: '', peso_nacer: '', estado: 'Activo', tipo_servicio: 'MN', receptora: '', tipo_ganado: 'Puro' });
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [editando, setEditando] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [desteteForm, setDesteteForm] = useState({ fecha_destete: '', peso_destete: '' });
+  const [desteteAnimal, setDesteteAnimal] = useState(null);
+  const [busquedaDestete, setBusquedaDestete] = useState('');
   const años = [...new Set(data.map(n => n.año))].filter(Boolean).sort().reverse();
   const padresConocidos = useMemo(() => [...new Set(data.map(n => n.padre))].filter(Boolean).sort(), [data]);
   const madresConocidas = useMemo(() => [...new Set(data.map(n => n.madre))].filter(Boolean).sort(), [data]);
+
+  // Animales activos sin destete registrado
+  const pendientesDestete = useMemo(() => 
+    data.filter(n => n.estado === 'Activo' && !(n.pesoDestete || n.peso_destete))
+      .sort((a, b) => new Date(a.fecha) - new Date(b.fecha)),
+  [data]);
+
+  // Filtrados para búsqueda en modal destete
+  const filtradosDestete = useMemo(() => {
+    if (!busquedaDestete) return pendientesDestete;
+    const b = busquedaDestete.toLowerCase();
+    return pendientesDestete.filter(n => 
+      n.cria?.toLowerCase().includes(b) || n.madre?.toLowerCase().includes(b) || n.padre?.toLowerCase().includes(b)
+    );
+  }, [pendientesDestete, busquedaDestete]);
 
   const filtered = useMemo(() => data.filter(n => {
     if (filtros.año && n.año !== parseInt(filtros.año)) return false;
@@ -2129,9 +2148,9 @@ function Nacimientos({ data, inventario, onNacimientosChange }) {
       <div className="flex items-center gap-4 flex-wrap">
         <h2 className="text-2xl font-bold text-gray-100">🐮 Nacimientos</h2>
         {onNacimientosChange && (
-          <button onClick={() => { setShowNuevo(true); setNuevoForm({ cria: '', fecha: new Date().toISOString().split('T')[0], sexo: 'M', madre: '', padre: '', peso_nacer: '', estado: 'Activo', tipo_servicio: 'MN', receptora: '', tipo_ganado: 'Puro' }); }}
+          <button onClick={() => { setShowNuevo(true); setTipoRegistro(null); }}
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-green-700 transition-colors text-sm">
-            <PlusCircle size={18} />Nuevo Nacimiento
+            <PlusCircle size={18} />Nuevo Registro
           </button>
         )}
         <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
@@ -2287,129 +2306,338 @@ function Nacimientos({ data, inventario, onNacimientosChange }) {
         {filtered.length > 50 && <div className="p-4 text-center text-sm text-gray-400">Mostrando 50 de {filtered.length}</div>}
       </div>
 
-      {/* Modal Nuevo Nacimiento */}
+      {/* Modal Nuevo Registro (Nacimiento o Destete) */}
       {showNuevo && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 rounded-2xl p-6 max-w-lg w-full border border-gray-800 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-              <Baby size={20} className="text-green-400" /> Nuevo Nacimiento
-            </h3>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Número Cría *</label>
-                <input type="text" value={nuevoForm.cria} onChange={e => setNuevoForm(f => ({ ...f, cria: e.target.value }))}
-                  placeholder="Ej: 301" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Fecha Nacimiento *</label>
-                <input type="date" value={nuevoForm.fecha} onChange={e => setNuevoForm(f => ({ ...f, fecha: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Sexo *</label>
-                <select value={nuevoForm.sexo} onChange={e => setNuevoForm(f => ({ ...f, sexo: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
-                  <option value="M">♂ Macho</option>
-                  <option value="H">♀ Hembra</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Peso al Nacer (kg)</label>
-                <input type="number" step="0.1" value={nuevoForm.peso_nacer} onChange={e => setNuevoForm(f => ({ ...f, peso_nacer: e.target.value }))}
-                  placeholder="Ej: 32" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Madre *</label>
-                <input type="text" list="madres-list" value={nuevoForm.madre} onChange={e => setNuevoForm(f => ({ ...f, madre: e.target.value }))}
-                  placeholder="Ej: 045" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-                <datalist id="madres-list">
-                  {madresConocidas.map(m => <option key={m} value={m} />)}
-                </datalist>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Padre (Toro) *</label>
-                <input type="text" list="padres-list" value={nuevoForm.padre} onChange={e => setNuevoForm(f => ({ ...f, padre: e.target.value }))}
-                  placeholder="Ej: Sultán" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-                <datalist id="padres-list">
-                  {padresConocidos.map(p => <option key={p} value={p} />)}
-                </datalist>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Tipo Servicio *</label>
-                <select value={nuevoForm.tipo_servicio} onChange={e => setNuevoForm(f => ({ ...f, tipo_servicio: e.target.value, receptora: e.target.value !== 'TE' ? '' : f.receptora }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
-                  <option value="MN">MN — Monta Natural</option>
-                  <option value="IA">IA — Inseminación Artificial</option>
-                  <option value="TE">TE — Transferencia de Embriones</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Tipo Ganado *</label>
-                <select value={nuevoForm.tipo_ganado} onChange={e => setNuevoForm(f => ({ ...f, tipo_ganado: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
-                  <option value="Puro">Puro</option>
-                  <option value="Comercial">Comercial</option>
-                </select>
-              </div>
-              {nuevoForm.tipo_servicio === 'TE' && (
-                <div className="col-span-2 bg-amber-900/20 border border-amber-800/50 rounded-xl p-3">
-                  <p className="text-xs text-amber-400 mb-2 font-medium">Transferencia de Embriones</p>
-                  <p className="text-xs text-gray-500 mb-2">En TE, "Madre" es la donadora genética del óvulo.</p>
+
+            {/* === PASO 1: Elegir tipo === */}
+            {!tipoRegistro && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+                  <PlusCircle size={20} className="text-green-400" /> Nuevo Registro
+                </h3>
+                <div className="grid grid-cols-1 gap-3 mb-4">
+                  <button onClick={() => { setTipoRegistro('nacimiento'); setNuevoForm({ cria: '', fecha: new Date().toISOString().split('T')[0], sexo: 'M', madre: '', padre: '', peso_nacer: '', estado: 'Activo', tipo_servicio: 'MN', receptora: '', tipo_ganado: 'Puro' }); }}
+                    className="flex items-center gap-4 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors text-left border border-gray-700 hover:border-green-600">
+                    <div className="p-3 bg-green-900/40 rounded-xl"><Baby size={24} className="text-green-400" /></div>
+                    <div>
+                      <p className="font-semibold text-gray-100">Nacimiento</p>
+                      <p className="text-sm text-gray-400">Registrar una nueva cría</p>
+                    </div>
+                  </button>
+                  <button onClick={() => { setTipoRegistro('destete'); setDesteteAnimal(null); setDesteteForm({ fecha_destete: new Date().toISOString().split('T')[0], peso_destete: '' }); setBusquedaDestete(''); }}
+                    className="flex items-center gap-4 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors text-left border border-gray-700 hover:border-amber-600">
+                    <div className="p-3 bg-amber-900/40 rounded-xl"><Scale size={24} className="text-amber-400" /></div>
+                    <div>
+                      <p className="font-semibold text-gray-100">Destete</p>
+                      <p className="text-sm text-gray-400">Registrar peso y fecha de destete — {pendientesDestete.length} pendientes</p>
+                    </div>
+                  </button>
+                </div>
+                <button onClick={() => setShowNuevo(false)}
+                  className="w-full py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                  Cancelar
+                </button>
+              </>
+            )}
+
+            {/* === PASO 2A: Formulario Nacimiento === */}
+            {tipoRegistro === 'nacimiento' && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+                  <Baby size={20} className="text-green-400" /> Nuevo Nacimiento
+                  <button onClick={() => setTipoRegistro(null)} className="ml-auto text-xs text-gray-400 hover:text-gray-300">↩ Volver</button>
+                </h3>
+                <div className="grid grid-cols-2 gap-3 mb-4">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Receptora (vaca que pare) *</label>
-                    <input type="text" list="madres-list-recep" value={nuevoForm.receptora} onChange={e => setNuevoForm(f => ({ ...f, receptora: e.target.value }))}
-                      placeholder="Ej: 078" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
-                    <datalist id="madres-list-recep">
+                    <label className="block text-xs text-gray-500 mb-1">Número Cría *</label>
+                    <input type="text" value={nuevoForm.cria} onChange={e => setNuevoForm(f => ({ ...f, cria: e.target.value }))}
+                      placeholder="Ej: 301" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Fecha Nacimiento *</label>
+                    <input type="date" value={nuevoForm.fecha} onChange={e => setNuevoForm(f => ({ ...f, fecha: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Sexo *</label>
+                    <select value={nuevoForm.sexo} onChange={e => setNuevoForm(f => ({ ...f, sexo: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
+                      <option value="M">♂ Macho</option>
+                      <option value="H">♀ Hembra</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Peso al Nacer (kg)</label>
+                    <input type="number" step="0.1" value={nuevoForm.peso_nacer} onChange={e => setNuevoForm(f => ({ ...f, peso_nacer: e.target.value }))}
+                      placeholder="Ej: 32" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Madre *</label>
+                    <input type="text" list="madres-list" value={nuevoForm.madre} onChange={e => setNuevoForm(f => ({ ...f, madre: e.target.value }))}
+                      placeholder="Ej: 045" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+                    <datalist id="madres-list">
                       {madresConocidas.map(m => <option key={m} value={m} />)}
                     </datalist>
                   </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Padre (Toro) *</label>
+                    <input type="text" list="padres-list" value={nuevoForm.padre} onChange={e => setNuevoForm(f => ({ ...f, padre: e.target.value }))}
+                      placeholder="Ej: Sultán" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+                    <datalist id="padres-list">
+                      {padresConocidos.map(p => <option key={p} value={p} />)}
+                    </datalist>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Tipo Servicio *</label>
+                    <select value={nuevoForm.tipo_servicio} onChange={e => setNuevoForm(f => ({ ...f, tipo_servicio: e.target.value, receptora: e.target.value !== 'TE' ? '' : f.receptora }))}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
+                      <option value="MN">MN — Monta Natural</option>
+                      <option value="IA">IA — Inseminación Artificial</option>
+                      <option value="TE">TE — Transferencia de Embriones</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Tipo Ganado *</label>
+                    <select value={nuevoForm.tipo_ganado} onChange={e => setNuevoForm(f => ({ ...f, tipo_ganado: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
+                      <option value="Puro">Puro</option>
+                      <option value="Comercial">Comercial</option>
+                    </select>
+                  </div>
+                  {nuevoForm.tipo_servicio === 'TE' && (
+                    <div className="col-span-2 bg-amber-900/20 border border-amber-800/50 rounded-xl p-3">
+                      <p className="text-xs text-amber-400 mb-2 font-medium">Transferencia de Embriones</p>
+                      <p className="text-xs text-gray-500 mb-2">En TE, "Madre" es la donadora genética del óvulo.</p>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Receptora (vaca que pare) *</label>
+                        <input type="text" list="madres-list-recep" value={nuevoForm.receptora} onChange={e => setNuevoForm(f => ({ ...f, receptora: e.target.value }))}
+                          placeholder="Ej: 078" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
+                        <datalist id="madres-list-recep">
+                          {madresConocidas.map(m => <option key={m} value={m} />)}
+                        </datalist>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowNuevo(false)} disabled={operando}
-                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                Cancelar
-              </button>
-              <button onClick={async () => {
-                if (!nuevoForm.cria || !nuevoForm.fecha || !nuevoForm.madre || !nuevoForm.padre) {
-                  alert('Por favor completa los campos obligatorios: Cría, Fecha, Madre y Padre');
-                  return;
-                }
-                if (nuevoForm.tipo_servicio === 'TE' && !nuevoForm.receptora) {
-                  alert('Para Transferencia de Embriones, debes indicar la vaca receptora');
-                  return;
-                }
-                setOperando(true);
-                try {
-                  const fechaParts = nuevoForm.fecha.split('-');
-                  await db.insertNacimiento({
-                    cria: nuevoForm.cria.trim(),
-                    fecha: nuevoForm.fecha,
-                    año: parseInt(fechaParts[0]),
-                    mes: parseInt(fechaParts[1]),
-                    sexo: nuevoForm.sexo,
-                    madre: nuevoForm.madre.trim(),
-                    padre: nuevoForm.padre.trim(),
-                    peso_nacer: nuevoForm.peso_nacer ? parseFloat(nuevoForm.peso_nacer) : null,
-                    estado: 'Activo',
-                    tipo_servicio: nuevoForm.tipo_servicio,
-                    receptora: nuevoForm.tipo_servicio === 'TE' ? nuevoForm.receptora.trim() : null,
-                    tipo_ganado: nuevoForm.tipo_ganado,
-                    comentario: nuevoForm.tipo_servicio === 'TE' ? `TE - Donadora: ${nuevoForm.madre.trim()}, Receptora: ${nuevoForm.receptora.trim()}` : null
-                  });
-                  setShowNuevo(false);
-                  if (onNacimientosChange) await onNacimientosChange();
-                } catch (e) {
-                  alert('Error al guardar: ' + e.message);
-                } finally {
-                  setOperando(false);
-                }
-              }} disabled={operando}
-                className="flex-1 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
-                {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Registrar Nacimiento</>}
-              </button>
-            </div>
+                <div className="flex gap-3">
+                  <button onClick={() => setShowNuevo(false)} disabled={operando}
+                    className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                    Cancelar
+                  </button>
+                  <button onClick={async () => {
+                    if (!nuevoForm.cria || !nuevoForm.fecha || !nuevoForm.madre || !nuevoForm.padre) {
+                      alert('Por favor completa los campos obligatorios: Cría, Fecha, Madre y Padre');
+                      return;
+                    }
+                    if (nuevoForm.tipo_servicio === 'TE' && !nuevoForm.receptora) {
+                      alert('Para Transferencia de Embriones, debes indicar la vaca receptora');
+                      return;
+                    }
+                    setOperando(true);
+                    try {
+                      const fechaParts = nuevoForm.fecha.split('-');
+                      await db.insertNacimiento({
+                        cria: nuevoForm.cria.trim(),
+                        fecha: nuevoForm.fecha,
+                        año: parseInt(fechaParts[0]),
+                        mes: parseInt(fechaParts[1]),
+                        sexo: nuevoForm.sexo,
+                        madre: nuevoForm.madre.trim(),
+                        padre: nuevoForm.padre.trim(),
+                        peso_nacer: nuevoForm.peso_nacer ? parseFloat(nuevoForm.peso_nacer) : null,
+                        estado: 'Activo',
+                        tipo_servicio: nuevoForm.tipo_servicio,
+                        receptora: nuevoForm.tipo_servicio === 'TE' ? nuevoForm.receptora.trim() : null,
+                        tipo_ganado: nuevoForm.tipo_ganado,
+                        comentario: nuevoForm.tipo_servicio === 'TE' ? `TE - Donadora: ${nuevoForm.madre.trim()}, Receptora: ${nuevoForm.receptora.trim()}` : null
+                      });
+                      setShowNuevo(false);
+                      if (onNacimientosChange) await onNacimientosChange();
+                    } catch (e) {
+                      alert('Error al guardar: ' + e.message);
+                    } finally {
+                      setOperando(false);
+                    }
+                  }} disabled={operando}
+                    className="flex-1 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+                    {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Registrar Nacimiento</>}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* === PASO 2B: Flujo Destete === */}
+            {tipoRegistro === 'destete' && !desteteAnimal && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
+                  <Scale size={20} className="text-amber-400" /> Registrar Destete
+                  <button onClick={() => setTipoRegistro(null)} className="ml-auto text-xs text-gray-400 hover:text-gray-300">↩ Volver</button>
+                </h3>
+                <p className="text-sm text-gray-400 mb-3">Selecciona la cría a destetar ({pendientesDestete.length} pendientes)</p>
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                  <input type="text" placeholder="Buscar por número, madre o padre..." value={busquedaDestete}
+                    onChange={e => setBusquedaDestete(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
+                </div>
+                <div className="max-h-64 overflow-y-auto space-y-1">
+                  {filtradosDestete.length === 0 ? (
+                    <p className="text-center text-gray-500 py-4 text-sm">No hay crías pendientes de destete</p>
+                  ) : filtradosDestete.slice(0, 30).map(n => {
+                    const diasVida = n.fecha ? Math.round((new Date() - new Date(n.fecha)) / (1000 * 60 * 60 * 24)) : null;
+                    return (
+                      <button key={n.id || n.cria} onClick={() => { setDesteteAnimal(n); setDesteteForm({ fecha_destete: new Date().toISOString().split('T')[0], peso_destete: '' }); }}
+                        className="w-full flex items-center justify-between px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm transition-colors text-left">
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${n.sexo === 'M' ? 'bg-blue-900/40 text-blue-400' : 'bg-pink-900/40 text-pink-400'}`}>
+                            {n.sexo === 'M' ? '♂' : '♀'}
+                          </span>
+                          <div>
+                            <span className="font-medium text-gray-200">{n.cria}</span>
+                            <span className="text-gray-500 ml-2">M: {n.madre} — P: {n.padre}</span>
+                          </div>
+                        </div>
+                        <div className="text-right text-xs text-gray-400">
+                          <div>{formatDate(n.fecha)}</div>
+                          {diasVida && <div>{diasVida} días</div>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {filtradosDestete.length > 30 && <p className="text-center text-xs text-gray-500 py-2">Mostrando 30 de {filtradosDestete.length} — usa el buscador</p>}
+                </div>
+                <div className="mt-4">
+                  <button onClick={() => setShowNuevo(false)}
+                    className="w-full py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                    Cancelar
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* === PASO 3B: Formulario Destete (animal seleccionado) === */}
+            {tipoRegistro === 'destete' && desteteAnimal && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+                  <Scale size={20} className="text-amber-400" /> Registrar Destete
+                </h3>
+                <div className="bg-gray-800 rounded-xl p-4 mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${desteteAnimal.sexo === 'M' ? 'bg-blue-900/40 text-blue-400' : 'bg-pink-900/40 text-pink-400'}`}>
+                        {desteteAnimal.sexo === 'M' ? '♂' : '♀'}
+                      </span>
+                      <span className="font-semibold text-gray-100 text-lg">{desteteAnimal.cria}</span>
+                    </div>
+                    <button onClick={() => setDesteteAnimal(null)} className="text-xs text-amber-400 hover:text-amber-300">Cambiar ↩</button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <p className="text-gray-400"><span className="text-gray-500">Nacimiento:</span> {formatDate(desteteAnimal.fecha)}</p>
+                    <p className="text-gray-400"><span className="text-gray-500">Peso nacer:</span> {desteteAnimal.pesoNacer || desteteAnimal.peso_nacer || '—'} kg</p>
+                    <p className="text-gray-400"><span className="text-gray-500">Madre:</span> {desteteAnimal.madre}</p>
+                    <p className="text-gray-400"><span className="text-gray-500">Padre:</span> {desteteAnimal.padre}</p>
+                  </div>
+                  {desteteAnimal.fecha && (
+                    <p className="text-xs text-amber-400 mt-2">
+                      Edad actual: {Math.round((new Date() - new Date(desteteAnimal.fecha)) / (1000 * 60 * 60 * 24))} días
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Fecha Destete *</label>
+                    <input type="date" value={desteteForm.fecha_destete} onChange={e => setDesteteForm(f => ({ ...f, fecha_destete: e.target.value }))}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Peso Destete (kg) *</label>
+                    <input type="number" step="0.1" value={desteteForm.peso_destete} onChange={e => setDesteteForm(f => ({ ...f, peso_destete: e.target.value }))}
+                      placeholder="Ej: 145" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
+                  </div>
+                </div>
+
+                {/* Preview de cálculos */}
+                {desteteForm.fecha_destete && desteteForm.peso_destete && desteteAnimal.fecha && (
+                  <div className="bg-amber-900/20 border border-amber-800/50 rounded-xl p-3 mb-4">
+                    <p className="text-xs text-amber-400 font-medium mb-1">Cálculos automáticos:</p>
+                    {(() => {
+                      const dias = Math.round((new Date(desteteForm.fecha_destete) - new Date(desteteAnimal.fecha)) / (1000 * 60 * 60 * 24));
+                      const pesoNacer = desteteAnimal.pesoNacer || desteteAnimal.peso_nacer || 0;
+                      const pesoDestete = parseFloat(desteteForm.peso_destete) || 0;
+                      const gdp = dias > 0 && pesoNacer ? Math.round(((pesoDestete - pesoNacer) / dias) * 1000) : null;
+                      return (
+                        <div className="grid grid-cols-3 gap-2 text-sm">
+                          <div className="text-center">
+                            <p className="text-gray-500 text-xs">Edad destete</p>
+                            <p className="font-semibold text-gray-200">{dias} días</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-gray-500 text-xs">Ganancia</p>
+                            <p className="font-semibold text-gray-200">{pesoNacer ? (pesoDestete - pesoNacer).toFixed(1) : '—'} kg</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-gray-500 text-xs">GDP vida</p>
+                            <p className={`font-semibold ${gdp >= 500 ? 'text-green-400' : gdp >= 400 ? 'text-amber-400' : 'text-red-400'}`}>
+                              {gdp ? `${gdp} g/día` : '—'}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button onClick={() => setShowNuevo(false)} disabled={operando}
+                    className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                    Cancelar
+                  </button>
+                  <button onClick={async () => {
+                    if (!desteteForm.fecha_destete || !desteteForm.peso_destete) {
+                      alert('Completa la fecha y peso del destete');
+                      return;
+                    }
+                    setOperando(true);
+                    try {
+                      const fechaDest = desteteForm.fecha_destete;
+                      const fechaDestParts = fechaDest.split('-');
+                      const pesoDestete = parseFloat(desteteForm.peso_destete);
+                      const pesoNacer = desteteAnimal.pesoNacer || desteteAnimal.peso_nacer || 0;
+                      
+                      let edadDestete = null, grDiaVida = null;
+                      if (desteteAnimal.fecha) {
+                        edadDestete = Math.round((new Date(fechaDest) - new Date(desteteAnimal.fecha)) / (1000 * 60 * 60 * 24));
+                        if (pesoNacer && edadDestete > 0) {
+                          grDiaVida = Math.round(((pesoDestete - pesoNacer) / edadDestete) * 1000);
+                        }
+                      }
+
+                      await db.updateNacimiento(desteteAnimal.id, {
+                        peso_destete: pesoDestete,
+                        fecha_destete: fechaDest,
+                        año_destete: parseInt(fechaDestParts[0]),
+                        edad_destete: edadDestete,
+                        gr_dia_vida: grDiaVida
+                      });
+                      setShowNuevo(false);
+                      setDesteteAnimal(null);
+                      if (onNacimientosChange) await onNacimientosChange();
+                    } catch (e) {
+                      alert('Error al registrar destete: ' + e.message);
+                    } finally {
+                      setOperando(false);
+                    }
+                  }} disabled={operando}
+                    className="flex-1 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+                    {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Registrar Destete</>}
+                  </button>
+                </div>
+              </>
+            )}
+
           </div>
         </div>
       )}
@@ -2612,6 +2840,7 @@ function Nacimientos({ data, inventario, onNacimientosChange }) {
           </div>
         </div>
       )}
+
     </div>
   );
 }
