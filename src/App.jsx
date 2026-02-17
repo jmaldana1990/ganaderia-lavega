@@ -390,7 +390,15 @@ export default function GanaderiaApp() {
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
               pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} />
           )}
-          {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
+          {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} onNacimientosChange={async () => {
+            try {
+              const nacData = await db.getNacimientos();
+              if (nacData?.length > 0) {
+                setNacimientos(nacData);
+                try { localStorage.setItem('cache_nacimientos', JSON.stringify(nacData)); } catch(e) {}
+              }
+            } catch(e) { console.error('Error refreshing nacimientos:', e); }
+          }} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} onVentasChange={async () => {
             try {
               const ventasData = await db.getVentas();
@@ -2052,9 +2060,17 @@ function Stat({ label, value, sub }) {
     </div>
   );
 }
-function Nacimientos({ data, inventario }) {
+function Nacimientos({ data, inventario, onNacimientosChange }) {
   const [filtros, setFiltros] = useState({ año: '2025', sexo: '', padre: '', busqueda: '', estado: 'Activo' });
+  const [showNuevo, setShowNuevo] = useState(false);
+  const [operando, setOperando] = useState(false);
+  const [nuevoForm, setNuevoForm] = useState({ cria: '', fecha: '', sexo: 'M', madre: '', padre: '', peso_nacer: '', estado: 'Activo', tipo_servicio: 'MN', receptora: '', tipo_ganado: 'Puro' });
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [editando, setEditando] = useState(null);
+  const [editForm, setEditForm] = useState({});
   const años = [...new Set(data.map(n => n.año))].filter(Boolean).sort().reverse();
+  const padresConocidos = useMemo(() => [...new Set(data.map(n => n.padre))].filter(Boolean).sort(), [data]);
+  const madresConocidas = useMemo(() => [...new Set(data.map(n => n.madre))].filter(Boolean).sort(), [data]);
 
   const filtered = useMemo(() => data.filter(n => {
     if (filtros.año && n.año !== parseInt(filtros.año)) return false;
@@ -2112,6 +2128,12 @@ function Nacimientos({ data, inventario }) {
     <div className="space-y-6">
       <div className="flex items-center gap-4 flex-wrap">
         <h2 className="text-2xl font-bold text-gray-100">🐮 Nacimientos</h2>
+        {onNacimientosChange && (
+          <button onClick={() => { setShowNuevo(true); setNuevoForm({ cria: '', fecha: new Date().toISOString().split('T')[0], sexo: 'M', madre: '', padre: '', peso_nacer: '', estado: 'Activo', tipo_servicio: 'MN', receptora: '', tipo_ganado: 'Puro' }); }}
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-green-700 transition-colors text-sm">
+            <PlusCircle size={18} />Nuevo Nacimiento
+          </button>
+        )}
         <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="">Todos</option>
           {años.map(a => <option key={a} value={a}>{a}</option>)}
@@ -2221,6 +2243,7 @@ function Nacimientos({ data, inventario }) {
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Nacer</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Destete</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Estado</th>
+                {onNacimientosChange && <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 w-20">Acc.</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
@@ -2242,6 +2265,20 @@ function Nacimientos({ data, inventario }) {
                       {n.estado}
                     </span>
                   </td>
+                  {onNacimientosChange && n.id && (
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <button onClick={() => { setEditando(n); setEditForm({ cria: n.cria || '', fecha: n.fecha || '', sexo: n.sexo || 'M', madre: n.madre || '', padre: n.padre || '', peso_nacer: n.pesoNacer || n.peso_nacer || '', peso_destete: n.pesoDestete || n.peso_destete || '', fecha_destete: n.fechaDestete || n.fecha_destete || '', estado: n.estado || 'Activo', tipo_servicio: n.tipo_servicio || 'MN', receptora: n.receptora || '', tipo_ganado: n.tipo_ganado || 'Puro' }); }}
+                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-blue-400 transition-colors" title="Editar">
+                          <Edit2 size={14} />
+                        </button>
+                        <button onClick={() => setConfirmDelete(n)}
+                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors" title="Eliminar">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -2249,6 +2286,332 @@ function Nacimientos({ data, inventario }) {
         </div>
         {filtered.length > 50 && <div className="p-4 text-center text-sm text-gray-400">Mostrando 50 de {filtered.length}</div>}
       </div>
+
+      {/* Modal Nuevo Nacimiento */}
+      {showNuevo && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 max-w-lg w-full border border-gray-800 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+              <Baby size={20} className="text-green-400" /> Nuevo Nacimiento
+            </h3>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Número Cría *</label>
+                <input type="text" value={nuevoForm.cria} onChange={e => setNuevoForm(f => ({ ...f, cria: e.target.value }))}
+                  placeholder="Ej: 301" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Fecha Nacimiento *</label>
+                <input type="date" value={nuevoForm.fecha} onChange={e => setNuevoForm(f => ({ ...f, fecha: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Sexo *</label>
+                <select value={nuevoForm.sexo} onChange={e => setNuevoForm(f => ({ ...f, sexo: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
+                  <option value="M">♂ Macho</option>
+                  <option value="H">♀ Hembra</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Peso al Nacer (kg)</label>
+                <input type="number" step="0.1" value={nuevoForm.peso_nacer} onChange={e => setNuevoForm(f => ({ ...f, peso_nacer: e.target.value }))}
+                  placeholder="Ej: 32" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Madre *</label>
+                <input type="text" list="madres-list" value={nuevoForm.madre} onChange={e => setNuevoForm(f => ({ ...f, madre: e.target.value }))}
+                  placeholder="Ej: 045" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+                <datalist id="madres-list">
+                  {madresConocidas.map(m => <option key={m} value={m} />)}
+                </datalist>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Padre (Toro) *</label>
+                <input type="text" list="padres-list" value={nuevoForm.padre} onChange={e => setNuevoForm(f => ({ ...f, padre: e.target.value }))}
+                  placeholder="Ej: Sultán" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
+                <datalist id="padres-list">
+                  {padresConocidos.map(p => <option key={p} value={p} />)}
+                </datalist>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Tipo Servicio *</label>
+                <select value={nuevoForm.tipo_servicio} onChange={e => setNuevoForm(f => ({ ...f, tipo_servicio: e.target.value, receptora: e.target.value !== 'TE' ? '' : f.receptora }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
+                  <option value="MN">MN — Monta Natural</option>
+                  <option value="IA">IA — Inseminación Artificial</option>
+                  <option value="TE">TE — Transferencia de Embriones</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Tipo Ganado *</label>
+                <select value={nuevoForm.tipo_ganado} onChange={e => setNuevoForm(f => ({ ...f, tipo_ganado: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
+                  <option value="Puro">Puro</option>
+                  <option value="Comercial">Comercial</option>
+                </select>
+              </div>
+              {nuevoForm.tipo_servicio === 'TE' && (
+                <div className="col-span-2 bg-amber-900/20 border border-amber-800/50 rounded-xl p-3">
+                  <p className="text-xs text-amber-400 mb-2 font-medium">Transferencia de Embriones</p>
+                  <p className="text-xs text-gray-500 mb-2">En TE, "Madre" es la donadora genética del óvulo.</p>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Receptora (vaca que pare) *</label>
+                    <input type="text" list="madres-list-recep" value={nuevoForm.receptora} onChange={e => setNuevoForm(f => ({ ...f, receptora: e.target.value }))}
+                      placeholder="Ej: 078" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
+                    <datalist id="madres-list-recep">
+                      {madresConocidas.map(m => <option key={m} value={m} />)}
+                    </datalist>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowNuevo(false)} disabled={operando}
+                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                if (!nuevoForm.cria || !nuevoForm.fecha || !nuevoForm.madre || !nuevoForm.padre) {
+                  alert('Por favor completa los campos obligatorios: Cría, Fecha, Madre y Padre');
+                  return;
+                }
+                if (nuevoForm.tipo_servicio === 'TE' && !nuevoForm.receptora) {
+                  alert('Para Transferencia de Embriones, debes indicar la vaca receptora');
+                  return;
+                }
+                setOperando(true);
+                try {
+                  const fechaParts = nuevoForm.fecha.split('-');
+                  await db.insertNacimiento({
+                    cria: nuevoForm.cria.trim(),
+                    fecha: nuevoForm.fecha,
+                    año: parseInt(fechaParts[0]),
+                    mes: parseInt(fechaParts[1]),
+                    sexo: nuevoForm.sexo,
+                    madre: nuevoForm.madre.trim(),
+                    padre: nuevoForm.padre.trim(),
+                    peso_nacer: nuevoForm.peso_nacer ? parseFloat(nuevoForm.peso_nacer) : null,
+                    estado: 'Activo',
+                    tipo_servicio: nuevoForm.tipo_servicio,
+                    receptora: nuevoForm.tipo_servicio === 'TE' ? nuevoForm.receptora.trim() : null,
+                    tipo_ganado: nuevoForm.tipo_ganado,
+                    comentario: nuevoForm.tipo_servicio === 'TE' ? `TE - Donadora: ${nuevoForm.madre.trim()}, Receptora: ${nuevoForm.receptora.trim()}` : null
+                  });
+                  setShowNuevo(false);
+                  if (onNacimientosChange) await onNacimientosChange();
+                } catch (e) {
+                  alert('Error al guardar: ' + e.message);
+                } finally {
+                  setOperando(false);
+                }
+              }} disabled={operando}
+                className="flex-1 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+                {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Registrar Nacimiento</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Nacimiento */}
+      {editando && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 max-w-lg w-full border border-gray-800 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+              <Edit2 size={20} className="text-blue-400" /> Editar Nacimiento — {editando.cria}
+            </h3>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Número Cría</label>
+                <input type="text" value={editForm.cria} onChange={e => setEditForm(f => ({ ...f, cria: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Fecha Nacimiento</label>
+                <input type="date" value={editForm.fecha} onChange={e => setEditForm(f => ({ ...f, fecha: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Sexo</label>
+                <select value={editForm.sexo} onChange={e => setEditForm(f => ({ ...f, sexo: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
+                  <option value="M">♂ Macho</option>
+                  <option value="H">♀ Hembra</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Peso al Nacer (kg)</label>
+                <input type="number" step="0.1" value={editForm.peso_nacer} onChange={e => setEditForm(f => ({ ...f, peso_nacer: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Madre</label>
+                <input type="text" list="madres-edit-list" value={editForm.madre} onChange={e => setEditForm(f => ({ ...f, madre: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+                <datalist id="madres-edit-list">
+                  {madresConocidas.map(m => <option key={m} value={m} />)}
+                </datalist>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Padre (Toro)</label>
+                <input type="text" list="padres-edit-list" value={editForm.padre} onChange={e => setEditForm(f => ({ ...f, padre: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+                <datalist id="padres-edit-list">
+                  {padresConocidos.map(p => <option key={p} value={p} />)}
+                </datalist>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Tipo Servicio</label>
+                <select value={editForm.tipo_servicio} onChange={e => setEditForm(f => ({ ...f, tipo_servicio: e.target.value, receptora: e.target.value !== 'TE' ? '' : f.receptora }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
+                  <option value="MN">MN — Monta Natural</option>
+                  <option value="IA">IA — Inseminación Artificial</option>
+                  <option value="TE">TE — Transferencia de Embriones</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Tipo Ganado</label>
+                <select value={editForm.tipo_ganado} onChange={e => setEditForm(f => ({ ...f, tipo_ganado: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
+                  <option value="Puro">Puro</option>
+                  <option value="Comercial">Comercial</option>
+                </select>
+              </div>
+              {editForm.tipo_servicio === 'TE' && (
+                <div className="col-span-2 bg-amber-900/20 border border-amber-800/50 rounded-xl p-3">
+                  <p className="text-xs text-amber-400 mb-2 font-medium">Transferencia de Embriones</p>
+                  <p className="text-xs text-gray-500 mb-2">En TE, "Madre" es la donadora genética del óvulo.</p>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Receptora (vaca que pare)</label>
+                    <input type="text" list="madres-edit-recep" value={editForm.receptora} onChange={e => setEditForm(f => ({ ...f, receptora: e.target.value }))}
+                      placeholder="Ej: 078" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
+                    <datalist id="madres-edit-recep">
+                      {madresConocidas.map(m => <option key={m} value={m} />)}
+                    </datalist>
+                  </div>
+                </div>
+              )}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Peso Destete (kg)</label>
+                <input type="number" step="0.1" value={editForm.peso_destete} onChange={e => setEditForm(f => ({ ...f, peso_destete: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Fecha Destete</label>
+                <input type="date" value={editForm.fecha_destete} onChange={e => setEditForm(f => ({ ...f, fecha_destete: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Estado</label>
+                <select value={editForm.estado} onChange={e => setEditForm(f => ({ ...f, estado: e.target.value }))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
+                  <option value="Activo">Activo</option>
+                  <option value="Vendido">Vendido</option>
+                  <option value="Muerto">Muerto</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => { setEditando(null); setEditForm({}); }} disabled={operando}
+                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                setOperando(true);
+                try {
+                  const fechaParts = editForm.fecha ? editForm.fecha.split('-') : [];
+                  const fechaDestParts = editForm.fecha_destete ? editForm.fecha_destete.split('-') : [];
+                  const pesoNacer = editForm.peso_nacer ? parseFloat(editForm.peso_nacer) : null;
+                  const pesoDestete = editForm.peso_destete ? parseFloat(editForm.peso_destete) : null;
+                  const fechaNac = editForm.fecha || null;
+                  const fechaDest = editForm.fecha_destete || null;
+
+                  // Calcular edad destete y GDP si hay datos suficientes
+                  let edadDestete = null, grDiaVida = null;
+                  if (fechaNac && fechaDest) {
+                    const diffMs = new Date(fechaDest) - new Date(fechaNac);
+                    edadDestete = Math.round(diffMs / (1000 * 60 * 60 * 24));
+                    if (pesoDestete && pesoNacer && edadDestete > 0) {
+                      grDiaVida = Math.round(((pesoDestete - pesoNacer) / edadDestete) * 1000);
+                    }
+                  }
+
+                  await db.updateNacimiento(editando.id, {
+                    cria: editForm.cria?.trim(),
+                    fecha: fechaNac,
+                    año: fechaParts.length >= 1 ? parseInt(fechaParts[0]) : editando.año,
+                    mes: fechaParts.length >= 2 ? parseInt(fechaParts[1]) : editando.mes,
+                    sexo: editForm.sexo,
+                    madre: editForm.madre?.trim(),
+                    padre: editForm.padre?.trim(),
+                    peso_nacer: pesoNacer,
+                    peso_destete: pesoDestete,
+                    fecha_destete: fechaDest,
+                    año_destete: fechaDestParts.length >= 1 ? parseInt(fechaDestParts[0]) : null,
+                    edad_destete: edadDestete,
+                    gr_dia_vida: grDiaVida,
+                    estado: editForm.estado,
+                    tipo_servicio: editForm.tipo_servicio || 'MN',
+                    receptora: editForm.tipo_servicio === 'TE' ? editForm.receptora?.trim() : null,
+                    tipo_ganado: editForm.tipo_ganado || 'Puro',
+                    comentario: editForm.tipo_servicio === 'TE' ? `TE - Donadora: ${editForm.madre?.trim()}, Receptora: ${editForm.receptora?.trim()}` : null
+                  });
+                  setEditando(null);
+                  setEditForm({});
+                  if (onNacimientosChange) await onNacimientosChange();
+                } catch (e) {
+                  alert('Error al actualizar: ' + e.message);
+                } finally {
+                  setOperando(false);
+                }
+              }} disabled={operando}
+                className="flex-1 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+                {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Guardar Cambios</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Confirmar Eliminación */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-gray-800">
+            <h3 className="text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
+              <Trash2 size={20} className="text-red-400" /> Eliminar Nacimiento
+            </h3>
+            <div className="bg-gray-800 rounded-xl p-4 mb-4 text-sm space-y-1">
+              <p className="text-gray-300"><span className="text-gray-500">Cría:</span> {confirmDelete.cria}</p>
+              <p className="text-gray-300"><span className="text-gray-500">Fecha:</span> {confirmDelete.fecha}</p>
+              <p className="text-gray-300"><span className="text-gray-500">Sexo:</span> {confirmDelete.sexo === 'M' ? '♂ Macho' : '♀ Hembra'}</p>
+              <p className="text-gray-300"><span className="text-gray-500">Madre:</span> {confirmDelete.madre} — <span className="text-gray-500">Padre:</span> {confirmDelete.padre}</p>
+            </div>
+            <p className="text-sm text-red-400/80 mb-4">Esta acción no se puede deshacer.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDelete(null)} disabled={operando}
+                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                setOperando(true);
+                try {
+                  await db.deleteNacimiento(confirmDelete.id);
+                  setConfirmDelete(null);
+                  if (onNacimientosChange) await onNacimientosChange();
+                } catch (e) {
+                  alert('Error al eliminar: ' + e.message);
+                } finally {
+                  setOperando(false);
+                }
+              }} disabled={operando}
+                className="flex-1 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
+                {operando ? <><Loader2 size={16} className="animate-spin" />Eliminando...</> : <><Trash2 size={16} />Eliminar</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
