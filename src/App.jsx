@@ -382,6 +382,7 @@ export default function GanaderiaApp() {
               </button>
             ))}
           </nav>
+          {userRole === 'admin' && (
           <div className="p-4 border-t">
             <p className="text-xs text-gray-400 mb-2">Fuente: {dataSource === 'cloud' ? '☁️ Nube' : dataSource === 'cache' ? '📦 Caché offline' : '💾 Local'}</p>
             <div className="space-y-1 text-sm text-gray-400">
@@ -391,6 +392,7 @@ export default function GanaderiaApp() {
               <p>🛒 {ventas.length} ventas</p>
             </div>
           </div>
+          )}
         </aside>
 
         {/* Main content */}
