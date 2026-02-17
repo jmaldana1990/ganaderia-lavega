@@ -37,7 +37,6 @@ export default function GanaderiaApp() {
   // Auth
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
-  const [showLogin, setShowLogin] = useState(false);
 
   // Conexión
   const [isOnline, setIsOnline] = useState(true);
@@ -295,7 +294,7 @@ export default function GanaderiaApp() {
     );
   }
 
-  if (showLogin) return <Login onLogin={handleLogin} onSkip={() => setShowLogin(false)} />;
+  if (!user) return <Login onLogin={handleLogin} />;
 
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
@@ -330,21 +329,17 @@ export default function GanaderiaApp() {
             {isOnline && !syncing && (
               <button onClick={loadCloudData} className="p-2 hover:bg-white/10 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
             )}
-            {user && isOnline && (
+            {isOnline && (
               <div className="flex items-center gap-1">
                 <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar archivo">
                   <Upload size={16} /><span className="hidden sm:inline">Cargar</span>
                 </button>
               </div>
             )}
-            {user ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm bg-white/10 px-3 py-1 rounded-full hidden md:block truncate max-w-[150px]">{user.email}</span>
-                <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-lg" title="Cerrar sesión"><LogOut size={18} /></button>
-              </div>
-            ) : (
-              <button onClick={() => setShowLogin(true)} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">Iniciar sesión</button>
-            )}
+            <div className="flex items-center gap-2">
+              <span className="text-sm bg-white/10 px-3 py-1 rounded-full hidden md:block truncate max-w-[150px]">{user.email}</span>
+              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-lg" title="Cerrar sesión"><LogOut size={18} /></button>
+            </div>
           </div>
         </div>
       </header>
