@@ -419,3 +419,80 @@ export async function checkConnection() {
     return false
   }
 }
+
+// ==================== ROLES DE USUARIO ====================
+export async function getUserRole(email) {
+  const { data, error } = await supabase
+    .from('usuarios')
+    .select('rol, nombre')
+    .eq('email', email)
+    .eq('activo', true)
+    .single()
+  
+  if (error || !data) return { rol: 'admin', nombre: null } // sin registro = admin por defecto
+  return data
+}
+
+// ==================== FACTURAS (STORAGE) ====================
+export async function uploadFactura(costoId, file) {
+  const ext = file.name.split('.').pop()
+  const path = `${costoId}/${Date.now()}.${ext}`
+  
+  const { data, error } = await supabase.storage
+    .from('facturas')
+    .upload(path, file, { upsert: true })
+  
+  if (error) throw error
+  
+  const { data: urlData } = supabase.storage
+    .from('facturas')
+    .getPublicUrl(path)
+  
+  // Actualizar el costo con la URL de la factura
+  await updateCosto(costoId, {
+    factura_url: urlData.publicUrl,
+    factura_nombre: file.name,
+    factura_fecha: new Date().toISOString()
+  })
+  
+  return urlData.publicUrl
+}
+
+export async function deleteFactura(costoId, facturaUrl) {
+  // Extraer el path del URL
+  const urlParts = facturaUrl.split('/facturas/')
+  if (urlParts.length > 1) {
+    const path = urlParts[1]
+    await supabase.storage.from('facturas').remove([path])
+  }
+  
+  await updateCosto(costoId, {
+    factura_url: null,
+    factura_nombre: null,
+    factura_fecha: null
+  })
+}
+
+// ==================== AUTO-COMENTARIO ====================
+export async function getComentariosSugeridos(proveedor) {
+  const { data, error } = await supabase
+    .from('costos')
+    .select('comentarios, centro, categoria')
+    .ilike('proveedor', proveedor)
+    .not('comentarios', 'is', null)
+    .not('comentarios', 'eq', '')
+    .order('fecha', { ascending: false })
+    .limit(50)
+  
+  if (error || !data) return []
+  
+  // Agrupar por comentario y contar frecuencia
+  const freq = {}
+  data.forEach(d => {
+    const key = d.comentarios.trim()
+    if (!freq[key]) freq[key] = { texto: key, count: 0, centro: d.centro, categoria: d.categoria }
+    freq[key].count++
+  })
+  
+  return Object.values(freq).sort((a, b) => b.count - a.count).slice(0, 5)
+}

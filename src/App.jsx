@@ -8,6 +8,7 @@ import * as db from './supabase';
 import Login from './Login';
 import CargaArchivos from './CargaArchivos';
 import KPITrends from './KPITrends';
+import Contabilidad from './Contabilidad';
 import { VENTAS_GANADO, TIPO_ANIMAL_LABELS } from './ventas-ganado';
 
 // ==================== HELPERS ====================
@@ -37,6 +38,7 @@ export default function GanaderiaApp() {
   // Auth
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
+  const [userRole, setUserRole] = useState('admin');
 
   // Conexión
   const [isOnline, setIsOnline] = useState(true);
@@ -68,7 +70,14 @@ export default function GanaderiaApp() {
     const init = async () => {
       try {
         const session = await db.getSession();
-        if (session) { setSession(session); setUser(session.user); }
+        if (session) {
+          setSession(session); setUser(session.user);
+          try {
+            const { rol } = await db.getUserRole(session.user.email);
+            setUserRole(rol);
+            if (rol === 'contador') setView('contabilidad');
+          } catch (e) { console.error('Error fetching role:', e); }
+        }
         const online = await db.checkConnection();
         setIsOnline(online);
         if (online) await loadCloudData();
@@ -83,9 +92,16 @@ export default function GanaderiaApp() {
     };
     init();
 
-    const { data: { subscription } } = db.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') { setUser(null); setSession(null); }
-      else if (session) { setSession(session); setUser(session.user); }
+    const { data: { subscription } } = db.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') { setUser(null); setSession(null); setUserRole('admin'); }
+      else if (session) {
+        setSession(session); setUser(session.user);
+        try {
+          const { rol } = await db.getUserRole(session.user.email);
+          setUserRole(rol);
+          if (rol === 'contador') setView('contabilidad');
+        } catch (e) { console.error(e); }
+      }
     });
 
     const handleOnline = () => checkConnection();
@@ -191,8 +207,16 @@ export default function GanaderiaApp() {
     }
   };
 
-  const handleLogin = (user, session) => { setUser(user); setSession(session); loadCloudData(); };
-  const handleLogout = async () => { try { await db.signOut(); setUser(null); setSession(null); } catch (err) { console.error(err); } };
+  const handleLogin = async (user, session) => {
+    setUser(user); setSession(session);
+    try {
+      const { rol } = await db.getUserRole(user.email);
+      setUserRole(rol);
+      if (rol === 'contador') setView('contabilidad');
+    } catch (e) { console.error('Error fetching role:', e); }
+    loadCloudData();
+  };
+  const handleLogout = async () => { try { await db.signOut(); setUser(null); setSession(null); setUserRole('admin'); } catch (err) { console.error(err); } };
 
   // ---- Cálculos de costos ----
   const años = useMemo(() => {
@@ -296,14 +320,16 @@ export default function GanaderiaApp() {
 
   if (!user) return <Login onLogin={handleLogin} />;
 
-  const menuItems = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard' },
-    { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500' },
-    { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500' },
-    { id: 'nacimientos', icon: Baby, label: 'Nacimientos' },
-    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500' },
-    { id: 'costos', icon: Receipt, label: 'Costos y Gastos' },
+  const allMenuItems = [
+    { id: 'dashboard', icon: Home, label: 'Dashboard', roles: ['admin'] },
+    { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500', roles: ['admin'] },
+    { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500', roles: ['admin'] },
+    { id: 'nacimientos', icon: Baby, label: 'Nacimientos', roles: ['admin'] },
+    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500', roles: ['admin'] },
+    { id: 'costos', icon: Receipt, label: 'Costos y Gastos', roles: ['admin'] },
+    { id: 'contabilidad', icon: FileText, label: 'Contabilidad', accent: 'text-amber-400', roles: ['admin', 'contador'] },
   ];
+  const menuItems = allMenuItems.filter(item => item.roles.includes(userRole));
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200">
@@ -329,7 +355,7 @@ export default function GanaderiaApp() {
             {isOnline && !syncing && (
               <button onClick={loadCloudData} className="p-2 hover:bg-white/10 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
             )}
-            {isOnline && (
+            {isOnline && userRole === 'admin' && (
               <div className="flex items-center gap-1">
                 <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar archivo">
                   <Upload size={16} /><span className="hidden sm:inline">Cargar</span>
@@ -408,6 +434,17 @@ export default function GanaderiaApp() {
               filtros={filtros} setFiltros={updateFiltros} onNew={() => setShowForm(true)}
               onEdit={g => { setEditGasto(g); setShowForm(true); }} onDel={del} onApprove={approve}
               page={page} pages={totalPages} setPage={setPage} años={años} canEdit={!!user} />
+          )}
+          {view === 'contabilidad' && (
+            <Contabilidad gastos={gastos} userRole={userRole} onGastosChange={async () => {
+              try {
+                const costosData = await db.getCostos();
+                if (costosData?.length > 0) {
+                  setGastos(costosData);
+                  try { localStorage.setItem('cache_gastos', JSON.stringify(costosData)); } catch(e) {}
+                }
+              } catch(e) { console.error('Error refreshing costos:', e); }
+            }} />
           )}
         </main>
       </div>
