@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ganaderia-lavega-v1';
+const CACHE_NAME = 'ganaderia-lavega-v2';
 
 // Assets to cache on install
 const PRECACHE_URLS = [
