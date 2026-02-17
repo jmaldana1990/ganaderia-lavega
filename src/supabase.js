@@ -62,6 +62,38 @@ export async function upsertNacimientos(registros) {
   return data
 }
 
+export async function insertNacimiento(registro) {
+  const { data, error } = await supabase
+    .from('nacimientos')
+    .insert(registro)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function updateNacimiento(id, updates) {
+  const { data, error } = await supabase
+    .from('nacimientos')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteNacimiento(id) {
+  const { error } = await supabase
+    .from('nacimientos')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
+}
+
 // ==================== INVENTARIO ====================
 export async function getInventario() {
   const { data, error } = await supabase
