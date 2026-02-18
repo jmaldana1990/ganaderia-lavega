@@ -438,7 +438,7 @@ export default function GanaderiaApp() {
               page={page} pages={totalPages} setPage={setPage} años={años} canEdit={!!user} />
           )}
           {view === 'contabilidad' && (
-            <Contabilidad gastos={gastos} userRole={userRole} onGastosChange={async () => {
+            <Contabilidad gastos={gastos} userRole={userRole} userEmail={user?.email} onGastosChange={async () => {
               try {
                 const costosData = await db.getCostos();
                 if (costosData?.length > 0) {

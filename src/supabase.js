@@ -496,3 +496,69 @@ export async function getComentariosSugeridos(proveedor) {
   
   return Object.values(freq).sort((a, b) => b.count - a.count).slice(0, 5)
 }
+
+// ==================== CAJA MENOR ====================
+export async function getCajaMenor() {
+  const { data, error } = await supabase
+    .from('caja_menor')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .order('created_at', { ascending: false })
+  
+  if (error) throw error
+  return data || []
+}
+
+export async function insertCajaMenor(registro) {
+  const { data, error } = await supabase
+    .from('caja_menor')
+    .insert(registro)
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data
+}
+
+export async function updateCajaMenor(id, updates) {
+  const { data, error } = await supabase
+    .from('caja_menor')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data
+}
+
+export async function deleteCajaMenor(id) {
+  const { error } = await supabase
+    .from('caja_menor')
+    .delete()
+    .eq('id', id)
+  
+  if (error) throw error
+}
+
+export async function uploadFacturaCajaMenor(registroId, file) {
+  const ext = file.name.split('.').pop()
+  const path = `caja-menor/${registroId}/${Date.now()}.${ext}`
+  
+  const { data, error } = await supabase.storage
+    .from('facturas')
+    .upload(path, file, { upsert: true })
+  
+  if (error) throw error
+  
+  const { data: urlData } = supabase.storage
+    .from('facturas')
+    .getPublicUrl(path)
+  
+  await updateCajaMenor(registroId, {
+    factura_url: urlData.publicUrl,
+    factura_nombre: file.name
+  })
+  
+  return urlData.publicUrl
+}
