@@ -1622,7 +1622,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
       if (!porAño[año][mes]) porAño[año][mes] = 0;
       porAño[año][mes] += promDia;
     });
-    const años = Object.keys(porAño).map(Number).sort();
+    const años = Object.keys(porAño).map(Number).sort().slice(-5);
     const nombresMes = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     const meses = Array.from({ length: 12 }, (_, i) => {
       const m = { mes: i + 1, nombre: nombresMes[i + 1] };
@@ -1776,27 +1776,63 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
               </div>
             ))}
           </div>
-          {/* Barras agrupadas por mes */}
-          <div className="flex items-end gap-1 h-48">
-            {comparativoAnual.meses.map(m => (
-              <div key={m.mes} className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full flex items-end justify-center gap-px" style={{ height: '170px' }}>
-                  {comparativoAnual.años.map((a, i) => {
-                    const val = m[a] || 0;
-                    const pct = Math.max((val / comparativoAnual.maxVal) * 100, val > 0 ? 3 : 0);
-                    return (
-                      <div key={a} className="flex flex-col items-center" style={{ flex: 1, maxWidth: `${Math.floor(80 / comparativoAnual.años.length)}%` }}>
-                        {val > 0 && <span className="text-[9px] text-gray-500 mb-0.5">{val.toFixed(0)}</span>}
-                        <div className={`w-full rounded-t ${coloresAño[i] || coloresAño[0]} opacity-80 hover:opacity-100 transition-opacity`}
-                          style={{ height: `${pct}%`, minHeight: val > 0 ? '2px' : '0px' }}
-                          title={`${a} ${m.nombre}: ${Math.round(val)} mm`} />
-                      </div>
-                    );
-                  })}
+          {/* Tabla comparativa por mes */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-800">
+                  <th className="text-left py-2 px-2 text-gray-400 font-medium">Año</th>
+                  {comparativoAnual.meses.map(m => (
+                    <th key={m.mes} className="text-center py-2 px-1 text-gray-400 font-medium text-xs">{m.nombre}</th>
+                  ))}
+                  <th className="text-center py-2 px-2 text-gray-400 font-medium">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparativoAnual.años.map((a, i) => (
+                  <tr key={a} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                    <td className={`py-2 px-2 font-semibold ${coloresAñoText[i] || coloresAñoText[0]}`}>{a}</td>
+                    {comparativoAnual.meses.map(m => {
+                      const val = m[a] || 0;
+                      const intensity = val > 0 ? Math.min(val / comparativoAnual.maxVal, 1) : 0;
+                      return (
+                        <td key={m.mes} className="text-center py-2 px-1">
+                          {val > 0 ? (
+                            <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium"
+                              style={{ backgroundColor: `rgba(59, 130, 246, ${0.15 + intensity * 0.55})`, color: intensity > 0.5 ? '#fff' : '#93c5fd' }}>
+                              {val}
+                            </span>
+                          ) : (
+                            <span className="text-gray-700 text-xs">–</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                    <td className={`text-center py-2 px-2 font-bold ${coloresAñoText[i] || coloresAñoText[0]}`}>
+                      {comparativoAnual.totales[a]}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Mini barras visuales por año */}
+          <div className="mt-4 space-y-2">
+            {comparativoAnual.años.map((a, i) => {
+              const maxTotal = Math.max(...Object.values(comparativoAnual.totales), 1);
+              const pct = (comparativoAnual.totales[a] / maxTotal) * 100;
+              return (
+                <div key={a} className="flex items-center gap-3">
+                  <span className={`text-xs font-semibold w-10 ${coloresAñoText[i] || coloresAñoText[0]}`}>{a}</span>
+                  <div className="flex-1 bg-gray-800 rounded-full h-5 overflow-hidden">
+                    <div className={`h-full rounded-full ${coloresAño[i] || coloresAño[0]} opacity-80 flex items-center justify-end pr-2 transition-all duration-700`}
+                      style={{ width: `${Math.max(pct, 3)}%` }}>
+                      <span className="text-[10px] font-bold text-white drop-shadow">{comparativoAnual.totales[a]} mm</span>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-xs text-gray-500">{m.nombre}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
