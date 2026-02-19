@@ -71,38 +71,6 @@ export async function upsertNacimientos(registros) {
   return data
 }
 
-export async function insertNacimiento(registro) {
-  const { data, error } = await supabase
-    .from('nacimientos')
-    .insert(registro)
-    .select()
-    .single()
-
-  if (error) throw error
-  return data
-}
-
-export async function updateNacimiento(id, updates) {
-  const { data, error } = await supabase
-    .from('nacimientos')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-  return data
-}
-
-export async function deleteNacimiento(id) {
-  const { error } = await supabase
-    .from('nacimientos')
-    .delete()
-    .eq('id', id)
-
-  if (error) throw error
-}
-
 // ==================== INVENTARIO ====================
 export async function getInventario() {
   const { data, error } = await supabase
@@ -194,78 +162,6 @@ export async function getVentas() {
   return data
 }
 
-export async function deleteVenta(id) {
-  const { error } = await supabase
-    .from('ventas')
-    .delete()
-    .eq('id', id)
-  
-  if (error) throw error
-}
-
-export async function updateVenta(id, updates) {
-  const { data, error } = await supabase
-    .from('ventas')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-  
-  if (error) throw error
-  return data
-}
-
-// ==================== HATO REPRODUCTIVO ====================
-export async function getHatoReproductivo(finca = null) {
-  let query = supabase
-    .from('hato_reproductivo')
-    .select('*')
-    .order('categoria', { ascending: true })
-    .order('numero', { ascending: true })
-
-  if (finca) {
-    query = query.eq('finca', finca)
-  }
-
-  const { data, error } = await query
-  if (error) throw error
-  return data
-}
-
-export async function upsertHatoReproductivo(registros) {
-  const dbRecords = registros.map(r => ({
-    numero: r.numero,
-    finca: r.finca || 'La Vega',
-    categoria: r.categoria,
-    edad_anos: r.edad_anos,
-    estado_actual: r.estado_actual,
-    grupo: r.grupo,
-    dias_posparto: r.dias_posparto || 0,
-    num_partos: r.num_partos || 0,
-    cria_actual: r.cria_actual,
-    sexo_cria: r.sexo_cria,
-    fecha_ultimo_parto: r.fecha_ultimo_parto,
-    dias_gestacion: r.dias_gestacion || 0,
-    piep: r.piep || 0,
-    pduc: r.pduc || 0,
-    fecha_carga: new Date().toISOString().split('T')[0]
-  }))
-
-  let total = 0
-  for (let i = 0; i < dbRecords.length; i += 200) {
-    const batch = dbRecords.slice(i, i + 200)
-    const { data, error } = await supabase
-      .from('hato_reproductivo')
-      .upsert(batch, { onConflict: 'numero,finca' })
-      .select()
-
-    if (error) throw error
-    total += data?.length || 0
-  }
-
-  return { total, registros: dbRecords.length }
-}
-
 export async function insertCosto(registro) {
   const { data, error } = await supabase
     .from('costos')
@@ -336,6 +232,33 @@ export async function getPalpaciones() {
     from += pageSize
   }
   return allData
+}
+
+export async function insertPalpacion(registro) {
+  const { data, error } = await supabase
+    .from('palpaciones')
+    .insert([registro])
+    .select()
+  if (error) throw error
+  return data[0]
+}
+
+export async function updatePalpacion(id, updates) {
+  const { data, error } = await supabase
+    .from('palpaciones')
+    .update(updates)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data[0]
+}
+
+export async function deletePalpacion(id) {
+  const { error } = await supabase
+    .from('palpaciones')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
 }
 
 // ==================== SERVICIOS ====================
@@ -427,147 +350,4 @@ export async function checkConnection() {
   } catch {
     return false
   }
-}
-
-// ==================== ROLES DE USUARIO ====================
-export async function getUserRole(email) {
-  const { data, error } = await supabase
-    .from('usuarios')
-    .select('rol, nombre')
-    .eq('email', email)
-    .eq('activo', true)
-    .single()
-  
-  if (error || !data) return { rol: 'admin', nombre: null } // sin registro = admin por defecto
-  return data
-}
-
-// ==================== FACTURAS (STORAGE) ====================
-export async function uploadFactura(costoId, file) {
-  const ext = file.name.split('.').pop()
-  const path = `${costoId}/${Date.now()}.${ext}`
-  
-  const { data, error } = await supabase.storage
-    .from('facturas')
-    .upload(path, file, { upsert: true })
-  
-  if (error) throw error
-  
-  const { data: urlData } = supabase.storage
-    .from('facturas')
-    .getPublicUrl(path)
-  
-  // Actualizar el costo con la URL de la factura
-  await updateCosto(costoId, {
-    factura_url: urlData.publicUrl,
-    factura_nombre: file.name,
-    factura_fecha: new Date().toISOString()
-  })
-  
-  return urlData.publicUrl
-}
-
-export async function deleteFactura(costoId, facturaUrl) {
-  // Extraer el path del URL
-  const urlParts = facturaUrl.split('/facturas/')
-  if (urlParts.length > 1) {
-    const path = urlParts[1]
-    await supabase.storage.from('facturas').remove([path])
-  }
-  
-  await updateCosto(costoId, {
-    factura_url: null,
-    factura_nombre: null,
-    factura_fecha: null
-  })
-}
-
-// ==================== AUTO-COMENTARIO ====================
-export async function getComentariosSugeridos(proveedor) {
-  const { data, error } = await supabase
-    .from('costos')
-    .select('comentarios, centro, categoria')
-    .ilike('proveedor', proveedor)
-    .not('comentarios', 'is', null)
-    .not('comentarios', 'eq', '')
-    .order('fecha', { ascending: false })
-    .limit(50)
-  
-  if (error || !data) return []
-  
-  // Agrupar por comentario y contar frecuencia
-  const freq = {}
-  data.forEach(d => {
-    const key = d.comentarios.trim()
-    if (!freq[key]) freq[key] = { texto: key, count: 0, centro: d.centro, categoria: d.categoria }
-    freq[key].count++
-  })
-  
-  return Object.values(freq).sort((a, b) => b.count - a.count).slice(0, 5)
-}
-
-// ==================== CAJA MENOR ====================
-export async function getCajaMenor() {
-  const { data, error } = await supabase
-    .from('caja_menor')
-    .select('*')
-    .order('fecha', { ascending: false })
-    .order('created_at', { ascending: false })
-  
-  if (error) throw error
-  return data || []
-}
-
-export async function insertCajaMenor(registro) {
-  const { data, error } = await supabase
-    .from('caja_menor')
-    .insert(registro)
-    .select()
-    .single()
-  
-  if (error) throw error
-  return data
-}
-
-export async function updateCajaMenor(id, updates) {
-  const { data, error } = await supabase
-    .from('caja_menor')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
-  
-  if (error) throw error
-  return data
-}
-
-export async function deleteCajaMenor(id) {
-  const { error } = await supabase
-    .from('caja_menor')
-    .delete()
-    .eq('id', id)
-  
-  if (error) throw error
-}
-
-export async function uploadFacturaCajaMenor(registroId, file) {
-  const ext = file.name.split('.').pop()
-  const path = `caja-menor/${registroId}/${Date.now()}.${ext}`
-  
-  const { data, error } = await supabase.storage
-    .from('facturas')
-    .upload(path, file, { upsert: true })
-  
-  if (error) throw error
-  
-  const { data: urlData } = supabase.storage
-    .from('facturas')
-    .getPublicUrl(path)
-  
-  await updateCajaMenor(registroId, {
-    factura_url: urlData.publicUrl,
-    factura_nombre: file.name
-  })
-  
-  return urlData.publicUrl
 }

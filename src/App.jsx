@@ -387,7 +387,8 @@ export default function GanaderiaApp() {
           {view === 'lavega' && (
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
-              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} />
+              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
+              setPalpaciones={setPalpaciones} userEmail={user?.email} />
           )}
           {view === 'bariloche' && (
             <FincaView finca="Bariloche" subtitulo="Finca de Levante" color="blue"
@@ -822,7 +823,7 @@ function VentasTotales({ ventas: ventasData }) {
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años, pesajes, palpaciones, servicios, destetes }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años, pesajes, palpaciones, servicios, destetes, setPalpaciones, userEmail }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
   const esTodos = añoSel === 'todos';
@@ -1109,6 +1110,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         {[
           { key: 'resumen', label: '📊 Resumen', icon: BarChart3, hide: esTodos },
           { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
+          { key: 'palpaciones', label: '🔬 Palpaciones', icon: Activity, hide: esTodos || finca !== 'La Vega' },
           { key: 'hato', label: '🐄 Hato', icon: Search, hide: esTodos },
         ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
@@ -1484,10 +1486,331 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       )}
 
       {/* ==================== HATO ==================== */}
+      {!esTodos && subView === 'palpaciones' && finca === 'La Vega' && (
+        <PalpacionesView palpaciones={palpaciones} setPalpaciones={setPalpaciones} userEmail={userEmail} nacimientos={nacimientos} />
+      )}
+
       {!esTodos && subView === 'hato' && (
         <HatoView finca={finca} nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} />
       )}
 
+    </div>
+  );
+}
+
+// ==================== COMPONENTE PALPACIONES ====================
+function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }) {
+  const [showForm, setShowForm] = useState(false);
+  const [editando, setEditando] = useState(null);
+  const [confirmDel, setConfirmDel] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
+
+  const RESULTADOS = [
+    'Preñada', 'OICL', 'ODCL', 'OICL - PP', 'ODCL - PP',
+    'ODF', 'OIF', 'Anestro', 'Quiste OD', 'Quiste OI',
+    'Aborto / Reabsorción', 'Descarte'
+  ];
+  const ESTADOS = ['LACT', 'NVIE', 'SECA', 'NLEV'];
+  const CALIFICACIONES = ['R', 'R+', 'B', 'B+', 'MB', 'MB+', 'E'];
+  const TIPOS_SERVICIO = ['MN', 'IA', 'TE'];
+
+  const emptyForm = {
+    fecha: new Date().toISOString().split('T')[0],
+    hembra: '', estado: '', resultado: '', dias_gestacion: '',
+    dias_lactancia: '', dias_abiertos: '', reproductor: '',
+    condicion_corporal: '', calificacion: '', tipo_servicio: '',
+    observaciones: '', finca: 'La Vega'
+  };
+  const [form, setForm] = useState(emptyForm);
+
+  // Hembras conocidas (de nacimientos como madres)
+  const hembrasConocidas = useMemo(() => {
+    const madres = new Set();
+    (nacimientos || []).forEach(n => { if (n.madre) madres.add(n.madre.trim()); });
+    return [...madres].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  }, [nacimientos]);
+
+  // Palpaciones solo de La Vega, ordenadas por fecha desc
+  const palpLaVega = useMemo(() =>
+    (palpaciones || []).filter(p => p.finca === 'La Vega').sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')),
+    [palpaciones]);
+
+  const filtradas = useMemo(() => {
+    if (!busqueda.trim()) return palpLaVega;
+    const q = busqueda.toLowerCase();
+    return palpLaVega.filter(p =>
+      (p.hembra || '').toLowerCase().includes(q) ||
+      (p.resultado || '').toLowerCase().includes(q) ||
+      (p.reproductor || '').toLowerCase().includes(q)
+    );
+  }, [palpLaVega, busqueda]);
+
+  const openNew = () => { setForm(emptyForm); setEditando(null); setShowForm(true); };
+  const openEdit = (p) => {
+    setForm({
+      fecha: p.fecha || '', hembra: p.hembra || '', estado: p.estado || '',
+      resultado: p.resultado || p.detalle || '', dias_gestacion: p.dias_gestacion || '',
+      dias_lactancia: p.dias_lactancia || '', dias_abiertos: p.dias_abiertos || '',
+      reproductor: p.reproductor || '', condicion_corporal: p.condicion_corporal || '',
+      calificacion: p.calificacion || '', tipo_servicio: p.tipo_servicio || '',
+      observaciones: p.observaciones || '', finca: 'La Vega'
+    });
+    setEditando(p); setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.fecha || !form.hembra) return alert('Fecha y Hembra son obligatorios');
+    setSaving(true);
+    try {
+      const registro = {
+        ...form,
+        dias_gestacion: form.resultado === 'Preñada' ? form.dias_gestacion : 'VACIA',
+        dias_lactancia: form.dias_lactancia ? parseInt(form.dias_lactancia) : null,
+        dias_abiertos: form.dias_abiertos ? parseInt(form.dias_abiertos) : null,
+        condicion_corporal: form.condicion_corporal ? parseFloat(form.condicion_corporal) : null,
+        registrado_por: userEmail || 'manual',
+      };
+      if (editando) {
+        const updated = await db.updatePalpacion(editando.id, registro);
+        setPalpaciones(prev => prev.map(p => p.id === editando.id ? { ...p, ...updated } : p));
+      } else {
+        const nuevo = await db.insertPalpacion(registro);
+        setPalpaciones(prev => [nuevo, ...prev]);
+      }
+      setShowForm(false); setEditando(null);
+    } catch (e) { alert('Error guardando: ' + e.message); }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await db.deletePalpacion(id);
+      setPalpaciones(prev => prev.filter(p => p.id !== id));
+      setConfirmDel(null);
+    } catch (e) { alert('Error eliminando: ' + e.message); }
+  };
+
+  const esPreñada = form.resultado === 'Preñada';
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">🔬 Registro de Palpaciones</h3>
+          <p className="text-sm text-gray-400">{palpLaVega.length} registros en La Vega</p>
+        </div>
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-medium transition-colors">
+          <PlusCircle size={16} /> Nueva Palpación
+        </button>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar por hembra, resultado, reproductor..."
+          className="w-full pl-9 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase">
+              <th className="px-3 py-3 text-left">Fecha</th>
+              <th className="px-3 py-3 text-left">Hembra</th>
+              <th className="px-3 py-3 text-left">Estado</th>
+              <th className="px-3 py-3 text-left">Resultado</th>
+              <th className="px-3 py-3 text-left">Días Gest.</th>
+              <th className="px-3 py-3 text-left">Días Lact.</th>
+              <th className="px-3 py-3 text-left">Reproductor</th>
+              <th className="px-3 py-3 text-left">CC</th>
+              <th className="px-3 py-3 text-left">Calif.</th>
+              <th className="px-3 py-3 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtradas.slice(0, 100).map(p => (
+              <tr key={p.id} className="border-b border-gray-800/50 hover:bg-gray-800/50 transition-colors">
+                <td className="px-3 py-2 text-gray-300">{p.fecha ? formatDate(p.fecha) : '-'}</td>
+                <td className="px-3 py-2 font-medium text-gray-100">{p.hembra || '-'}</td>
+                <td className="px-3 py-2">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    p.estado === 'LACT' ? 'bg-green-900/50 text-green-400' :
+                    p.estado === 'SECA' ? 'bg-amber-900/50 text-amber-400' :
+                    p.estado === 'NVIE' ? 'bg-blue-900/50 text-blue-400' :
+                    p.estado === 'NLEV' ? 'bg-purple-900/50 text-purple-400' :
+                    'bg-gray-800 text-gray-400'
+                  }`}>{p.estado || '-'}</span>
+                </td>
+                <td className="px-3 py-2">
+                  <span className={`text-xs font-medium ${
+                    (p.resultado || '').includes('Preñada') ? 'text-green-400' :
+                    (p.resultado || '').includes('Descarte') ? 'text-red-400' :
+                    'text-gray-300'
+                  }`}>{p.resultado || p.detalle || '-'}</span>
+                </td>
+                <td className="px-3 py-2 text-gray-300">{p.dias_gestacion || '-'}</td>
+                <td className="px-3 py-2 text-gray-300">{p.dias_lactancia || '-'}</td>
+                <td className="px-3 py-2 text-gray-300">{p.reproductor || '-'}</td>
+                <td className="px-3 py-2 text-gray-300">{p.condicion_corporal || '-'}</td>
+                <td className="px-3 py-2">
+                  <span className={`text-xs font-medium ${
+                    (p.calificacion || '').startsWith('E') ? 'text-green-400' :
+                    (p.calificacion || '').startsWith('MB') ? 'text-blue-400' :
+                    (p.calificacion || '').startsWith('B') ? 'text-yellow-400' :
+                    'text-gray-400'
+                  }`}>{p.calificacion || '-'}</span>
+                </td>
+                <td className="px-3 py-2 text-center">
+                  <div className="flex justify-center gap-1">
+                    <button onClick={() => openEdit(p)} className="p-1.5 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-blue-400"><Edit2 size={14} /></button>
+                    <button onClick={() => setConfirmDel(p)} className="p-1.5 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-red-400"><Trash2 size={14} /></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filtradas.length === 0 && (
+              <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-500">No hay palpaciones registradas</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal Form */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-700" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-100 mb-4">{editando ? 'Editar Palpación' : 'Nueva Palpación'}</h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Fecha */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Fecha *</label>
+                <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+
+              {/* Hembra */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Hembra *</label>
+                <input list="hembras-list" value={form.hembra} onChange={e => setForm({ ...form, hembra: e.target.value })}
+                  placeholder="Ej: 002-80" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                <datalist id="hembras-list">
+                  {hembrasConocidas.map(h => <option key={h} value={h} />)}
+                </datalist>
+              </div>
+
+              {/* Estado */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Estado</label>
+                <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                  <option value="">Seleccionar...</option>
+                  {ESTADOS.map(e => <option key={e} value={e}>{e === 'LACT' ? 'LACT - Lactando' : e === 'NVIE' ? 'NVIE - Novilla Vientre' : e === 'SECA' ? 'SECA - Sin cría' : 'NLEV - Novilla Levante'}</option>)}
+                </select>
+              </div>
+
+              {/* Resultado */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Resultado</label>
+                <select value={form.resultado} onChange={e => setForm({ ...form, resultado: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                  <option value="">Seleccionar...</option>
+                  {RESULTADOS.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+
+              {/* Días Gestación - solo si Preñada */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Días Gestación {esPreñada && '*'}</label>
+                <input type="number" value={form.dias_gestacion} onChange={e => setForm({ ...form, dias_gestacion: e.target.value })}
+                  placeholder={esPreñada ? 'Ej: 65' : 'N/A si vacía'} disabled={!esPreñada}
+                  className={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm ${esPreñada ? 'text-gray-200' : 'text-gray-600'}`} />
+              </div>
+
+              {/* Días Lactancia */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Días Lactancia</label>
+                <input type="number" value={form.dias_lactancia} onChange={e => setForm({ ...form, dias_lactancia: e.target.value })}
+                  placeholder="Ej: 95" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+
+              {/* Días Abiertos */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Días Abiertos</label>
+                <input type="number" value={form.dias_abiertos} onChange={e => setForm({ ...form, dias_abiertos: e.target.value })}
+                  placeholder="Ej: 120" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+
+              {/* Reproductor */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Reproductor</label>
+                <input value={form.reproductor} onChange={e => setForm({ ...form, reproductor: e.target.value })}
+                  placeholder="Ej: 509-0" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+
+              {/* Tipo Servicio */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Tipo Servicio</label>
+                <select value={form.tipo_servicio} onChange={e => setForm({ ...form, tipo_servicio: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                  <option value="">Seleccionar...</option>
+                  {TIPOS_SERVICIO.map(t => <option key={t} value={t}>{t === 'MN' ? 'MN - Monta Natural' : t === 'IA' ? 'IA - Inseminación' : 'TE - Transferencia Embrión'}</option>)}
+                </select>
+              </div>
+
+              {/* Condición Corporal */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Condición Corporal (1.0 - 5.0)</label>
+                <input type="number" step="0.1" min="1" max="5" value={form.condicion_corporal}
+                  onChange={e => setForm({ ...form, condicion_corporal: e.target.value })}
+                  placeholder="Ej: 3.5" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+
+              {/* Calificación */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Calificación</label>
+                <select value={form.calificacion} onChange={e => setForm({ ...form, calificacion: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                  <option value="">Seleccionar...</option>
+                  {CALIFICACIONES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
+              {/* Observaciones - full width */}
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-gray-400 mb-1">Observaciones</label>
+                <textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })}
+                  rows={2} placeholder="Notas adicionales..."
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm resize-none" />
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
+              <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+                {saving ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> {editando ? 'Actualizar' : 'Guardar'}</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Delete */}
+      {confirmDel && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setConfirmDel(null)}>
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm border border-gray-700" onClick={e => e.stopPropagation()}>
+            <p className="text-gray-200 mb-4">¿Eliminar palpación de <strong>{confirmDel.hembra}</strong> del {confirmDel.fecha ? formatDate(confirmDel.fecha) : ''}?</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setConfirmDel(null)} className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm">Cancelar</button>
+              <button onClick={() => handleDelete(confirmDel.id)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
