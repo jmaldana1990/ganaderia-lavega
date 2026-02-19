@@ -432,6 +432,19 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
     return (ventas || []).reduce((s, v) => s + (v.valor || 0), 0);
   }, [ventas, añoFiltro]);
 
+  // Egresos promedio por mes
+  const promedioMes = useMemo(() => {
+    const mesesUnicos = new Set();
+    (gastos || []).forEach(g => {
+      if (!g.fecha) return;
+      const [año, mes] = g.fecha.split('-');
+      if (añoFiltro && parseInt(año) !== añoFiltro) return;
+      mesesUnicos.add(`${año}-${mes}`);
+    });
+    const numMeses = mesesUnicos.size;
+    return numMeses > 0 ? totales.total / numMeses : 0;
+  }, [gastos, añoFiltro, totales.total]);
+
   // Inventario último por finca
   const invLaVega = useMemo(() =>
     inventario.filter(i => i.finca === 'La Vega' && (!añoFiltro || i.año === añoFiltro)).sort((a, b) => (b.año * 12 + b.mes) - (a.año * 12 + a.mes))[0],
@@ -471,10 +484,9 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
       </div>
 
       {/* Cards financieros */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card title="Total Egresos" value={formatCurrency(totales.total)} icon={DollarSign} color="from-green-500 to-green-600" />
-        <Card title="Costos" value={formatCurrency(totales.costos)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
-        <Card title="Gastos" value={formatCurrency(totales.gastos)} icon={Receipt} color="from-purple-500 to-purple-600" />
+        <Card title="Egresos Promedio/Mes" value={formatCurrency(promedioMes)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
         <Card title={`Ventas ${ventasAñoLabel}`} value={formatCurrency(ventasAño)} icon={ShoppingCart} color="from-amber-500 to-amber-600" sub="ingresos ganado" />
       </div>
 
@@ -1634,11 +1646,18 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }
                   }`}>{p.estado || '-'}</span>
                 </td>
                 <td className="px-3 py-2">
-                  <span className={`text-xs font-medium ${
-                    (p.resultado || '').includes('Preñada') ? 'text-green-400' :
-                    (p.resultado || '').includes('Descarte') ? 'text-red-400' :
-                    'text-gray-300'
-                  }`}>{p.resultado || p.detalle || '-'}</span>
+                  {(() => {
+                    const res = p.resultado || '';
+                    const det = p.detalle || '';
+                    const display = res || (det && !det.match(/^0\.\d+$/) ? det : '');
+                    return (
+                      <span className={`text-xs font-medium ${
+                        display.includes('Preñada') ? 'text-green-400' :
+                        display.includes('Descarte') ? 'text-red-400' :
+                        'text-gray-300'
+                      }`}>{display || '-'}</span>
+                    );
+                  })()}
                 </td>
                 <td className="px-3 py-2 text-gray-300">{p.dias_gestacion || '-'}</td>
                 <td className="px-3 py-2 text-gray-300">{p.dias_lactancia || '-'}</td>
