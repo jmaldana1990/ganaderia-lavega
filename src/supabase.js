@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://dzykvitmgkrucicxvicz.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6eWt2aXRtZ2tydWNpY3h2aWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDU4MTksImV4cCI6MjA4NTcyMTgxOX0.lE2a1jj34r_NRZ3uEuPinllG6VOQBE4TQbtbwXngHg4'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -133,22 +133,13 @@ export async function upsertInventario(registros) {
 
 // ==================== COSTOS ====================
 export async function getCostos() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('costos')
-      .select('*')
-      .order('fecha', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('costos')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(5000)
+  if (error) throw error
+  return data
 }
 
 // ==================== VENTAS ====================
@@ -196,42 +187,24 @@ export async function deleteCosto(id) {
 
 // ==================== PESAJES ====================
 export async function getPesajes() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('pesajes')
-      .select('*')
-      .order('fecha_pesaje', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('pesajes')
+    .select('*')
+    .order('fecha_pesaje', { ascending: false })
+    .limit(5000)
+  if (error) throw error
+  return data
 }
 
 // ==================== PALPACIONES ====================
 export async function getPalpaciones() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('palpaciones')
-      .select('*')
-      .order('fecha', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('palpaciones')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(3000)
+  if (error) throw error
+  return data
 }
 
 export async function insertPalpacion(registro) {
@@ -263,42 +236,24 @@ export async function deletePalpacion(id) {
 
 // ==================== SERVICIOS ====================
 export async function getServicios() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('servicios')
-      .select('*')
-      .order('fecha', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('servicios')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(3000)
+  if (error) throw error
+  return data
 }
 
 // ==================== DESTETES ====================
 export async function getDestetes() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('destetes')
-      .select('*')
-      .order('fecha_destete', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('destetes')
+    .select('*')
+    .order('fecha_destete', { ascending: false })
+    .limit(3000)
+  if (error) throw error
+  return data
 }
 
 // ==================== LOG DE CARGAS ====================
@@ -432,6 +387,48 @@ export async function deleteLluvia(id) {
     .delete()
     .eq('id', id)
   if (error) throw error
+}
+
+// ==================== RPC — CÁLCULOS EN SERVIDOR ====================
+
+// Dashboard: totales de egresos calculados en PostgreSQL
+export async function getRpcDashboardTotales(año = null) {
+  const { data, error } = await supabase
+    .rpc('get_dashboard_totales', { p_año: año })
+  if (error) throw error
+  return data?.[0] || null
+}
+
+// Lluvias: resumen mensual agregado en servidor
+export async function getRpcLluviasMensual(finca = null) {
+  const { data, error } = await supabase
+    .rpc('get_lluvias_mensual', { p_finca: finca })
+  if (error) throw error
+  return data || []
+}
+
+// Lluvias: totales anuales
+export async function getRpcLluviasAnuales(finca = null) {
+  const { data, error } = await supabase
+    .rpc('get_lluvias_anuales', { p_finca: finca })
+  if (error) throw error
+  return data || []
+}
+
+// Fertilidad: KPI calculado en servidor
+export async function getRpcFertilidad(finca, año) {
+  const { data, error } = await supabase
+    .rpc('get_fertilidad_kpi', { p_finca: finca, p_año: año })
+  if (error) throw error
+  return data?.[0] || null
+}
+
+// IEP: Intervalo entre partos promedio
+export async function getRpcIep(finca = 'La Vega') {
+  const { data, error } = await supabase
+    .rpc('get_iep_promedio', { p_finca: finca })
+  if (error) throw error
+  return data?.[0] || null
 }
 
 // ==================== VERIFICAR CONEXIÓN ====================
