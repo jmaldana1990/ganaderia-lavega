@@ -393,6 +393,47 @@ export async function upsertHatoReproductivo(registros) {
   return { total, registros: dbRecords.length }
 }
 
+// ==================== LLUVIAS ====================
+export async function getLluvias(finca = null) {
+  let query = supabase
+    .from('lluvias')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(2000)
+  if (finca) query = query.eq('finca', finca)
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export async function insertLluviasBatch(registros) {
+  // registros = [{ fecha, finca, pluviometro, mm, registrado_por }]
+  const { data, error } = await supabase
+    .from('lluvias')
+    .upsert(registros, { onConflict: 'fecha,finca,pluviometro' })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateLluvia(id, updates) {
+  const { data, error } = await supabase
+    .from('lluvias')
+    .update(updates)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data[0]
+}
+
+export async function deleteLluvia(id) {
+  const { error } = await supabase
+    .from('lluvias')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}
+
 // ==================== VERIFICAR CONEXIÓN ====================
 export async function checkConnection() {
   try {

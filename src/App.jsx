@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle, Droplets } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 import { NACIMIENTOS_LA_VEGA } from './nacimientos-lavega';
@@ -53,6 +53,7 @@ export default function GanaderiaApp() {
   const [palpaciones, setPalpaciones] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [destetes, setDestetes] = useState([]);
+  const [lluvias, setLluvias] = useState([]);
 
   // UI
   const [view, setView] = useState('dashboard');
@@ -112,10 +113,11 @@ export default function GanaderiaApp() {
     setSyncing(true);
     try {
       const safeCall = (fn, fallback = []) => { try { const r = fn(); return r && r.catch ? r.catch(() => fallback) : Promise.resolve(fallback); } catch(e) { return Promise.resolve(fallback); } };
-      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData] = await Promise.all([
+      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData, lluvData] = await Promise.all([
         safeCall(() => db.getNacimientos()), safeCall(() => db.getCostos()), safeCall(() => db.getInventario()), safeCall(() => db.getVentas(), null),
         safeCall(() => db.getPesajes()), safeCall(() => db.getPalpaciones()),
-        safeCall(() => db.getServicios()), safeCall(() => db.getDestetes())
+        safeCall(() => db.getServicios()), safeCall(() => db.getDestetes()),
+        safeCall(() => db.getLluvias())
       ]);
       if (nacData?.length > 0) {
         setNacimientos(nacData);
@@ -144,6 +146,10 @@ export default function GanaderiaApp() {
       if (destData?.length > 0) {
         setDestetes(destData);
         try { localStorage.setItem('cache_destetes', JSON.stringify(destData)); } catch(e) {}
+      }
+      if (lluvData?.length > 0) {
+        setLluvias(lluvData);
+        try { localStorage.setItem('cache_lluvias', JSON.stringify(lluvData)); } catch(e) {}
       }
       // Inventario: combinar nube + local, deduplicando por finca+periodo
       if (invData?.length > 0) {
@@ -389,12 +395,14 @@ export default function GanaderiaApp() {
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
               pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
+              lluvias={lluvias} setLluvias={setLluvias}
               setPalpaciones={setPalpaciones} userEmail={user?.email} />
           )}
           {view === 'bariloche' && (
             <FincaView finca="Bariloche" subtitulo="Finca de Levante" color="blue"
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
-              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} />
+              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
+              lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} />
           )}
           {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} />}
@@ -824,7 +832,7 @@ function VentasTotales({ ventas: ventasData }) {
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años, pesajes, palpaciones, servicios, destetes, setPalpaciones, userEmail }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años, pesajes, palpaciones, servicios, destetes, lluvias, setLluvias, setPalpaciones, userEmail }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
   const esTodos = añoSel === 'todos';
@@ -1111,6 +1119,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         {[
           { key: 'resumen', label: '📊 Resumen', icon: BarChart3, hide: esTodos },
           { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
+          { key: 'lluvias', label: '🌧️ Lluvias', icon: Droplets, hide: esTodos },
           { key: 'palpaciones', label: '🔬 Palpaciones', icon: Activity, hide: esTodos || finca !== 'La Vega' },
           { key: 'hato', label: '🐄 Hato', icon: Search, hide: esTodos },
         ].filter(t => !t.hide).map(tab => (
@@ -1486,6 +1495,10 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         </div>
       )}
 
+      {!esTodos && subView === 'lluvias' && (
+        <LluviasView finca={finca} lluvias={lluvias} setLluvias={setLluvias} userEmail={userEmail} añoSel={añoSel} />
+      )}
+
       {!esTodos && subView === 'palpaciones' && finca === 'La Vega' && (
         <PalpacionesView palpaciones={palpaciones} setPalpaciones={setPalpaciones} userEmail={userEmail} nacimientos={nacimientos} />
       )}
@@ -1495,6 +1508,423 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         <HatoView finca={finca} nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} />
       )}
 
+    </div>
+  );
+}
+
+// ==================== COMPONENTE LLUVIAS ====================
+const PLUVIOMETROS = {
+  'La Vega': ['Casa', 'Sector 1', 'Sector 2.1', 'Sector 3'],
+  'Bariloche': ['Casa', 'Sector 2', 'Sector 4']
+};
+
+function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
+  const [showForm, setShowForm] = useState(false);
+  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [valores, setValores] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [editando, setEditando] = useState(null);
+  const [confirmDel, setConfirmDel] = useState(null);
+  const [mesSel, setMesSel] = useState('todos');
+
+  const pluvs = PLUVIOMETROS[finca] || [];
+
+  // Datos filtrados por finca
+  const lluviasFinca = useMemo(() =>
+    (lluvias || []).filter(l => l.finca === finca),
+    [lluvias, finca]);
+
+  // Año numérico
+  const añoNum = añoSel === 'todos' ? null : parseInt(añoSel);
+
+  // Datos filtrados por año
+  const lluviasAño = useMemo(() => {
+    if (!añoNum) return lluviasFinca;
+    return lluviasFinca.filter(l => l.fecha && l.fecha.startsWith(String(añoNum)));
+  }, [lluviasFinca, añoNum]);
+
+  // Datos filtrados por mes
+  const lluviasMes = useMemo(() => {
+    if (mesSel === 'todos') return lluviasAño;
+    return lluviasAño.filter(l => {
+      const m = l.fecha ? parseInt(l.fecha.split('-')[1]) : 0;
+      return m === parseInt(mesSel);
+    });
+  }, [lluviasAño, mesSel]);
+
+  // Agrupar por fecha para la tabla
+  const porFecha = useMemo(() => {
+    const map = new Map();
+    lluviasMes.forEach(l => {
+      if (!map.has(l.fecha)) map.set(l.fecha, []);
+      map.get(l.fecha).push(l);
+    });
+    return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+  }, [lluviasMes]);
+
+  // Resumen mensual para gráfico
+  const resumenMensual = useMemo(() => {
+    const meses = {};
+    lluviasAño.forEach(l => {
+      if (!l.fecha) return;
+      const m = parseInt(l.fecha.split('-')[1]);
+      if (!meses[m]) meses[m] = { total: 0, dias: new Set(), porPluv: {} };
+      meses[m].total += parseFloat(l.mm) || 0;
+      meses[m].dias.add(l.fecha);
+      if (!meses[m].porPluv[l.pluviometro]) meses[m].porPluv[l.pluviometro] = 0;
+      meses[m].porPluv[l.pluviometro] += parseFloat(l.mm) || 0;
+    });
+    const nombresMes = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return Array.from({ length: 12 }, (_, i) => ({
+      mes: i + 1,
+      nombre: nombresMes[i + 1],
+      total: meses[i + 1]?.total || 0,
+      dias: meses[i + 1]?.dias?.size || 0,
+      porPluv: meses[i + 1]?.porPluv || {}
+    }));
+  }, [lluviasAño]);
+
+  const maxMensual = Math.max(...resumenMensual.map(m => m.total), 1);
+  const totalAnual = resumenMensual.reduce((s, m) => s + m.total, 0);
+  const promedioMensual = totalAnual / (resumenMensual.filter(m => m.total > 0).length || 1);
+
+  // Comparativo anual: datos de todos los años
+  const comparativoAnual = useMemo(() => {
+    const porAño = {};
+    lluviasFinca.forEach(l => {
+      if (!l.fecha) return;
+      const año = parseInt(l.fecha.split('-')[0]);
+      const mes = parseInt(l.fecha.split('-')[1]);
+      if (!porAño[año]) porAño[año] = {};
+      if (!porAño[año][mes]) porAño[año][mes] = 0;
+      porAño[año][mes] += parseFloat(l.mm) || 0;
+    });
+    const años = Object.keys(porAño).map(Number).sort();
+    const nombresMes = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const meses = Array.from({ length: 12 }, (_, i) => {
+      const m = { mes: i + 1, nombre: nombresMes[i + 1] };
+      años.forEach(a => { m[a] = porAño[a]?.[i + 1] || 0; });
+      return m;
+    });
+    const maxVal = Math.max(...meses.flatMap(m => años.map(a => m[a] || 0)), 1);
+    const totales = {};
+    años.forEach(a => { totales[a] = meses.reduce((s, m) => s + (m[a] || 0), 0); });
+    return { años, meses, maxVal, totales };
+  }, [lluviasFinca]);
+
+  const coloresAño = { 0: 'bg-gray-500', 1: 'bg-emerald-500', 2: 'bg-blue-500', 3: 'bg-amber-500', 4: 'bg-purple-500', 5: 'bg-red-500' };
+  const coloresAñoText = { 0: 'text-gray-400', 1: 'text-emerald-400', 2: 'text-blue-400', 3: 'text-amber-400', 4: 'text-purple-400', 5: 'text-red-400' };
+
+  // Meses disponibles para filtro
+  const mesesDisponibles = useMemo(() => {
+    const ms = new Set();
+    lluviasAño.forEach(l => {
+      if (l.fecha) ms.add(parseInt(l.fecha.split('-')[1]));
+    });
+    return [...ms].sort((a, b) => a - b);
+  }, [lluviasAño]);
+
+  const nombresMesFull = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  // Inicializar valores del form
+  const abrirForm = (fechaEdit = null) => {
+    const f = fechaEdit || new Date().toISOString().split('T')[0];
+    setFecha(f);
+    // Pre-cargar valores existentes para esa fecha
+    const existentes = lluviasFinca.filter(l => l.fecha === f);
+    const vals = {};
+    pluvs.forEach(p => {
+      const ex = existentes.find(l => l.pluviometro === p);
+      vals[p] = ex ? String(ex.mm) : '';
+    });
+    setValores(vals);
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const registros = pluvs
+        .filter(p => valores[p] !== '' && valores[p] !== undefined)
+        .map(p => ({
+          fecha,
+          finca,
+          pluviometro: p,
+          mm: parseFloat(valores[p]) || 0,
+          registrado_por: userEmail || 'sistema'
+        }));
+      if (registros.length === 0) { setSaving(false); return; }
+      const saved = await db.insertLluviasBatch(registros);
+      // Actualizar estado local
+      setLluvias(prev => {
+        const updated = [...prev];
+        saved.forEach(s => {
+          const idx = updated.findIndex(l => l.fecha === s.fecha && l.finca === s.finca && l.pluviometro === s.pluviometro);
+          if (idx >= 0) updated[idx] = s;
+          else updated.push(s);
+        });
+        return updated;
+      });
+      setShowForm(false);
+      setValores({});
+    } catch (err) {
+      alert('Error guardando: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await db.deleteLluvia(id);
+      setLluvias(prev => prev.filter(l => l.id !== id));
+      setConfirmDel(null);
+    } catch (err) {
+      alert('Error eliminando: ' + err.message);
+    }
+  };
+
+  const colorPluv = (nombre) => {
+    if (nombre === 'Casa') return 'bg-blue-500';
+    if (nombre.includes('1')) return 'bg-green-500';
+    if (nombre.includes('2')) return 'bg-amber-500';
+    if (nombre.includes('3')) return 'bg-purple-500';
+    if (nombre.includes('4')) return 'bg-red-500';
+    return 'bg-gray-500';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header + Botón */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold flex items-center gap-2"><Droplets size={20} className="text-blue-400" /> Registro de Lluvias</h3>
+          <p className="text-sm text-gray-400 mt-1">Pluviómetros: {pluvs.join(', ')}</p>
+        </div>
+        <button onClick={() => abrirForm()} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors">
+          <PlusCircle size={16} /> Registrar Lluvia
+        </button>
+      </div>
+
+      {/* Gráfico mensual */}
+      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-semibold flex items-center gap-2"><BarChart3 size={18} className="text-blue-400" /> Precipitación Mensual {añoNum || ''}</h4>
+          <div className="text-right">
+            <p className="text-xl font-bold text-blue-400">{totalAnual.toFixed(1)} mm</p>
+            <p className="text-xs text-gray-400">Total {añoNum || 'acumulado'} · Prom {promedioMensual.toFixed(1)} mm/mes</p>
+          </div>
+        </div>
+        <div className="flex items-end gap-1 h-40">
+          {resumenMensual.map(m => (
+            <div key={m.mes} className="flex-1 flex flex-col items-center gap-1">
+              <span className="text-xs text-gray-400 font-medium">{m.total > 0 ? m.total.toFixed(0) : ''}</span>
+              <div className="w-full flex flex-col justify-end" style={{ height: '120px' }}>
+                <div className={`w-full rounded-t transition-all duration-500 ${m.total > 0 ? 'bg-blue-500/80' : 'bg-gray-800'}`}
+                  style={{ height: `${Math.max((m.total / maxMensual) * 100, m.total > 0 ? 4 : 1)}%` }}
+                  title={`${m.nombre}: ${m.total.toFixed(1)} mm en ${m.dias} días`} />
+              </div>
+              <span className="text-xs text-gray-500">{m.nombre}</span>
+            </div>
+          ))}
+        </div>
+        {/* Línea promedio */}
+        {totalAnual > 0 && (
+          <div className="mt-2 flex items-center gap-2">
+            <div className="h-px flex-1 border-t border-dashed border-blue-400/40" />
+            <span className="text-xs text-blue-400/60">Promedio: {promedioMensual.toFixed(1)} mm</span>
+          </div>
+        )}
+      </div>
+
+      {/* Comparativo Anual */}
+      {comparativoAnual.años.length > 1 && (
+        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-semibold flex items-center gap-2"><BarChart3 size={18} className="text-green-400" /> Comparativo Anual de Lluvias</h4>
+          </div>
+          {/* Leyenda con totales */}
+          <div className="flex flex-wrap gap-4 mb-4">
+            {comparativoAnual.años.map((a, i) => (
+              <div key={a} className="flex items-center gap-2 text-sm">
+                <div className={`w-3 h-3 rounded-sm ${coloresAño[i] || coloresAño[0]}`} />
+                <span className={`font-medium ${coloresAñoText[i] || coloresAñoText[0]}`}>{a}</span>
+                <span className="text-gray-500">({comparativoAnual.totales[a]?.toFixed(0)} mm)</span>
+              </div>
+            ))}
+          </div>
+          {/* Barras agrupadas por mes */}
+          <div className="flex items-end gap-1 h-48">
+            {comparativoAnual.meses.map(m => (
+              <div key={m.mes} className="flex-1 flex flex-col items-center gap-1">
+                <div className="w-full flex items-end justify-center gap-px" style={{ height: '170px' }}>
+                  {comparativoAnual.años.map((a, i) => {
+                    const val = m[a] || 0;
+                    const pct = Math.max((val / comparativoAnual.maxVal) * 100, val > 0 ? 3 : 0);
+                    return (
+                      <div key={a} className="flex flex-col items-center" style={{ flex: 1, maxWidth: `${Math.floor(80 / comparativoAnual.años.length)}%` }}>
+                        {val > 0 && <span className="text-[9px] text-gray-500 mb-0.5">{val.toFixed(0)}</span>}
+                        <div className={`w-full rounded-t ${coloresAño[i] || coloresAño[0]} opacity-80 hover:opacity-100 transition-opacity`}
+                          style={{ height: `${pct}%`, minHeight: val > 0 ? '2px' : '0px' }}
+                          title={`${a} ${m.nombre}: ${val.toFixed(1)} mm`} />
+                      </div>
+                    );
+                  })}
+                </div>
+                <span className="text-xs text-gray-500">{m.nombre}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Detalle por pluviómetro */}
+      {totalAnual > 0 && (
+        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
+          <h4 className="font-semibold mb-4 flex items-center gap-2"><MapPin size={18} className="text-green-400" /> Acumulado por Pluviómetro {añoNum || ''}</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {pluvs.map(p => {
+              const total = lluviasAño.filter(l => l.pluviometro === p).reduce((s, l) => s + (parseFloat(l.mm) || 0), 0);
+              return (
+                <div key={p} className="bg-gray-800/50 rounded-xl p-4 text-center">
+                  <div className={`w-3 h-3 rounded-full ${colorPluv(p)} mx-auto mb-2`} />
+                  <p className="text-2xl font-bold text-gray-100">{total.toFixed(1)}</p>
+                  <p className="text-xs text-gray-400">mm</p>
+                  <p className="text-sm font-medium text-gray-300 mt-1">{p}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Filtro por mes + Tabla */}
+      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-semibold">Registros Diarios</h4>
+          <select value={mesSel} onChange={e => setMesSel(e.target.value)}
+            className="bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-1.5 text-sm">
+            <option value="todos">Todos los meses</option>
+            {mesesDisponibles.map(m => (
+              <option key={m} value={m}>{nombresMesFull[m]}</option>
+            ))}
+          </select>
+        </div>
+
+        {porFecha.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-8">No hay registros de lluvia{mesSel !== 'todos' ? ` en ${nombresMesFull[parseInt(mesSel)]}` : ''}. Usa el botón "Registrar Lluvia" para empezar.</p>
+        ) : (
+          <div className="space-y-3">
+            {porFecha.slice(0, 50).map(([fecha, registros]) => {
+              const totalDia = registros.reduce((s, r) => s + (parseFloat(r.mm) || 0), 0);
+              return (
+                <div key={fecha} className="bg-gray-800/50 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-gray-200">
+                        {new Date(fecha + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-400 font-medium">{totalDia.toFixed(1)} mm total</span>
+                    </div>
+                    <button onClick={() => abrirForm(fecha)} className="text-gray-400 hover:text-blue-400 transition-colors" title="Editar día">
+                      <Edit2 size={14} />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {registros.sort((a, b) => (a.pluviometro || '').localeCompare(b.pluviometro || '')).map(r => (
+                      <div key={r.id} className="flex items-center gap-2 text-sm">
+                        <div className={`w-2 h-2 rounded-full ${colorPluv(r.pluviometro)}`} />
+                        <span className="text-gray-400">{r.pluviometro}:</span>
+                        <span className="font-medium text-gray-200">{r.mm} mm</span>
+                        <button onClick={() => setConfirmDel(r.id)} className="text-gray-600 hover:text-red-400 transition-colors ml-1">
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {porFecha.length > 50 && <p className="text-xs text-gray-500 text-center">Mostrando 50 de {porFecha.length} días</p>}
+          </div>
+        )}
+      </div>
+
+      {/* Modal Form - Registro por lote */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Droplets size={20} className="text-blue-400" /> Registrar Lluvia — {finca}</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Fecha</label>
+                <input type="date" value={fecha} onChange={e => {
+                  setFecha(e.target.value);
+                  // Recargar valores existentes para nueva fecha
+                  const existentes = lluviasFinca.filter(l => l.fecha === e.target.value);
+                  const vals = {};
+                  pluvs.forEach(p => {
+                    const ex = existentes.find(l => l.pluviometro === p);
+                    vals[p] = ex ? String(ex.mm) : '';
+                  });
+                  setValores(vals);
+                }} className="w-full bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-2 text-sm" />
+              </div>
+
+              <div className="border-t border-gray-800 pt-3">
+                <p className="text-sm font-medium text-gray-400 mb-3">Milímetros por pluviómetro</p>
+                <div className="space-y-3">
+                  {pluvs.map(p => (
+                    <div key={p} className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${colorPluv(p)} flex-shrink-0`} />
+                      <span className="text-sm text-gray-300 w-24">{p}</span>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        placeholder="0.0"
+                        value={valores[p] || ''}
+                        onChange={e => setValores({ ...valores, [p]: e.target.value })}
+                        className="flex-1 bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-2 text-sm text-right"
+                      />
+                      <span className="text-xs text-gray-500 w-8">mm</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Total del día */}
+              <div className="bg-gray-800/50 rounded-xl p-3 flex items-center justify-between">
+                <span className="text-sm text-gray-400">Total del día</span>
+                <span className="text-lg font-bold text-blue-400">
+                  {pluvs.reduce((s, p) => s + (parseFloat(valores[p]) || 0), 0).toFixed(1)} mm
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowForm(false)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2.5 rounded-xl text-sm font-medium transition-colors">Cancelar</button>
+              <button onClick={handleSave} disabled={saving || pluvs.every(p => !valores[p])}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                {saving ? <><Loader2 size={16} className="animate-spin" /> Guardando...</> : <><Check size={16} /> Guardar</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Delete */}
+      {confirmDel && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setConfirmDel(null)}>
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+            <p className="text-gray-200 mb-4">¿Eliminar este registro de lluvia?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDel(null)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2 rounded-xl text-sm">Cancelar</button>
+              <button onClick={() => handleDelete(confirmDel)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl text-sm">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
