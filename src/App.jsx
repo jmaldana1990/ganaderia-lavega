@@ -194,9 +194,10 @@ export default function GanaderiaApp() {
 
   const handleLogin = (user, session) => { setUser(user); setSession(session); setShowLogin(false); loadCloudData(); };
   const handleLogout = async () => {
-    try { await Promise.race([db.signOut(), new Promise((_, r) => setTimeout(() => r('timeout'), 3000))]); } catch (e) { console.warn('signOut falló, limpiando manualmente:', e); }
+    try { await Promise.race([db.signOut(), new Promise((_, r) => setTimeout(() => r('timeout'), 3000))]); }
+    catch (e) { console.warn('signOut falló, limpiando manualmente:', e); }
     try { Object.keys(localStorage).filter(k => k.includes('supabase')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
-    setUser(null); setSession(null); setUserRole('admin');
+    setUser(null); setSession(null);
   };
 
   // ---- Cálculos de costos ----
@@ -431,19 +432,6 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
     return (ventas || []).reduce((s, v) => s + (v.valor || 0), 0);
   }, [ventas, añoFiltro]);
 
-  // Egresos promedio por mes
-  const promedioMes = useMemo(() => {
-    const mesesUnicos = new Set();
-    (gastos || []).forEach(g => {
-      if (!g.fecha) return;
-      const [año, mes] = g.fecha.split('-');
-      if (añoFiltro && parseInt(año) !== añoFiltro) return;
-      mesesUnicos.add(`${año}-${mes}`);
-    });
-    const numMeses = mesesUnicos.size;
-    return numMeses > 0 ? totales.total / numMeses : 0;
-  }, [gastos, añoFiltro, totales.total]);
-
   // Inventario último por finca
   const invLaVega = useMemo(() =>
     inventario.filter(i => i.finca === 'La Vega' && (!añoFiltro || i.año === añoFiltro)).sort((a, b) => (b.año * 12 + b.mes) - (a.año * 12 + a.mes))[0],
@@ -483,9 +471,10 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
       </div>
 
       {/* Cards financieros */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card title="Total Egresos" value={formatCurrency(totales.total)} icon={DollarSign} color="from-green-500 to-green-600" />
-        <Card title="Egresos Promedio/Mes" value={formatCurrency(promedioMes)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
+        <Card title="Costos" value={formatCurrency(totales.costos)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
+        <Card title="Gastos" value={formatCurrency(totales.gastos)} icon={Receipt} color="from-purple-500 to-purple-600" />
         <Card title={`Ventas ${ventasAñoLabel}`} value={formatCurrency(ventasAño)} icon={ShoppingCart} color="from-amber-500 to-amber-600" sub="ingresos ganado" />
       </div>
 
@@ -1485,11 +1474,11 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         </div>
       )}
 
-      {/* ==================== HATO ==================== */}
       {!esTodos && subView === 'palpaciones' && finca === 'La Vega' && (
         <PalpacionesView palpaciones={palpaciones} setPalpaciones={setPalpaciones} userEmail={userEmail} nacimientos={nacimientos} />
       )}
 
+      {/* ==================== HATO ==================== */}
       {!esTodos && subView === 'hato' && (
         <HatoView finca={finca} nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} />
       )}
@@ -1722,7 +1711,7 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }
                 </select>
               </div>
 
-              {/* Días Gestación - solo si Preñada */}
+              {/* Días Gestación */}
               <div>
                 <label className="block text-xs font-medium text-gray-400 mb-1">Días Gestación {esPreñada && '*'}</label>
                 <input type="number" value={form.dias_gestacion} onChange={e => setForm({ ...form, dias_gestacion: e.target.value })}
@@ -1779,7 +1768,7 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }
                 </select>
               </div>
 
-              {/* Observaciones - full width */}
+              {/* Observaciones */}
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-gray-400 mb-1">Observaciones</label>
                 <textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })}

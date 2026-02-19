@@ -342,6 +342,57 @@ export function onAuthStateChange(callback) {
   return supabase.auth.onAuthStateChange(callback)
 }
 
+// ==================== HATO REPRODUCTIVO ====================
+export async function getHatoReproductivo(finca = null) {
+  let query = supabase
+    .from('hato_reproductivo')
+    .select('*')
+    .order('categoria', { ascending: true })
+    .order('numero', { ascending: true })
+
+  if (finca) {
+    query = query.eq('finca', finca)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export async function upsertHatoReproductivo(registros) {
+  const dbRecords = registros.map(r => ({
+    numero: r.numero,
+    finca: r.finca || 'La Vega',
+    categoria: r.categoria,
+    edad_anos: r.edad_anos,
+    estado_actual: r.estado_actual,
+    grupo: r.grupo,
+    dias_posparto: r.dias_posparto || 0,
+    num_partos: r.num_partos || 0,
+    cria_actual: r.cria_actual,
+    sexo_cria: r.sexo_cria,
+    fecha_ultimo_parto: r.fecha_ultimo_parto,
+    dias_gestacion: r.dias_gestacion || 0,
+    piep: r.piep || 0,
+    pduc: r.pduc || 0,
+    fecha_carga: new Date().toISOString().split('T')[0]
+  }))
+
+  let total = 0
+  for (let i = 0; i < dbRecords.length; i += 200) {
+    const batch = dbRecords.slice(i, i + 200)
+    const { data, error } = await supabase
+      .from('hato_reproductivo')
+      .upsert(batch, { onConflict: 'numero,finca' })
+      .select()
+
+    if (error) throw error
+    total += data?.length || 0
+  }
+
+  return { total, registros: dbRecords.length }
+}
+
 // ==================== VERIFICAR CONEXIÓN ====================
 export async function checkConnection() {
   try {
