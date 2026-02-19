@@ -1562,25 +1562,40 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
     return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
   }, [lluviasMes]);
 
-  // Resumen mensual para gráfico
+  // Resumen mensual para gráfico (promedio diario de pluviómetros, luego suma mensual)
   const resumenMensual = useMemo(() => {
+    // Paso 1: agrupar por fecha → promedio de pluviómetros por día
+    const porDia = {};
+    lluviasAño.forEach(l => {
+      if (!l.fecha) return;
+      if (!porDia[l.fecha]) porDia[l.fecha] = [];
+      porDia[l.fecha].push(parseFloat(l.mm) || 0);
+    });
+    // Paso 2: promedio diario y acumular por mes
     const meses = {};
+    Object.entries(porDia).forEach(([fecha, lecturas]) => {
+      const m = parseInt(fecha.split('-')[1]);
+      const promDia = lecturas.reduce((s, v) => s + v, 0) / lecturas.length;
+      if (!meses[m]) meses[m] = { total: 0, dias: 0 };
+      meses[m].total += promDia;
+      meses[m].dias += 1;
+    });
+    // También calcular por pluviómetro para detalle
+    const porPluv = {};
     lluviasAño.forEach(l => {
       if (!l.fecha) return;
       const m = parseInt(l.fecha.split('-')[1]);
-      if (!meses[m]) meses[m] = { total: 0, dias: new Set(), porPluv: {} };
-      meses[m].total += parseFloat(l.mm) || 0;
-      meses[m].dias.add(l.fecha);
-      if (!meses[m].porPluv[l.pluviometro]) meses[m].porPluv[l.pluviometro] = 0;
-      meses[m].porPluv[l.pluviometro] += parseFloat(l.mm) || 0;
+      if (!porPluv[m]) porPluv[m] = {};
+      if (!porPluv[m][l.pluviometro]) porPluv[m][l.pluviometro] = 0;
+      porPluv[m][l.pluviometro] += parseFloat(l.mm) || 0;
     });
     const nombresMes = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     return Array.from({ length: 12 }, (_, i) => ({
       mes: i + 1,
       nombre: nombresMes[i + 1],
-      total: meses[i + 1]?.total || 0,
-      dias: meses[i + 1]?.dias?.size || 0,
-      porPluv: meses[i + 1]?.porPluv || {}
+      total: meses[i + 1]?.total ? Math.round(meses[i + 1].total) : 0,
+      dias: meses[i + 1]?.dias || 0,
+      porPluv: porPluv[i + 1] || {}
     }));
   }, [lluviasAño]);
 
@@ -1588,27 +1603,35 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
   const totalAnual = resumenMensual.reduce((s, m) => s + m.total, 0);
   const promedioMensual = totalAnual / (resumenMensual.filter(m => m.total > 0).length || 1);
 
-  // Comparativo anual: datos de todos los años
+  // Comparativo anual: datos de todos los años (promedio diario de pluviómetros)
   const comparativoAnual = useMemo(() => {
-    const porAño = {};
+    // Paso 1: agrupar por fecha → promedio de pluviómetros
+    const porDia = {};
     lluviasFinca.forEach(l => {
       if (!l.fecha) return;
-      const año = parseInt(l.fecha.split('-')[0]);
-      const mes = parseInt(l.fecha.split('-')[1]);
+      if (!porDia[l.fecha]) porDia[l.fecha] = [];
+      porDia[l.fecha].push(parseFloat(l.mm) || 0);
+    });
+    // Paso 2: acumular promedios diarios por año/mes
+    const porAño = {};
+    Object.entries(porDia).forEach(([fecha, lecturas]) => {
+      const año = parseInt(fecha.split('-')[0]);
+      const mes = parseInt(fecha.split('-')[1]);
+      const promDia = lecturas.reduce((s, v) => s + v, 0) / lecturas.length;
       if (!porAño[año]) porAño[año] = {};
       if (!porAño[año][mes]) porAño[año][mes] = 0;
-      porAño[año][mes] += parseFloat(l.mm) || 0;
+      porAño[año][mes] += promDia;
     });
     const años = Object.keys(porAño).map(Number).sort();
     const nombresMes = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     const meses = Array.from({ length: 12 }, (_, i) => {
       const m = { mes: i + 1, nombre: nombresMes[i + 1] };
-      años.forEach(a => { m[a] = porAño[a]?.[i + 1] || 0; });
+      años.forEach(a => { m[a] = Math.round(porAño[a]?.[i + 1] || 0); });
       return m;
     });
     const maxVal = Math.max(...meses.flatMap(m => años.map(a => m[a] || 0)), 1);
     const totales = {};
-    años.forEach(a => { totales[a] = meses.reduce((s, m) => s + (m[a] || 0), 0); });
+    años.forEach(a => { totales[a] = Math.round(meses.reduce((s, m) => s + (m[a] || 0), 0)); });
     return { años, meses, maxVal, totales };
   }, [lluviasFinca]);
 
@@ -1711,8 +1734,8 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-semibold flex items-center gap-2"><BarChart3 size={18} className="text-blue-400" /> Precipitación Mensual {añoNum || ''}</h4>
           <div className="text-right">
-            <p className="text-xl font-bold text-blue-400">{totalAnual.toFixed(1)} mm</p>
-            <p className="text-xs text-gray-400">Total {añoNum || 'acumulado'} · Prom {promedioMensual.toFixed(1)} mm/mes</p>
+            <p className="text-xl font-bold text-blue-400">{Math.round(totalAnual)} mm</p>
+            <p className="text-xs text-gray-400">Acumulado {añoNum || ''} (prom. pluviómetros) · Prom {Math.round(promedioMensual)} mm/mes</p>
           </div>
         </div>
         <div className="flex items-end gap-1 h-40">
@@ -1722,7 +1745,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
               <div className="w-full flex flex-col justify-end" style={{ height: '120px' }}>
                 <div className={`w-full rounded-t transition-all duration-500 ${m.total > 0 ? 'bg-blue-500/80' : 'bg-gray-800'}`}
                   style={{ height: `${Math.max((m.total / maxMensual) * 100, m.total > 0 ? 4 : 1)}%` }}
-                  title={`${m.nombre}: ${m.total.toFixed(1)} mm en ${m.dias} días`} />
+                  title={`${m.nombre}: ${Math.round(m.total)} mm en ${m.dias} días`} />
               </div>
               <span className="text-xs text-gray-500">{m.nombre}</span>
             </div>
@@ -1732,7 +1755,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
         {totalAnual > 0 && (
           <div className="mt-2 flex items-center gap-2">
             <div className="h-px flex-1 border-t border-dashed border-blue-400/40" />
-            <span className="text-xs text-blue-400/60">Promedio: {promedioMensual.toFixed(1)} mm</span>
+            <span className="text-xs text-blue-400/60">Promedio: {Math.round(promedioMensual)} mm</span>
           </div>
         )}
       </div>
@@ -1766,7 +1789,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
                         {val > 0 && <span className="text-[9px] text-gray-500 mb-0.5">{val.toFixed(0)}</span>}
                         <div className={`w-full rounded-t ${coloresAño[i] || coloresAño[0]} opacity-80 hover:opacity-100 transition-opacity`}
                           style={{ height: `${pct}%`, minHeight: val > 0 ? '2px' : '0px' }}
-                          title={`${a} ${m.nombre}: ${val.toFixed(1)} mm`} />
+                          title={`${a} ${m.nombre}: ${Math.round(val)} mm`} />
                       </div>
                     );
                   })}
@@ -1788,7 +1811,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
               return (
                 <div key={p} className="bg-gray-800/50 rounded-xl p-4 text-center">
                   <div className={`w-3 h-3 rounded-full ${colorPluv(p)} mx-auto mb-2`} />
-                  <p className="text-2xl font-bold text-gray-100">{total.toFixed(1)}</p>
+                  <p className="text-2xl font-bold text-gray-100">{Math.round(total)}</p>
                   <p className="text-xs text-gray-400">mm</p>
                   <p className="text-sm font-medium text-gray-300 mt-1">{p}</p>
                 </div>
@@ -1816,7 +1839,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
         ) : (
           <div className="space-y-3">
             {porFecha.slice(0, 50).map(([fecha, registros]) => {
-              const totalDia = registros.reduce((s, r) => s + (parseFloat(r.mm) || 0), 0);
+              const promDia = registros.length > 0 ? registros.reduce((s, r) => s + (parseFloat(r.mm) || 0), 0) / registros.length : 0;
               return (
                 <div key={fecha} className="bg-gray-800/50 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -1824,7 +1847,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
                       <span className="text-sm font-medium text-gray-200">
                         {new Date(fecha + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-400 font-medium">{totalDia.toFixed(1)} mm total</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-400 font-medium">{Math.round(promDia)} mm prom</span>
                     </div>
                     <button onClick={() => abrirForm(fecha)} className="text-gray-400 hover:text-blue-400 transition-colors" title="Editar día">
                       <Edit2 size={14} />
@@ -1893,11 +1916,11 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
                 </div>
               </div>
 
-              {/* Total del día */}
+              {/* Promedio del día */}
               <div className="bg-gray-800/50 rounded-xl p-3 flex items-center justify-between">
-                <span className="text-sm text-gray-400">Total del día</span>
+                <span className="text-sm text-gray-400">Promedio del día</span>
                 <span className="text-lg font-bold text-blue-400">
-                  {pluvs.reduce((s, p) => s + (parseFloat(valores[p]) || 0), 0).toFixed(1)} mm
+                  {(() => { const vals = pluvs.map(p => parseFloat(valores[p])).filter(v => !isNaN(v) && v > 0); return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : '0'; })()} mm
                 </span>
               </div>
             </div>
