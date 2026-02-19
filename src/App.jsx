@@ -227,7 +227,11 @@ export default function GanaderiaApp() {
     } catch (e) { console.error('Error fetching role:', e); }
     loadCloudData();
   };
-  const handleLogout = async () => { try { await db.signOut(); setUser(null); setSession(null); setUserRole('admin'); } catch (err) { console.error(err); } };
+ const handleLogout = async () => {
+  try { await Promise.race([db.signOut(), new Promise((_, r) => setTimeout(() => r('timeout'), 3000))]); } catch (e) { console.warn('signOut falló, limpiando manualmente:', e); }
+  try { Object.keys(localStorage).filter(k => k.includes('supabase')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
+  setUser(null); setSession(null); setUserRole('admin');
+};
 
   // ---- Cálculos de costos ----
   const años = useMemo(() => {
