@@ -8,7 +8,6 @@ import * as db from './supabase';
 import Login from './Login';
 import CargaArchivos from './CargaArchivos';
 import KPITrends from './KPITrends';
-import Contabilidad from './Contabilidad';
 import { VENTAS_GANADO, TIPO_ANIMAL_LABELS } from './ventas-ganado';
 
 // ==================== HELPERS ====================
@@ -38,7 +37,7 @@ export default function GanaderiaApp() {
   // Auth
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
-  const [userRole, setUserRole] = useState('admin');
+  const [showLogin, setShowLogin] = useState(false);
 
   // Conexión
   const [isOnline, setIsOnline] = useState(true);
@@ -67,29 +66,11 @@ export default function GanaderiaApp() {
 
   // ---- Init & Auth ----
   useEffect(() => {
-    const withTimeout = (promise, ms) => Promise.race([
-      promise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), ms))
-    ]);
-
     const init = async () => {
       try {
-        let session = null;
-        try {
-          session = await withTimeout(db.getSession(), 8000);
-        } catch (e) {
-          console.warn('getSession timeout o error — limpiando sesión corrupta:', e.message);
-          try { const keys = Object.keys(localStorage).filter(k => k.includes('supabase')); keys.forEach(k => localStorage.removeItem(k)); } catch(x) {}
-        }
-        if (session) {
-          setSession(session); setUser(session.user);
-          try {
-            const { rol } = await withTimeout(db.getUserRole(session.user.email), 5000);
-            setUserRole(rol);
-            if (rol === 'contador') setView('contabilidad');
-          } catch (e) { console.error('Error fetching role:', e); }
-        }
-        const online = await withTimeout(db.checkConnection(), 5000).catch(() => false);
+        const session = await db.getSession();
+        if (session) { setSession(session); setUser(session.user); }
+        const online = await db.checkConnection();
         setIsOnline(online);
         if (online) await loadCloudData();
         else loadCachedData();
@@ -103,16 +84,9 @@ export default function GanaderiaApp() {
     };
     init();
 
-    const { data: { subscription } } = db.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT') { setUser(null); setSession(null); setUserRole('admin'); }
-      else if (session) {
-        setSession(session); setUser(session.user);
-        try {
-          const { rol } = await db.getUserRole(session.user.email);
-          setUserRole(rol);
-          if (rol === 'contador') setView('contabilidad');
-        } catch (e) { console.error(e); }
-      }
+    const { data: { subscription } } = db.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') { setUser(null); setSession(null); }
+      else if (session) { setSession(session); setUser(session.user); }
     });
 
     const handleOnline = () => checkConnection();
@@ -218,20 +192,12 @@ export default function GanaderiaApp() {
     }
   };
 
-  const handleLogin = async (user, session) => {
-    setUser(user); setSession(session);
-    try {
-      const { rol } = await db.getUserRole(user.email);
-      setUserRole(rol);
-      if (rol === 'contador') setView('contabilidad');
-    } catch (e) { console.error('Error fetching role:', e); }
-    loadCloudData();
+  const handleLogin = (user, session) => { setUser(user); setSession(session); setShowLogin(false); loadCloudData(); };
+  const handleLogout = async () => {
+    try { await Promise.race([db.signOut(), new Promise((_, r) => setTimeout(() => r('timeout'), 3000))]); } catch (e) { console.warn('signOut falló, limpiando manualmente:', e); }
+    try { Object.keys(localStorage).filter(k => k.includes('supabase')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
+    setUser(null); setSession(null); setUserRole('admin');
   };
- const handleLogout = async () => {
-  try { await Promise.race([db.signOut(), new Promise((_, r) => setTimeout(() => r('timeout'), 3000))]); } catch (e) { console.warn('signOut falló, limpiando manualmente:', e); }
-  try { Object.keys(localStorage).filter(k => k.includes('supabase')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
-  setUser(null); setSession(null); setUserRole('admin');
-};
 
   // ---- Cálculos de costos ----
   const años = useMemo(() => {
@@ -333,18 +299,16 @@ export default function GanaderiaApp() {
     );
   }
 
-  if (!user) return <Login onLogin={handleLogin} />;
+  if (showLogin) return <Login onLogin={handleLogin} onSkip={() => setShowLogin(false)} />;
 
-  const allMenuItems = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard', roles: ['admin'] },
-    { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500', roles: ['admin'] },
-    { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500', roles: ['admin'] },
-    { id: 'nacimientos', icon: Baby, label: 'Nacimientos', roles: ['admin'] },
-    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500', roles: ['admin'] },
-    { id: 'costos', icon: Receipt, label: 'Costos y Gastos', roles: ['admin'] },
-    { id: 'contabilidad', icon: FileText, label: 'Contabilidad', accent: 'text-amber-400', roles: ['admin', 'contador'] },
+  const menuItems = [
+    { id: 'dashboard', icon: Home, label: 'Dashboard' },
+    { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500' },
+    { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500' },
+    { id: 'nacimientos', icon: Baby, label: 'Nacimientos' },
+    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500' },
+    { id: 'costos', icon: Receipt, label: 'Costos y Gastos' },
   ];
-  const menuItems = allMenuItems.filter(item => item.roles.includes(userRole));
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200">
@@ -370,17 +334,21 @@ export default function GanaderiaApp() {
             {isOnline && !syncing && (
               <button onClick={loadCloudData} className="p-2 hover:bg-white/10 rounded-lg" title="Sincronizar datos"><RefreshCw size={18} /></button>
             )}
-            {isOnline && userRole === 'admin' && (
+            {user && isOnline && (
               <div className="flex items-center gap-1">
                 <button onClick={() => setShowCarga(true)} className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm transition-colors" title="Cargar archivo">
                   <Upload size={16} /><span className="hidden sm:inline">Cargar</span>
                 </button>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <span className="text-sm bg-white/10 px-3 py-1 rounded-full hidden md:block truncate max-w-[150px]">{user.email}</span>
-              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-lg" title="Cerrar sesión"><LogOut size={18} /></button>
-            </div>
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm bg-white/10 px-3 py-1 rounded-full hidden md:block truncate max-w-[150px]">{user.email}</span>
+                <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-lg" title="Cerrar sesión"><LogOut size={18} /></button>
+              </div>
+            ) : (
+              <button onClick={() => setShowLogin(true)} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">Iniciar sesión</button>
+            )}
           </div>
         </div>
       </header>
@@ -397,7 +365,6 @@ export default function GanaderiaApp() {
               </button>
             ))}
           </nav>
-          {userRole === 'admin' && (
           <div className="p-4 border-t">
             <p className="text-xs text-gray-400 mb-2">Fuente: {dataSource === 'cloud' ? '☁️ Nube' : dataSource === 'cache' ? '📦 Caché offline' : '💾 Local'}</p>
             <div className="space-y-1 text-sm text-gray-400">
@@ -407,7 +374,6 @@ export default function GanaderiaApp() {
               <p>🛒 {ventas.length} ventas</p>
             </div>
           </div>
-          )}
         </aside>
 
         {/* Main content */}
@@ -428,40 +394,13 @@ export default function GanaderiaApp() {
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
               pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} />
           )}
-          {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} onNacimientosChange={async () => {
-            try {
-              const nacData = await db.getNacimientos();
-              if (nacData?.length > 0) {
-                setNacimientos(nacData);
-                try { localStorage.setItem('cache_nacimientos', JSON.stringify(nacData)); } catch(e) {}
-              }
-            } catch(e) { console.error('Error refreshing nacimientos:', e); }
-          }} />}
-          {view === 'ventas' && <VentasTotales ventas={ventas} onVentasChange={async () => {
-            try {
-              const ventasData = await db.getVentas();
-              if (ventasData?.length > 0) {
-                setVentas(ventasData);
-                try { localStorage.setItem('cache_ventas', JSON.stringify(ventasData)); } catch(e) {}
-              }
-            } catch(e) { console.error('Error refreshing ventas:', e); }
-          }} />}
+          {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
+          {view === 'ventas' && <VentasTotales ventas={ventas} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
               filtros={filtros} setFiltros={updateFiltros} onNew={() => setShowForm(true)}
               onEdit={g => { setEditGasto(g); setShowForm(true); }} onDel={del} onApprove={approve}
               page={page} pages={totalPages} setPage={setPage} años={años} canEdit={!!user} />
-          )}
-          {view === 'contabilidad' && (
-            <Contabilidad gastos={gastos} userRole={userRole} userEmail={user?.email} onGastosChange={async () => {
-              try {
-                const costosData = await db.getCostos();
-                if (costosData?.length > 0) {
-                  setGastos(costosData);
-                  try { localStorage.setItem('cache_gastos', JSON.stringify(costosData)); } catch(e) {}
-                }
-              } catch(e) { console.error('Error refreshing costos:', e); }
-            }} />
           )}
         </main>
       </div>
@@ -490,6 +429,19 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
     if (añoFiltro) return (ventas || []).filter(v => v.año === añoFiltro).reduce((s, v) => s + (v.valor || 0), 0);
     return (ventas || []).reduce((s, v) => s + (v.valor || 0), 0);
   }, [ventas, añoFiltro]);
+
+  // Egresos promedio por mes
+  const promedioMes = useMemo(() => {
+    const mesesUnicos = new Set();
+    (gastos || []).forEach(g => {
+      if (!g.fecha) return;
+      const [año, mes] = g.fecha.split('-');
+      if (añoFiltro && parseInt(año) !== añoFiltro) return;
+      mesesUnicos.add(`${año}-${mes}`);
+    });
+    const numMeses = mesesUnicos.size;
+    return numMeses > 0 ? totales.total / numMeses : 0;
+  }, [gastos, añoFiltro, totales.total]);
 
   // Inventario último por finca
   const invLaVega = useMemo(() =>
@@ -530,10 +482,9 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
       </div>
 
       {/* Cards financieros */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card title="Total Egresos" value={formatCurrency(totales.total)} icon={DollarSign} color="from-green-500 to-green-600" />
-        <Card title="Costos" value={formatCurrency(totales.costos)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
-        <Card title="Gastos" value={formatCurrency(totales.gastos)} icon={Receipt} color="from-purple-500 to-purple-600" />
+        <Card title="Egresos Promedio/Mes" value={formatCurrency(promedioMes)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
         <Card title={`Ventas ${ventasAñoLabel}`} value={formatCurrency(ventasAño)} icon={ShoppingCart} color="from-amber-500 to-amber-600" sub="ingresos ganado" />
       </div>
 
@@ -642,12 +593,8 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
 }
 
 // ==================== COMPONENTE VENTAS TOTALES ====================
-function VentasTotales({ ventas: ventasData, onVentasChange }) {
+function VentasTotales({ ventas: ventasData }) {
   const [añoSel, setAñoSel] = useState('');
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [editando, setEditando] = useState(null);
-  const [editForm, setEditForm] = useState({});
-  const [operando, setOperando] = useState(false);
   const allVentas = ventasData || VENTAS_GANADO;
   const añosDisponibles = useMemo(() => 
     [...new Set(allVentas.map(v => v.año))].sort((a, b) => b - a).map(String), 
@@ -850,183 +797,26 @@ function VentasTotales({ ventas: ventasData, onVentasChange }) {
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">Kg</th>
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">$/kg</th>
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">Valor</th>
-                {onVentasChange && <th className="text-center py-3 px-2 font-semibold text-gray-400 w-20">Acciones</th>}
               </tr>
             </thead>
             <tbody>
               {transacciones.map((v, i) => (
-                <tr key={v.id || i} className="border-b border-gray-800 hover:bg-gray-800/50">
+                <tr key={i} className="border-b border-gray-800 hover:bg-gray-800/50">
                   <td className="py-2 px-2 whitespace-nowrap">{v.fecha}</td>
                   <td className="py-2 px-2 text-gray-400">{v.factura || '—'}</td>
                   <td className="py-2 px-2 truncate max-w-[150px]">{v.cliente}</td>
                   <td className="py-2 px-2">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${COLORES_TIPO[v.tipo]?.bg || 'bg-gray-800'} ${COLORES_TIPO[v.tipo]?.text || 'text-gray-300'}`}>{v.tipo}</span>
                   </td>
-                  <td className="py-2 px-2 text-right">{v.kg?.toLocaleString('es-CO')}</td>
+                  <td className="py-2 px-2 text-right">{v.kg.toLocaleString('es-CO')}</td>
                   <td className="py-2 px-2 text-right">{formatCurrency(v.precio)}</td>
                   <td className="py-2 px-2 text-right font-medium text-amber-400">{formatCurrency(v.valor)}</td>
-                  {onVentasChange && v.id && (
-                    <td className="py-2 px-2 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <button onClick={() => { setEditando(v); setEditForm({ fecha: v.fecha || '', factura: v.factura || '', cliente: v.cliente || '', tipo: v.tipo || '', kg: v.kg || 0, precio: v.precio || 0, valor: v.valor || 0, comentarios: v.comentarios || '' }); }}
-                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-blue-400 transition-colors" title="Editar">
-                          <Edit2 size={14} />
-                        </button>
-                        <button onClick={() => setConfirmDelete(v)}
-                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors" title="Eliminar">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  )}
-                  {onVentasChange && !v.id && (
-                    <td className="py-2 px-2 text-center text-gray-600 text-xs">local</td>
-                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-
-      {/* Modal Confirmar Eliminación */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-gray-800">
-            <h3 className="text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
-              <Trash2 size={20} className="text-red-400" /> Eliminar Venta
-            </h3>
-            <div className="bg-gray-800 rounded-xl p-4 mb-4 text-sm space-y-1">
-              <p className="text-gray-300"><span className="text-gray-500">Fecha:</span> {confirmDelete.fecha}</p>
-              <p className="text-gray-300"><span className="text-gray-500">Factura:</span> {confirmDelete.factura || '—'}</p>
-              <p className="text-gray-300"><span className="text-gray-500">Cliente:</span> {confirmDelete.cliente}</p>
-              <p className="text-gray-300"><span className="text-gray-500">Tipo:</span> {confirmDelete.tipo} — {confirmDelete.kg?.toLocaleString('es-CO')} kg</p>
-              <p className="text-amber-400 font-medium"><span className="text-gray-500">Valor:</span> {formatCurrency(confirmDelete.valor)}</p>
-            </div>
-            <p className="text-sm text-red-400/80 mb-4">Esta acción no se puede deshacer.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(null)} disabled={operando}
-                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                Cancelar
-              </button>
-              <button onClick={async () => {
-                setOperando(true);
-                try {
-                  await db.deleteVenta(confirmDelete.id);
-                  setConfirmDelete(null);
-                  if (onVentasChange) await onVentasChange();
-                } catch (e) {
-                  alert('Error al eliminar: ' + e.message);
-                } finally {
-                  setOperando(false);
-                }
-              }} disabled={operando}
-                className="flex-1 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
-                {operando ? <><Loader2 size={16} className="animate-spin" />Eliminando...</> : <><Trash2 size={16} />Eliminar</>}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Editar Venta */}
-      {editando && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-lg w-full border border-gray-800">
-            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-              <Edit2 size={20} className="text-blue-400" /> Editar Venta
-            </h3>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Fecha</label>
-                <input type="date" value={editForm.fecha} onChange={e => setEditForm(f => ({ ...f, fecha: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Factura</label>
-                <input type="text" value={editForm.factura} onChange={e => setEditForm(f => ({ ...f, factura: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Cliente</label>
-                <input type="text" value={editForm.cliente} onChange={e => setEditForm(f => ({ ...f, cliente: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Tipo</label>
-                <select value={editForm.tipo} onChange={e => setEditForm(f => ({ ...f, tipo: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
-                  <option value="ML">ML - Machos Levante</option>
-                  <option value="HL">HL - Hembras Levante</option>
-                  <option value="VD">VD - Vacas Despaje</option>
-                  <option value="T">T - Toros</option>
-                  <option value="CM">CM - Crías Macho</option>
-                  <option value="CH">CH - Crías Hembra</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Kg</label>
-                <input type="number" value={editForm.kg} onChange={e => {
-                  const kg = parseFloat(e.target.value) || 0;
-                  setEditForm(f => ({ ...f, kg, valor: Math.round(kg * f.precio) }));
-                }}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">$/kg</label>
-                <input type="number" value={editForm.precio} onChange={e => {
-                  const precio = parseFloat(e.target.value) || 0;
-                  setEditForm(f => ({ ...f, precio, valor: Math.round(f.kg * precio) }));
-                }}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-xs text-gray-500 mb-1">Valor Total</label>
-                <div className="px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-amber-400 font-semibold text-sm">
-                  {formatCurrency(editForm.valor)}
-                </div>
-              </div>
-              <div className="col-span-2">
-                <label className="block text-xs text-gray-500 mb-1">Comentarios</label>
-                <input type="text" value={editForm.comentarios} onChange={e => setEditForm(f => ({ ...f, comentarios: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => { setEditando(null); setEditForm({}); }} disabled={operando}
-                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                Cancelar
-              </button>
-              <button onClick={async () => {
-                setOperando(true);
-                try {
-                  await db.updateVenta(editando.id, {
-                    fecha: editForm.fecha,
-                    factura: editForm.factura || null,
-                    cliente: editForm.cliente,
-                    tipo: editForm.tipo,
-                    kg: parseFloat(editForm.kg) || 0,
-                    precio: parseFloat(editForm.precio) || 0,
-                    valor: parseFloat(editForm.valor) || 0,
-                    comentarios: editForm.comentarios || '',
-                    año: editForm.fecha ? parseInt(editForm.fecha.split('-')[0]) : editando.año
-                  });
-                  setEditando(null);
-                  setEditForm({});
-                  if (onVentasChange) await onVentasChange();
-                } catch (e) {
-                  alert('Error al actualizar: ' + e.message);
-                } finally {
-                  setOperando(false);
-                }
-              }} disabled={operando}
-                className="flex-1 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
-                {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Guardar Cambios</>}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -2109,36 +1899,9 @@ function Stat({ label, value, sub }) {
     </div>
   );
 }
-function Nacimientos({ data, inventario, onNacimientosChange }) {
+function Nacimientos({ data, inventario }) {
   const [filtros, setFiltros] = useState({ año: '2025', sexo: '', padre: '', busqueda: '', estado: 'Activo' });
-  const [showNuevo, setShowNuevo] = useState(false);
-  const [tipoRegistro, setTipoRegistro] = useState(null); // null = elegir, 'nacimiento', 'destete'
-  const [operando, setOperando] = useState(false);
-  const [nuevoForm, setNuevoForm] = useState({ cria: '', fecha: '', sexo: 'M', madre: '', padre: '', peso_nacer: '', estado: 'Activo', tipo_servicio: 'MN', receptora: '', tipo_ganado: 'Puro' });
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [editando, setEditando] = useState(null);
-  const [editForm, setEditForm] = useState({});
-  const [desteteForm, setDesteteForm] = useState({ fecha_destete: '', peso_destete: '' });
-  const [desteteAnimal, setDesteteAnimal] = useState(null);
-  const [busquedaDestete, setBusquedaDestete] = useState('');
   const años = [...new Set(data.map(n => n.año))].filter(Boolean).sort().reverse();
-  const padresConocidos = useMemo(() => [...new Set(data.map(n => n.padre))].filter(Boolean).sort(), [data]);
-  const madresConocidas = useMemo(() => [...new Set(data.map(n => n.madre))].filter(Boolean).sort(), [data]);
-
-  // Animales activos sin destete registrado
-  const pendientesDestete = useMemo(() => 
-    data.filter(n => n.estado === 'Activo' && !(n.pesoDestete || n.peso_destete))
-      .sort((a, b) => new Date(a.fecha) - new Date(b.fecha)),
-  [data]);
-
-  // Filtrados para búsqueda en modal destete
-  const filtradosDestete = useMemo(() => {
-    if (!busquedaDestete) return pendientesDestete;
-    const b = busquedaDestete.toLowerCase();
-    return pendientesDestete.filter(n => 
-      n.cria?.toLowerCase().includes(b) || n.madre?.toLowerCase().includes(b) || n.padre?.toLowerCase().includes(b)
-    );
-  }, [pendientesDestete, busquedaDestete]);
 
   const filtered = useMemo(() => data.filter(n => {
     if (filtros.año && n.año !== parseInt(filtros.año)) return false;
@@ -2196,12 +1959,6 @@ function Nacimientos({ data, inventario, onNacimientosChange }) {
     <div className="space-y-6">
       <div className="flex items-center gap-4 flex-wrap">
         <h2 className="text-2xl font-bold text-gray-100">🐮 Nacimientos</h2>
-        {onNacimientosChange && (
-          <button onClick={() => { setShowNuevo(true); setTipoRegistro(null); }}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-green-700 transition-colors text-sm">
-            <PlusCircle size={18} />Nuevo Registro
-          </button>
-        )}
         <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
           <option value="">Todos</option>
           {años.map(a => <option key={a} value={a}>{a}</option>)}
@@ -2311,7 +2068,6 @@ function Nacimientos({ data, inventario, onNacimientosChange }) {
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Nacer</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Destete</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Estado</th>
-                {onNacimientosChange && <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 w-20">Acc.</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
@@ -2333,20 +2089,6 @@ function Nacimientos({ data, inventario, onNacimientosChange }) {
                       {n.estado}
                     </span>
                   </td>
-                  {onNacimientosChange && n.id && (
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <button onClick={() => { setEditando(n); setEditForm({ cria: n.cria || '', fecha: n.fecha || '', sexo: n.sexo || 'M', madre: n.madre || '', padre: n.padre || '', peso_nacer: n.pesoNacer || n.peso_nacer || '', peso_destete: n.pesoDestete || n.peso_destete || '', fecha_destete: n.fechaDestete || n.fecha_destete || '', estado: n.estado || 'Activo', tipo_servicio: n.tipo_servicio || 'MN', receptora: n.receptora || '', tipo_ganado: n.tipo_ganado || 'Puro' }); }}
-                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-blue-400 transition-colors" title="Editar">
-                          <Edit2 size={14} />
-                        </button>
-                        <button onClick={() => setConfirmDelete(n)}
-                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors" title="Eliminar">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  )}
                 </tr>
               ))}
             </tbody>
@@ -2354,542 +2096,6 @@ function Nacimientos({ data, inventario, onNacimientosChange }) {
         </div>
         {filtered.length > 50 && <div className="p-4 text-center text-sm text-gray-400">Mostrando 50 de {filtered.length}</div>}
       </div>
-
-      {/* Modal Nuevo Registro (Nacimiento o Destete) */}
-      {showNuevo && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-lg w-full border border-gray-800 max-h-[90vh] overflow-y-auto">
-
-            {/* === PASO 1: Elegir tipo === */}
-            {!tipoRegistro && (
-              <>
-                <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-                  <PlusCircle size={20} className="text-green-400" /> Nuevo Registro
-                </h3>
-                <div className="grid grid-cols-1 gap-3 mb-4">
-                  <button onClick={() => { setTipoRegistro('nacimiento'); setNuevoForm({ cria: '', fecha: new Date().toISOString().split('T')[0], sexo: 'M', madre: '', padre: '', peso_nacer: '', estado: 'Activo', tipo_servicio: 'MN', receptora: '', tipo_ganado: 'Puro' }); }}
-                    className="flex items-center gap-4 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors text-left border border-gray-700 hover:border-green-600">
-                    <div className="p-3 bg-green-900/40 rounded-xl"><Baby size={24} className="text-green-400" /></div>
-                    <div>
-                      <p className="font-semibold text-gray-100">Nacimiento</p>
-                      <p className="text-sm text-gray-400">Registrar una nueva cría</p>
-                    </div>
-                  </button>
-                  <button onClick={() => { setTipoRegistro('destete'); setDesteteAnimal(null); setDesteteForm({ fecha_destete: new Date().toISOString().split('T')[0], peso_destete: '' }); setBusquedaDestete(''); }}
-                    className="flex items-center gap-4 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors text-left border border-gray-700 hover:border-amber-600">
-                    <div className="p-3 bg-amber-900/40 rounded-xl"><Scale size={24} className="text-amber-400" /></div>
-                    <div>
-                      <p className="font-semibold text-gray-100">Destete</p>
-                      <p className="text-sm text-gray-400">Registrar peso y fecha de destete — {pendientesDestete.length} pendientes</p>
-                    </div>
-                  </button>
-                </div>
-                <button onClick={() => setShowNuevo(false)}
-                  className="w-full py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                  Cancelar
-                </button>
-              </>
-            )}
-
-            {/* === PASO 2A: Formulario Nacimiento === */}
-            {tipoRegistro === 'nacimiento' && (
-              <>
-                <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-                  <Baby size={20} className="text-green-400" /> Nuevo Nacimiento
-                  <button onClick={() => setTipoRegistro(null)} className="ml-auto text-xs text-gray-400 hover:text-gray-300">↩ Volver</button>
-                </h3>
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Número Cría *</label>
-                    <input type="text" value={nuevoForm.cria} onChange={e => setNuevoForm(f => ({ ...f, cria: e.target.value }))}
-                      placeholder="Ej: 301" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Fecha Nacimiento *</label>
-                    <input type="date" value={nuevoForm.fecha} onChange={e => setNuevoForm(f => ({ ...f, fecha: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Sexo *</label>
-                    <select value={nuevoForm.sexo} onChange={e => setNuevoForm(f => ({ ...f, sexo: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
-                      <option value="M">♂ Macho</option>
-                      <option value="H">♀ Hembra</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Peso al Nacer (kg)</label>
-                    <input type="number" step="0.1" value={nuevoForm.peso_nacer} onChange={e => setNuevoForm(f => ({ ...f, peso_nacer: e.target.value }))}
-                      placeholder="Ej: 32" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Madre *</label>
-                    <input type="text" list="madres-list" value={nuevoForm.madre} onChange={e => setNuevoForm(f => ({ ...f, madre: e.target.value }))}
-                      placeholder="Ej: 045" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-                    <datalist id="madres-list">
-                      {madresConocidas.map(m => <option key={m} value={m} />)}
-                    </datalist>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Padre (Toro) *</label>
-                    <input type="text" list="padres-list" value={nuevoForm.padre} onChange={e => setNuevoForm(f => ({ ...f, padre: e.target.value }))}
-                      placeholder="Ej: Sultán" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none" />
-                    <datalist id="padres-list">
-                      {padresConocidos.map(p => <option key={p} value={p} />)}
-                    </datalist>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Tipo Servicio *</label>
-                    <select value={nuevoForm.tipo_servicio} onChange={e => setNuevoForm(f => ({ ...f, tipo_servicio: e.target.value, receptora: e.target.value !== 'TE' ? '' : f.receptora }))}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
-                      <option value="MN">MN — Monta Natural</option>
-                      <option value="IA">IA — Inseminación Artificial</option>
-                      <option value="TE">TE — Transferencia de Embriones</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Tipo Ganado *</label>
-                    <select value={nuevoForm.tipo_ganado} onChange={e => setNuevoForm(f => ({ ...f, tipo_ganado: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-green-500 outline-none">
-                      <option value="Puro">Puro</option>
-                      <option value="Comercial">Comercial</option>
-                    </select>
-                  </div>
-                  {nuevoForm.tipo_servicio === 'TE' && (
-                    <div className="col-span-2 bg-amber-900/20 border border-amber-800/50 rounded-xl p-3">
-                      <p className="text-xs text-amber-400 mb-2 font-medium">Transferencia de Embriones</p>
-                      <p className="text-xs text-gray-500 mb-2">En TE, "Madre" es la donadora genética del óvulo.</p>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Receptora (vaca que pare) *</label>
-                        <input type="text" list="madres-list-recep" value={nuevoForm.receptora} onChange={e => setNuevoForm(f => ({ ...f, receptora: e.target.value }))}
-                          placeholder="Ej: 078" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
-                        <datalist id="madres-list-recep">
-                          {madresConocidas.map(m => <option key={m} value={m} />)}
-                        </datalist>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-3">
-                  <button onClick={() => setShowNuevo(false)} disabled={operando}
-                    className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                    Cancelar
-                  </button>
-                  <button onClick={async () => {
-                    if (!nuevoForm.cria || !nuevoForm.fecha || !nuevoForm.madre || !nuevoForm.padre) {
-                      alert('Por favor completa los campos obligatorios: Cría, Fecha, Madre y Padre');
-                      return;
-                    }
-                    if (nuevoForm.tipo_servicio === 'TE' && !nuevoForm.receptora) {
-                      alert('Para Transferencia de Embriones, debes indicar la vaca receptora');
-                      return;
-                    }
-                    setOperando(true);
-                    try {
-                      const fechaParts = nuevoForm.fecha.split('-');
-                      await db.insertNacimiento({
-                        cria: nuevoForm.cria.trim(),
-                        fecha: nuevoForm.fecha,
-                        año: parseInt(fechaParts[0]),
-                        mes: parseInt(fechaParts[1]),
-                        sexo: nuevoForm.sexo,
-                        madre: nuevoForm.madre.trim(),
-                        padre: nuevoForm.padre.trim(),
-                        peso_nacer: nuevoForm.peso_nacer ? parseFloat(nuevoForm.peso_nacer) : null,
-                        estado: 'Activo',
-                        tipo_servicio: nuevoForm.tipo_servicio,
-                        receptora: nuevoForm.tipo_servicio === 'TE' ? nuevoForm.receptora.trim() : null,
-                        tipo_ganado: nuevoForm.tipo_ganado,
-                        comentario: nuevoForm.tipo_servicio === 'TE' ? `TE - Donadora: ${nuevoForm.madre.trim()}, Receptora: ${nuevoForm.receptora.trim()}` : null
-                      });
-                      setShowNuevo(false);
-                      if (onNacimientosChange) await onNacimientosChange();
-                    } catch (e) {
-                      alert('Error al guardar: ' + e.message);
-                    } finally {
-                      setOperando(false);
-                    }
-                  }} disabled={operando}
-                    className="flex-1 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
-                    {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Registrar Nacimiento</>}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* === PASO 2B: Flujo Destete === */}
-            {tipoRegistro === 'destete' && !desteteAnimal && (
-              <>
-                <h3 className="text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
-                  <Scale size={20} className="text-amber-400" /> Registrar Destete
-                  <button onClick={() => setTipoRegistro(null)} className="ml-auto text-xs text-gray-400 hover:text-gray-300">↩ Volver</button>
-                </h3>
-                <p className="text-sm text-gray-400 mb-3">Selecciona la cría a destetar ({pendientesDestete.length} pendientes)</p>
-                <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <input type="text" placeholder="Buscar por número, madre o padre..." value={busquedaDestete}
-                    onChange={e => setBusquedaDestete(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
-                </div>
-                <div className="max-h-64 overflow-y-auto space-y-1">
-                  {filtradosDestete.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4 text-sm">No hay crías pendientes de destete</p>
-                  ) : filtradosDestete.slice(0, 30).map(n => {
-                    const diasVida = n.fecha ? Math.round((new Date() - new Date(n.fecha)) / (1000 * 60 * 60 * 24)) : null;
-                    return (
-                      <button key={n.id || n.cria} onClick={() => { setDesteteAnimal(n); setDesteteForm({ fecha_destete: new Date().toISOString().split('T')[0], peso_destete: '' }); }}
-                        className="w-full flex items-center justify-between px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm transition-colors text-left">
-                        <div className="flex items-center gap-3">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${n.sexo === 'M' ? 'bg-blue-900/40 text-blue-400' : 'bg-pink-900/40 text-pink-400'}`}>
-                            {n.sexo === 'M' ? '♂' : '♀'}
-                          </span>
-                          <div>
-                            <span className="font-medium text-gray-200">{n.cria}</span>
-                            <span className="text-gray-500 ml-2">M: {n.madre} — P: {n.padre}</span>
-                          </div>
-                        </div>
-                        <div className="text-right text-xs text-gray-400">
-                          <div>{formatDate(n.fecha)}</div>
-                          {diasVida && <div>{diasVida} días</div>}
-                        </div>
-                      </button>
-                    );
-                  })}
-                  {filtradosDestete.length > 30 && <p className="text-center text-xs text-gray-500 py-2">Mostrando 30 de {filtradosDestete.length} — usa el buscador</p>}
-                </div>
-                <div className="mt-4">
-                  <button onClick={() => setShowNuevo(false)}
-                    className="w-full py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                    Cancelar
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* === PASO 3B: Formulario Destete (animal seleccionado) === */}
-            {tipoRegistro === 'destete' && desteteAnimal && (
-              <>
-                <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-                  <Scale size={20} className="text-amber-400" /> Registrar Destete
-                </h3>
-                <div className="bg-gray-800 rounded-xl p-4 mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${desteteAnimal.sexo === 'M' ? 'bg-blue-900/40 text-blue-400' : 'bg-pink-900/40 text-pink-400'}`}>
-                        {desteteAnimal.sexo === 'M' ? '♂' : '♀'}
-                      </span>
-                      <span className="font-semibold text-gray-100 text-lg">{desteteAnimal.cria}</span>
-                    </div>
-                    <button onClick={() => setDesteteAnimal(null)} className="text-xs text-amber-400 hover:text-amber-300">Cambiar ↩</button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                    <p className="text-gray-400"><span className="text-gray-500">Nacimiento:</span> {formatDate(desteteAnimal.fecha)}</p>
-                    <p className="text-gray-400"><span className="text-gray-500">Peso nacer:</span> {desteteAnimal.pesoNacer || desteteAnimal.peso_nacer || '—'} kg</p>
-                    <p className="text-gray-400"><span className="text-gray-500">Madre:</span> {desteteAnimal.madre}</p>
-                    <p className="text-gray-400"><span className="text-gray-500">Padre:</span> {desteteAnimal.padre}</p>
-                  </div>
-                  {desteteAnimal.fecha && (
-                    <p className="text-xs text-amber-400 mt-2">
-                      Edad actual: {Math.round((new Date() - new Date(desteteAnimal.fecha)) / (1000 * 60 * 60 * 24))} días
-                    </p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Fecha Destete *</label>
-                    <input type="date" value={desteteForm.fecha_destete} onChange={e => setDesteteForm(f => ({ ...f, fecha_destete: e.target.value }))}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Peso Destete (kg) *</label>
-                    <input type="number" step="0.1" value={desteteForm.peso_destete} onChange={e => setDesteteForm(f => ({ ...f, peso_destete: e.target.value }))}
-                      placeholder="Ej: 145" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
-                  </div>
-                </div>
-
-                {/* Preview de cálculos */}
-                {desteteForm.fecha_destete && desteteForm.peso_destete && desteteAnimal.fecha && (
-                  <div className="bg-amber-900/20 border border-amber-800/50 rounded-xl p-3 mb-4">
-                    <p className="text-xs text-amber-400 font-medium mb-1">Cálculos automáticos:</p>
-                    {(() => {
-                      const dias = Math.round((new Date(desteteForm.fecha_destete) - new Date(desteteAnimal.fecha)) / (1000 * 60 * 60 * 24));
-                      const pesoNacer = desteteAnimal.pesoNacer || desteteAnimal.peso_nacer || 0;
-                      const pesoDestete = parseFloat(desteteForm.peso_destete) || 0;
-                      const gdp = dias > 0 && pesoNacer ? Math.round(((pesoDestete - pesoNacer) / dias) * 1000) : null;
-                      return (
-                        <div className="grid grid-cols-3 gap-2 text-sm">
-                          <div className="text-center">
-                            <p className="text-gray-500 text-xs">Edad destete</p>
-                            <p className="font-semibold text-gray-200">{dias} días</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-gray-500 text-xs">Ganancia</p>
-                            <p className="font-semibold text-gray-200">{pesoNacer ? (pesoDestete - pesoNacer).toFixed(1) : '—'} kg</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-gray-500 text-xs">GDP vida</p>
-                            <p className={`font-semibold ${gdp >= 500 ? 'text-green-400' : gdp >= 400 ? 'text-amber-400' : 'text-red-400'}`}>
-                              {gdp ? `${gdp} g/día` : '—'}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <button onClick={() => setShowNuevo(false)} disabled={operando}
-                    className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                    Cancelar
-                  </button>
-                  <button onClick={async () => {
-                    if (!desteteForm.fecha_destete || !desteteForm.peso_destete) {
-                      alert('Completa la fecha y peso del destete');
-                      return;
-                    }
-                    setOperando(true);
-                    try {
-                      const fechaDest = desteteForm.fecha_destete;
-                      const fechaDestParts = fechaDest.split('-');
-                      const pesoDestete = parseFloat(desteteForm.peso_destete);
-                      const pesoNacer = desteteAnimal.pesoNacer || desteteAnimal.peso_nacer || 0;
-                      
-                      let edadDestete = null, grDiaVida = null;
-                      if (desteteAnimal.fecha) {
-                        edadDestete = Math.round((new Date(fechaDest) - new Date(desteteAnimal.fecha)) / (1000 * 60 * 60 * 24));
-                        if (pesoNacer && edadDestete > 0) {
-                          grDiaVida = Math.round(((pesoDestete - pesoNacer) / edadDestete) * 1000);
-                        }
-                      }
-
-                      await db.updateNacimiento(desteteAnimal.id, {
-                        peso_destete: pesoDestete,
-                        fecha_destete: fechaDest,
-                        año_destete: parseInt(fechaDestParts[0]),
-                        edad_destete: edadDestete,
-                        gr_dia_vida: grDiaVida
-                      });
-                      setShowNuevo(false);
-                      setDesteteAnimal(null);
-                      if (onNacimientosChange) await onNacimientosChange();
-                    } catch (e) {
-                      alert('Error al registrar destete: ' + e.message);
-                    } finally {
-                      setOperando(false);
-                    }
-                  }} disabled={operando}
-                    className="flex-1 py-2 bg-amber-600 text-white rounded-xl hover:bg-amber-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
-                    {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Registrar Destete</>}
-                  </button>
-                </div>
-              </>
-            )}
-
-          </div>
-        </div>
-      )}
-
-      {/* Modal Editar Nacimiento */}
-      {editando && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-lg w-full border border-gray-800 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-              <Edit2 size={20} className="text-blue-400" /> Editar Nacimiento — {editando.cria}
-            </h3>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Número Cría</label>
-                <input type="text" value={editForm.cria} onChange={e => setEditForm(f => ({ ...f, cria: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Fecha Nacimiento</label>
-                <input type="date" value={editForm.fecha} onChange={e => setEditForm(f => ({ ...f, fecha: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Sexo</label>
-                <select value={editForm.sexo} onChange={e => setEditForm(f => ({ ...f, sexo: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
-                  <option value="M">♂ Macho</option>
-                  <option value="H">♀ Hembra</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Peso al Nacer (kg)</label>
-                <input type="number" step="0.1" value={editForm.peso_nacer} onChange={e => setEditForm(f => ({ ...f, peso_nacer: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Madre</label>
-                <input type="text" list="madres-edit-list" value={editForm.madre} onChange={e => setEditForm(f => ({ ...f, madre: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-                <datalist id="madres-edit-list">
-                  {madresConocidas.map(m => <option key={m} value={m} />)}
-                </datalist>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Padre (Toro)</label>
-                <input type="text" list="padres-edit-list" value={editForm.padre} onChange={e => setEditForm(f => ({ ...f, padre: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-                <datalist id="padres-edit-list">
-                  {padresConocidos.map(p => <option key={p} value={p} />)}
-                </datalist>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Tipo Servicio</label>
-                <select value={editForm.tipo_servicio} onChange={e => setEditForm(f => ({ ...f, tipo_servicio: e.target.value, receptora: e.target.value !== 'TE' ? '' : f.receptora }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
-                  <option value="MN">MN — Monta Natural</option>
-                  <option value="IA">IA — Inseminación Artificial</option>
-                  <option value="TE">TE — Transferencia de Embriones</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Tipo Ganado</label>
-                <select value={editForm.tipo_ganado} onChange={e => setEditForm(f => ({ ...f, tipo_ganado: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
-                  <option value="Puro">Puro</option>
-                  <option value="Comercial">Comercial</option>
-                </select>
-              </div>
-              {editForm.tipo_servicio === 'TE' && (
-                <div className="col-span-2 bg-amber-900/20 border border-amber-800/50 rounded-xl p-3">
-                  <p className="text-xs text-amber-400 mb-2 font-medium">Transferencia de Embriones</p>
-                  <p className="text-xs text-gray-500 mb-2">En TE, "Madre" es la donadora genética del óvulo.</p>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Receptora (vaca que pare)</label>
-                    <input type="text" list="madres-edit-recep" value={editForm.receptora} onChange={e => setEditForm(f => ({ ...f, receptora: e.target.value }))}
-                      placeholder="Ej: 078" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-amber-500 outline-none" />
-                    <datalist id="madres-edit-recep">
-                      {madresConocidas.map(m => <option key={m} value={m} />)}
-                    </datalist>
-                  </div>
-                </div>
-              )}
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Peso Destete (kg)</label>
-                <input type="number" step="0.1" value={editForm.peso_destete} onChange={e => setEditForm(f => ({ ...f, peso_destete: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Fecha Destete</label>
-                <input type="date" value={editForm.fecha_destete} onChange={e => setEditForm(f => ({ ...f, fecha_destete: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Estado</label>
-                <select value={editForm.estado} onChange={e => setEditForm(f => ({ ...f, estado: e.target.value }))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm focus:border-blue-500 outline-none">
-                  <option value="Activo">Activo</option>
-                  <option value="Vendido">Vendido</option>
-                  <option value="Muerto">Muerto</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => { setEditando(null); setEditForm({}); }} disabled={operando}
-                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                Cancelar
-              </button>
-              <button onClick={async () => {
-                setOperando(true);
-                try {
-                  const fechaParts = editForm.fecha ? editForm.fecha.split('-') : [];
-                  const fechaDestParts = editForm.fecha_destete ? editForm.fecha_destete.split('-') : [];
-                  const pesoNacer = editForm.peso_nacer ? parseFloat(editForm.peso_nacer) : null;
-                  const pesoDestete = editForm.peso_destete ? parseFloat(editForm.peso_destete) : null;
-                  const fechaNac = editForm.fecha || null;
-                  const fechaDest = editForm.fecha_destete || null;
-
-                  // Calcular edad destete y GDP si hay datos suficientes
-                  let edadDestete = null, grDiaVida = null;
-                  if (fechaNac && fechaDest) {
-                    const diffMs = new Date(fechaDest) - new Date(fechaNac);
-                    edadDestete = Math.round(diffMs / (1000 * 60 * 60 * 24));
-                    if (pesoDestete && pesoNacer && edadDestete > 0) {
-                      grDiaVida = Math.round(((pesoDestete - pesoNacer) / edadDestete) * 1000);
-                    }
-                  }
-
-                  await db.updateNacimiento(editando.id, {
-                    cria: editForm.cria?.trim(),
-                    fecha: fechaNac,
-                    año: fechaParts.length >= 1 ? parseInt(fechaParts[0]) : editando.año,
-                    mes: fechaParts.length >= 2 ? parseInt(fechaParts[1]) : editando.mes,
-                    sexo: editForm.sexo,
-                    madre: editForm.madre?.trim(),
-                    padre: editForm.padre?.trim(),
-                    peso_nacer: pesoNacer,
-                    peso_destete: pesoDestete,
-                    fecha_destete: fechaDest,
-                    año_destete: fechaDestParts.length >= 1 ? parseInt(fechaDestParts[0]) : null,
-                    edad_destete: edadDestete,
-                    gr_dia_vida: grDiaVida,
-                    estado: editForm.estado,
-                    tipo_servicio: editForm.tipo_servicio || 'MN',
-                    receptora: editForm.tipo_servicio === 'TE' ? editForm.receptora?.trim() : null,
-                    tipo_ganado: editForm.tipo_ganado || 'Puro',
-                    comentario: editForm.tipo_servicio === 'TE' ? `TE - Donadora: ${editForm.madre?.trim()}, Receptora: ${editForm.receptora?.trim()}` : null
-                  });
-                  setEditando(null);
-                  setEditForm({});
-                  if (onNacimientosChange) await onNacimientosChange();
-                } catch (e) {
-                  alert('Error al actualizar: ' + e.message);
-                } finally {
-                  setOperando(false);
-                }
-              }} disabled={operando}
-                className="flex-1 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
-                {operando ? <><Loader2 size={16} className="animate-spin" />Guardando...</> : <><Check size={16} />Guardar Cambios</>}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Confirmar Eliminación */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-gray-800">
-            <h3 className="text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
-              <Trash2 size={20} className="text-red-400" /> Eliminar Nacimiento
-            </h3>
-            <div className="bg-gray-800 rounded-xl p-4 mb-4 text-sm space-y-1">
-              <p className="text-gray-300"><span className="text-gray-500">Cría:</span> {confirmDelete.cria}</p>
-              <p className="text-gray-300"><span className="text-gray-500">Fecha:</span> {confirmDelete.fecha}</p>
-              <p className="text-gray-300"><span className="text-gray-500">Sexo:</span> {confirmDelete.sexo === 'M' ? '♂ Macho' : '♀ Hembra'}</p>
-              <p className="text-gray-300"><span className="text-gray-500">Madre:</span> {confirmDelete.madre} — <span className="text-gray-500">Padre:</span> {confirmDelete.padre}</p>
-            </div>
-            <p className="text-sm text-red-400/80 mb-4">Esta acción no se puede deshacer.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(null)} disabled={operando}
-                className="flex-1 py-2 bg-gray-800 text-gray-300 rounded-xl hover:bg-gray-700 transition-colors">
-                Cancelar
-              </button>
-              <button onClick={async () => {
-                setOperando(true);
-                try {
-                  await db.deleteNacimiento(confirmDelete.id);
-                  setConfirmDelete(null);
-                  if (onNacimientosChange) await onNacimientosChange();
-                } catch (e) {
-                  alert('Error al eliminar: ' + e.message);
-                } finally {
-                  setOperando(false);
-                }
-              }} disabled={operando}
-                className="flex-1 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
-                {operando ? <><Loader2 size={16} className="animate-spin" />Eliminando...</> : <><Trash2 size={16} />Eliminar</>}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
