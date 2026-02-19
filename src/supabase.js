@@ -3,7 +3,16 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = 'https://dzykvitmgkrucicxvicz.supabase.co'
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6eWt2aXRtZ2tydWNpY3h2aWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDU4MTksImV4cCI6MjA4NTcyMTgxOX0.lE2a1jj34r_NRZ3uEuPinllG6VOQBE4TQbtbwXngHg4'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storageKey: 'sb-dzykvitmgkrucicxvicz-auth-token',
+    flowType: 'implicit',
+    detectSessionInUrl: false,
+    persistSession: true,
+    autoRefreshToken: true,
+    lock: (name, acquireTimeout, fn) => fn(),
+  },
+})
 
 // ==================== NACIMIENTOS ====================
 export async function getNacimientos() {
