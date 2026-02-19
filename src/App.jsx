@@ -67,18 +67,29 @@ export default function GanaderiaApp() {
 
   // ---- Init & Auth ----
   useEffect(() => {
+    const withTimeout = (promise, ms) => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), ms))
+    ]);
+
     const init = async () => {
       try {
-        const session = await db.getSession();
+        let session = null;
+        try {
+          session = await withTimeout(db.getSession(), 8000);
+        } catch (e) {
+          console.warn('getSession timeout o error — limpiando sesión corrupta:', e.message);
+          try { const keys = Object.keys(localStorage).filter(k => k.includes('supabase')); keys.forEach(k => localStorage.removeItem(k)); } catch(x) {}
+        }
         if (session) {
           setSession(session); setUser(session.user);
           try {
-            const { rol } = await db.getUserRole(session.user.email);
+            const { rol } = await withTimeout(db.getUserRole(session.user.email), 5000);
             setUserRole(rol);
             if (rol === 'contador') setView('contabilidad');
           } catch (e) { console.error('Error fetching role:', e); }
         }
-        const online = await db.checkConnection();
+        const online = await withTimeout(db.checkConnection(), 5000).catch(() => false);
         setIsOnline(online);
         if (online) await loadCloudData();
         else loadCachedData();
