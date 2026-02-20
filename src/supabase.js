@@ -1,18 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = 'https://dzykvitmgkrucicxvicz.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6eWt2aXRtZ2tydWNpY3h2aWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDU4MTksImV4cCI6MjA4NTcyMTgxOX0.lE2a1jj34r_NRZ3uEuPinllG6VOQBE4TQbtbwXngHg4'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storageKey: 'sb-dzykvitmgkrucicxvicz-auth-token',
-    flowType: 'implicit',
-    detectSessionInUrl: false,
-    persistSession: true,
-    autoRefreshToken: true,
-    lock: (name, acquireTimeout, fn) => fn(),
-  },
-})
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // ==================== NACIMIENTOS ====================
 export async function getNacimientos() {
@@ -133,13 +124,22 @@ export async function upsertInventario(registros) {
 
 // ==================== COSTOS ====================
 export async function getCostos() {
-  const { data, error } = await supabase
-    .from('costos')
-    .select('*')
-    .order('fecha', { ascending: false })
-    .limit(5000)
-  if (error) throw error
-  return data
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('costos')
+      .select('*')
+      .order('fecha', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
 }
 
 // ==================== VENTAS ====================
@@ -187,73 +187,82 @@ export async function deleteCosto(id) {
 
 // ==================== PESAJES ====================
 export async function getPesajes() {
-  const { data, error } = await supabase
-    .from('pesajes')
-    .select('*')
-    .order('fecha_pesaje', { ascending: false })
-    .limit(5000)
-  if (error) throw error
-  return data
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('pesajes')
+      .select('*')
+      .order('fecha_pesaje', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
 }
 
 // ==================== PALPACIONES ====================
 export async function getPalpaciones() {
-  const { data, error } = await supabase
-    .from('palpaciones')
-    .select('*')
-    .order('fecha', { ascending: false })
-    .limit(3000)
-  if (error) throw error
-  return data
-}
-
-export async function insertPalpacion(registro) {
-  const { data, error } = await supabase
-    .from('palpaciones')
-    .insert([registro])
-    .select()
-  if (error) throw error
-  return data[0]
-}
-
-export async function updatePalpacion(id, updates) {
-  const { data, error } = await supabase
-    .from('palpaciones')
-    .update(updates)
-    .eq('id', id)
-    .select()
-  if (error) throw error
-  return data[0]
-}
-
-export async function deletePalpacion(id) {
-  const { error } = await supabase
-    .from('palpaciones')
-    .delete()
-    .eq('id', id)
-  if (error) throw error
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('palpaciones')
+      .select('*')
+      .order('fecha', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
 }
 
 // ==================== SERVICIOS ====================
 export async function getServicios() {
-  const { data, error } = await supabase
-    .from('servicios')
-    .select('*')
-    .order('fecha', { ascending: false })
-    .limit(3000)
-  if (error) throw error
-  return data
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('servicios')
+      .select('*')
+      .order('fecha', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
 }
 
 // ==================== DESTETES ====================
 export async function getDestetes() {
-  const { data, error } = await supabase
-    .from('destetes')
-    .select('*')
-    .order('fecha_destete', { ascending: false })
-    .limit(3000)
-  if (error) throw error
-  return data
+  let allData = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('destetes')
+      .select('*')
+      .order('fecha_destete', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    allData = allData.concat(data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return allData
 }
 
 // ==================== LOG DE CARGAS ====================
@@ -295,98 +304,6 @@ export async function getSession() {
 
 export function onAuthStateChange(callback) {
   return supabase.auth.onAuthStateChange(callback)
-}
-
-// ==================== HATO REPRODUCTIVO ====================
-export async function getHatoReproductivo(finca = null) {
-  let query = supabase
-    .from('hato_reproductivo')
-    .select('*')
-    .order('categoria', { ascending: true })
-    .order('numero', { ascending: true })
-
-  if (finca) {
-    query = query.eq('finca', finca)
-  }
-
-  const { data, error } = await query
-  if (error) throw error
-  return data
-}
-
-export async function upsertHatoReproductivo(registros) {
-  const dbRecords = registros.map(r => ({
-    numero: r.numero,
-    finca: r.finca || 'La Vega',
-    categoria: r.categoria,
-    edad_anos: r.edad_anos,
-    estado_actual: r.estado_actual,
-    grupo: r.grupo,
-    dias_posparto: r.dias_posparto || 0,
-    num_partos: r.num_partos || 0,
-    cria_actual: r.cria_actual,
-    sexo_cria: r.sexo_cria,
-    fecha_ultimo_parto: r.fecha_ultimo_parto,
-    dias_gestacion: r.dias_gestacion || 0,
-    piep: r.piep || 0,
-    pduc: r.pduc || 0,
-    fecha_carga: new Date().toISOString().split('T')[0]
-  }))
-
-  let total = 0
-  for (let i = 0; i < dbRecords.length; i += 200) {
-    const batch = dbRecords.slice(i, i + 200)
-    const { data, error } = await supabase
-      .from('hato_reproductivo')
-      .upsert(batch, { onConflict: 'numero,finca' })
-      .select()
-
-    if (error) throw error
-    total += data?.length || 0
-  }
-
-  return { total, registros: dbRecords.length }
-}
-
-// ==================== LLUVIAS ====================
-export async function getLluvias(finca = null) {
-  let query = supabase
-    .from('lluvias')
-    .select('*')
-    .order('fecha', { ascending: false })
-    .limit(2000)
-  if (finca) query = query.eq('finca', finca)
-  const { data, error } = await query
-  if (error) throw error
-  return data
-}
-
-export async function insertLluviasBatch(registros) {
-  // registros = [{ fecha, finca, pluviometro, mm, registrado_por }]
-  const { data, error } = await supabase
-    .from('lluvias')
-    .upsert(registros, { onConflict: 'fecha,finca,pluviometro' })
-    .select()
-  if (error) throw error
-  return data
-}
-
-export async function updateLluvia(id, updates) {
-  const { data, error } = await supabase
-    .from('lluvias')
-    .update(updates)
-    .eq('id', id)
-    .select()
-  if (error) throw error
-  return data[0]
-}
-
-export async function deleteLluvia(id) {
-  const { error } = await supabase
-    .from('lluvias')
-    .delete()
-    .eq('id', id)
-  if (error) throw error
 }
 
 // ==================== RPC — CÁLCULOS EN SERVIDOR ====================

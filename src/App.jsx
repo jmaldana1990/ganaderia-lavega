@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle, Droplets } from 'lucide-react';
+import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 import { NACIMIENTOS_LA_VEGA } from './nacimientos-lavega';
@@ -53,7 +53,6 @@ export default function GanaderiaApp() {
   const [palpaciones, setPalpaciones] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [destetes, setDestetes] = useState([]);
-  const [lluvias, setLluvias] = useState([]);
 
   // UI
   const [view, setView] = useState('dashboard');
@@ -113,11 +112,10 @@ export default function GanaderiaApp() {
     setSyncing(true);
     try {
       const safeCall = (fn, fallback = []) => { try { const r = fn(); return r && r.catch ? r.catch(() => fallback) : Promise.resolve(fallback); } catch(e) { return Promise.resolve(fallback); } };
-      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData, lluvData] = await Promise.all([
+      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData] = await Promise.all([
         safeCall(() => db.getNacimientos()), safeCall(() => db.getCostos()), safeCall(() => db.getInventario()), safeCall(() => db.getVentas(), null),
         safeCall(() => db.getPesajes()), safeCall(() => db.getPalpaciones()),
-        safeCall(() => db.getServicios()), safeCall(() => db.getDestetes()),
-        safeCall(() => db.getLluvias())
+        safeCall(() => db.getServicios()), safeCall(() => db.getDestetes())
       ]);
       if (nacData?.length > 0) {
         setNacimientos(nacData);
@@ -146,10 +144,6 @@ export default function GanaderiaApp() {
       if (destData?.length > 0) {
         setDestetes(destData);
         try { localStorage.setItem('cache_destetes', JSON.stringify(destData)); } catch(e) {}
-      }
-      if (lluvData?.length > 0) {
-        setLluvias(lluvData);
-        try { localStorage.setItem('cache_lluvias', JSON.stringify(lluvData)); } catch(e) {}
       }
       // Inventario: combinar nube + local, deduplicando por finca+periodo
       if (invData?.length > 0) {
@@ -199,12 +193,7 @@ export default function GanaderiaApp() {
   };
 
   const handleLogin = (user, session) => { setUser(user); setSession(session); setShowLogin(false); loadCloudData(); };
-  const handleLogout = async () => {
-    try { await Promise.race([db.signOut(), new Promise((_, r) => setTimeout(() => r('timeout'), 3000))]); }
-    catch (e) { console.warn('signOut falló, limpiando manualmente:', e); }
-    try { Object.keys(localStorage).filter(k => k.includes('supabase')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
-    setUser(null); setSession(null);
-  };
+  const handleLogout = async () => { try { await db.signOut(); setUser(null); setSession(null); } catch (err) { console.error(err); } };
 
   // ---- Cálculos de costos ----
   const años = useMemo(() => {
@@ -394,15 +383,12 @@ export default function GanaderiaApp() {
           {view === 'lavega' && (
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
-              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
-              lluvias={lluvias} setLluvias={setLluvias}
-              setPalpaciones={setPalpaciones} userEmail={user?.email} />
+              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} isOnline={isOnline} />
           )}
           {view === 'bariloche' && (
             <FincaView finca="Bariloche" subtitulo="Finca de Levante" color="blue"
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
-              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
-              lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} />
+              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} isOnline={isOnline} />
           )}
           {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} />}
@@ -439,19 +425,6 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
     if (añoFiltro) return (ventas || []).filter(v => v.año === añoFiltro).reduce((s, v) => s + (v.valor || 0), 0);
     return (ventas || []).reduce((s, v) => s + (v.valor || 0), 0);
   }, [ventas, añoFiltro]);
-
-  // Egresos promedio por mes
-  const promedioMes = useMemo(() => {
-    const mesesUnicos = new Set();
-    (gastos || []).forEach(g => {
-      if (!g.fecha) return;
-      const [año, mes] = g.fecha.split('-');
-      if (añoFiltro && parseInt(año) !== añoFiltro) return;
-      mesesUnicos.add(`${año}-${mes}`);
-    });
-    const numMeses = mesesUnicos.size;
-    return numMeses > 0 ? totales.total / numMeses : 0;
-  }, [gastos, añoFiltro, totales.total]);
 
   // Inventario último por finca
   const invLaVega = useMemo(() =>
@@ -492,9 +465,10 @@ function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, fi
       </div>
 
       {/* Cards financieros */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card title="Total Egresos" value={formatCurrency(totales.total)} icon={DollarSign} color="from-green-500 to-green-600" />
-        <Card title="Egresos Promedio/Mes" value={formatCurrency(promedioMes)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
+        <Card title="Costos" value={formatCurrency(totales.costos)} icon={TrendingUp} color="from-blue-500 to-blue-600" />
+        <Card title="Gastos" value={formatCurrency(totales.gastos)} icon={Receipt} color="from-purple-500 to-purple-600" />
         <Card title={`Ventas ${ventasAñoLabel}`} value={formatCurrency(ventasAño)} icon={ShoppingCart} color="from-amber-500 to-amber-600" sub="ingresos ganado" />
       </div>
 
@@ -832,11 +806,37 @@ function VentasTotales({ ventas: ventasData }) {
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años, pesajes, palpaciones, servicios, destetes, lluvias, setLluvias, setPalpaciones, userEmail }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años, pesajes, palpaciones, servicios, destetes, isOnline }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
   const esTodos = añoSel === 'todos';
   const añoNum = esTodos ? new Date().getFullYear() : parseInt(añoSel);
+
+  // ---- RPC: Fertilidad e IEP desde servidor ----
+  const [rpcFert, setRpcFert] = useState(null);
+  const [rpcIep, setRpcIep] = useState(null);
+
+  useEffect(() => {
+    if (!isOnline || finca !== 'La Vega') return;
+    let cancelled = false;
+    const loadRpc = async () => {
+      try {
+        const [fert, iep] = await Promise.all([
+          db.getRpcFertilidad(finca, añoNum),
+          db.getRpcIep(finca)
+        ]);
+        if (!cancelled) {
+          setRpcFert(fert);
+          setRpcIep(iep);
+        }
+      } catch (err) {
+        console.warn('[RPC] Fallback a cálculo frontend:', err.message);
+        if (!cancelled) { setRpcFert(null); setRpcIep(null); }
+      }
+    };
+    loadRpc();
+    return () => { cancelled = true; };
+  }, [isOnline, finca, añoNum]);
 
   // Categorías y centros excluidos de totales operativos
   const CATEGORIAS_EXCLUIDAS = ['Las Victorias', 'Yegua Mauricio Aldana', 'Apicultura', 'Montaje finca'];
@@ -955,23 +955,28 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
     const mortalidad = nacTodos.length > 0
       ? (nacMuertos.length / nacTodos.length) * 100 : null;
 
-    // Intervalo entre partos (usando todas las madres históricas)
-    const porMadre = {};
-    nacimientos.filter(n => n.madre && n.fecha).forEach(n => {
-      if (!porMadre[n.madre]) porMadre[n.madre] = [];
-      porMadre[n.madre].push(new Date(n.fecha));
-    });
-    const intervalos = [];
-    Object.values(porMadre).forEach(fechas => {
-      if (fechas.length < 2) return;
-      fechas.sort((a, b) => a - b);
-      for (let i = 1; i < fechas.length; i++) {
-        const dias = (fechas[i] - fechas[i - 1]) / (1000 * 60 * 60 * 24);
-        if (dias > 200 && dias < 800) intervalos.push(dias);
-      }
-    });
-    const iepProm = intervalos.length
-      ? intervalos.reduce((s, d) => s + d, 0) / intervalos.length : null;
+    // Intervalo entre partos — usar RPC si disponible, sino calcular en frontend
+    let iepProm;
+    if (rpcIep && rpcIep.iep_dias) {
+      iepProm = rpcIep.iep_dias;
+    } else {
+      const porMadre = {};
+      nacimientos.filter(n => n.madre && n.fecha).forEach(n => {
+        if (!porMadre[n.madre]) porMadre[n.madre] = [];
+        porMadre[n.madre].push(new Date(n.fecha));
+      });
+      const intervalos = [];
+      Object.values(porMadre).forEach(fechas => {
+        if (fechas.length < 2) return;
+        fechas.sort((a, b) => a - b);
+        for (let i = 1; i < fechas.length; i++) {
+          const dias = (fechas[i] - fechas[i - 1]) / (1000 * 60 * 60 * 24);
+          if (dias > 200 && dias < 800) intervalos.push(dias);
+        }
+      });
+      iepProm = intervalos.length
+        ? intervalos.reduce((s, d) => s + d, 0) / intervalos.length : null;
+    }
 
     // Costo por animal destetado
     const costoAnimal = destetadosTotal > 0 ? costosAño / destetadosTotal : null;
@@ -980,21 +985,27 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
     const machos = nacActivos.filter(n => n.sexo === 'M').length;
     const hembras = nacActivos.filter(n => n.sexo === 'H').length;
 
-    // ---- FERTILIDAD (from palpaciones) ----
-    const palpAño = (palpaciones || []).filter(p => p.finca === 'La Vega' && p.fecha && parseInt(p.fecha.split('-')[0]) === añoNum);
-    // Get latest palpation per hembra in the year
-    const ultimaPalp = {};
-    palpAño.forEach(p => {
-      const key = p.hembra;
-      if (!ultimaPalp[key] || p.fecha > ultimaPalp[key].fecha) ultimaPalp[key] = p;
-    });
-    const palpUnicas = Object.values(ultimaPalp);
-    const totalPalpadas = palpUnicas.length;
-    const preñadas = palpUnicas.filter(p => {
-      const gest = (p.dias_gestacion || '').toString().trim().toUpperCase();
-      return gest !== 'VACIA' && gest !== '' && !isNaN(parseInt(gest));
-    }).length;
-    const fertilidad = totalPalpadas > 0 ? (preñadas / totalPalpadas) * 100 : null;
+    // ---- FERTILIDAD — usar RPC si disponible, sino calcular en frontend ----
+    let fertilidad, totalPalpadas, preñadas;
+    if (rpcFert && rpcFert.total_palpadas > 0) {
+      totalPalpadas = rpcFert.total_palpadas;
+      preñadas = rpcFert.preñadas;
+      fertilidad = rpcFert.fertilidad_pct;
+    } else {
+      const palpAño = (palpaciones || []).filter(p => p.finca === 'La Vega' && p.fecha && parseInt(p.fecha.split('-')[0]) === añoNum);
+      const ultimaPalp = {};
+      palpAño.forEach(p => {
+        const key = p.hembra;
+        if (!ultimaPalp[key] || p.fecha > ultimaPalp[key].fecha) ultimaPalp[key] = p;
+      });
+      const palpUnicas = Object.values(ultimaPalp);
+      totalPalpadas = palpUnicas.length;
+      preñadas = palpUnicas.filter(p => {
+        const gest = (p.dias_gestacion || '').toString().trim().toUpperCase();
+        return gest !== 'VACIA' && gest !== '' && !isNaN(parseInt(gest));
+      }).length;
+      fertilidad = totalPalpadas > 0 ? (preñadas / totalPalpadas) * 100 : null;
+    }
 
     // ---- SERVICIOS del año ----
     const servAño = (servicios || []).filter(s => s.finca === 'La Vega' && s.fecha && parseInt(s.fecha.split('-')[0]) === añoNum);
@@ -1020,7 +1031,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       preñadas,
       totalServicios: servAño.length,
     };
-  }, [nacimientos, añoNum, finca, costosAño, palpaciones, servicios, destetes]);
+  }, [nacimientos, añoNum, finca, costosAño, palpaciones, servicios, destetes, rpcFert, rpcIep]);
 
   // ---- KPIs Bariloche ----
   const kpisBariloche = useMemo(() => {
@@ -1119,8 +1130,6 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         {[
           { key: 'resumen', label: '📊 Resumen', icon: BarChart3, hide: esTodos },
           { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
-          { key: 'lluvias', label: '🌧️ Lluvias', icon: Droplets, hide: esTodos },
-          { key: 'palpaciones', label: '🔬 Palpaciones', icon: Activity, hide: esTodos || finca !== 'La Vega' },
           { key: 'hato', label: '🐄 Hato', icon: Search, hide: esTodos },
         ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
@@ -1495,819 +1504,11 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
         </div>
       )}
 
-      {!esTodos && subView === 'lluvias' && (
-        <LluviasView finca={finca} lluvias={lluvias} setLluvias={setLluvias} userEmail={userEmail} añoSel={añoSel} />
-      )}
-
-      {!esTodos && subView === 'palpaciones' && finca === 'La Vega' && (
-        <PalpacionesView palpaciones={palpaciones} setPalpaciones={setPalpaciones} userEmail={userEmail} nacimientos={nacimientos} />
-      )}
-
       {/* ==================== HATO ==================== */}
       {!esTodos && subView === 'hato' && (
         <HatoView finca={finca} nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} />
       )}
 
-    </div>
-  );
-}
-
-// ==================== COMPONENTE LLUVIAS ====================
-const PLUVIOMETROS = {
-  'La Vega': ['Casa', 'Sector 1', 'Sector 2.1', 'Sector 3'],
-  'Bariloche': ['Casa', 'Sector 2', 'Sector 4']
-};
-
-function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
-  const [showForm, setShowForm] = useState(false);
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
-  const [valores, setValores] = useState({});
-  const [saving, setSaving] = useState(false);
-  const [editando, setEditando] = useState(null);
-  const [confirmDel, setConfirmDel] = useState(null);
-  const [mesSel, setMesSel] = useState('todos');
-
-  const pluvs = PLUVIOMETROS[finca] || [];
-
-  // Datos filtrados por finca
-  const lluviasFinca = useMemo(() =>
-    (lluvias || []).filter(l => l.finca === finca),
-    [lluvias, finca]);
-
-  // Año numérico
-  const añoNum = añoSel === 'todos' ? null : parseInt(añoSel);
-
-  // Datos filtrados por año
-  const lluviasAño = useMemo(() => {
-    if (!añoNum) return lluviasFinca;
-    return lluviasFinca.filter(l => l.fecha && l.fecha.startsWith(String(añoNum)));
-  }, [lluviasFinca, añoNum]);
-
-  // Datos filtrados por mes
-  const lluviasMes = useMemo(() => {
-    if (mesSel === 'todos') return lluviasAño;
-    return lluviasAño.filter(l => {
-      const m = l.fecha ? parseInt(l.fecha.split('-')[1]) : 0;
-      return m === parseInt(mesSel);
-    });
-  }, [lluviasAño, mesSel]);
-
-  // Agrupar por fecha para la tabla
-  const porFecha = useMemo(() => {
-    const map = new Map();
-    lluviasMes.forEach(l => {
-      if (!map.has(l.fecha)) map.set(l.fecha, []);
-      map.get(l.fecha).push(l);
-    });
-    return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
-  }, [lluviasMes]);
-
-  // Resumen mensual para gráfico (promedio diario de pluviómetros, luego suma mensual)
-  const resumenMensual = useMemo(() => {
-    // Paso 1: agrupar por fecha → promedio de pluviómetros por día
-    const porDia = {};
-    lluviasAño.forEach(l => {
-      if (!l.fecha) return;
-      if (!porDia[l.fecha]) porDia[l.fecha] = [];
-      porDia[l.fecha].push(parseFloat(l.mm) || 0);
-    });
-    // Paso 2: promedio diario y acumular por mes
-    const meses = {};
-    Object.entries(porDia).forEach(([fecha, lecturas]) => {
-      const m = parseInt(fecha.split('-')[1]);
-      const promDia = lecturas.reduce((s, v) => s + v, 0) / lecturas.length;
-      if (!meses[m]) meses[m] = { total: 0, dias: 0 };
-      meses[m].total += promDia;
-      meses[m].dias += 1;
-    });
-    // También calcular por pluviómetro para detalle
-    const porPluv = {};
-    lluviasAño.forEach(l => {
-      if (!l.fecha) return;
-      const m = parseInt(l.fecha.split('-')[1]);
-      if (!porPluv[m]) porPluv[m] = {};
-      if (!porPluv[m][l.pluviometro]) porPluv[m][l.pluviometro] = 0;
-      porPluv[m][l.pluviometro] += parseFloat(l.mm) || 0;
-    });
-    const nombresMes = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    return Array.from({ length: 12 }, (_, i) => ({
-      mes: i + 1,
-      nombre: nombresMes[i + 1],
-      total: meses[i + 1]?.total ? Math.round(meses[i + 1].total) : 0,
-      dias: meses[i + 1]?.dias || 0,
-      porPluv: porPluv[i + 1] || {}
-    }));
-  }, [lluviasAño]);
-
-  const maxMensual = Math.max(...resumenMensual.map(m => m.total), 1);
-  const totalAnual = resumenMensual.reduce((s, m) => s + m.total, 0);
-  const promedioMensual = totalAnual / (resumenMensual.filter(m => m.total > 0).length || 1);
-
-  // Comparativo anual: datos de todos los años (promedio diario de pluviómetros)
-  const comparativoAnual = useMemo(() => {
-    // Paso 1: agrupar por fecha → promedio de pluviómetros
-    const porDia = {};
-    lluviasFinca.forEach(l => {
-      if (!l.fecha) return;
-      if (!porDia[l.fecha]) porDia[l.fecha] = [];
-      porDia[l.fecha].push(parseFloat(l.mm) || 0);
-    });
-    // Paso 2: acumular promedios diarios por año/mes
-    const porAño = {};
-    Object.entries(porDia).forEach(([fecha, lecturas]) => {
-      const año = parseInt(fecha.split('-')[0]);
-      const mes = parseInt(fecha.split('-')[1]);
-      const promDia = lecturas.reduce((s, v) => s + v, 0) / lecturas.length;
-      if (!porAño[año]) porAño[año] = {};
-      if (!porAño[año][mes]) porAño[año][mes] = 0;
-      porAño[año][mes] += promDia;
-    });
-    const años = Object.keys(porAño).map(Number).sort().slice(-5);
-    const nombresMes = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const meses = Array.from({ length: 12 }, (_, i) => {
-      const m = { mes: i + 1, nombre: nombresMes[i + 1] };
-      años.forEach(a => { m[a] = Math.round(porAño[a]?.[i + 1] || 0); });
-      return m;
-    });
-    const maxVal = Math.max(...meses.flatMap(m => años.map(a => m[a] || 0)), 1);
-    const totales = {};
-    años.forEach(a => { totales[a] = Math.round(meses.reduce((s, m) => s + (m[a] || 0), 0)); });
-    return { años, meses, maxVal, totales };
-  }, [lluviasFinca]);
-
-  const coloresAño = { 0: 'bg-gray-500', 1: 'bg-emerald-500', 2: 'bg-blue-500', 3: 'bg-amber-500', 4: 'bg-purple-500', 5: 'bg-red-500' };
-  const coloresAñoText = { 0: 'text-gray-400', 1: 'text-emerald-400', 2: 'text-blue-400', 3: 'text-amber-400', 4: 'text-purple-400', 5: 'text-red-400' };
-
-  // Meses disponibles para filtro
-  const mesesDisponibles = useMemo(() => {
-    const ms = new Set();
-    lluviasAño.forEach(l => {
-      if (l.fecha) ms.add(parseInt(l.fecha.split('-')[1]));
-    });
-    return [...ms].sort((a, b) => a - b);
-  }, [lluviasAño]);
-
-  const nombresMesFull = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-  // Inicializar valores del form
-  const abrirForm = (fechaEdit = null) => {
-    const f = fechaEdit || new Date().toISOString().split('T')[0];
-    setFecha(f);
-    // Pre-cargar valores existentes para esa fecha
-    const existentes = lluviasFinca.filter(l => l.fecha === f);
-    const vals = {};
-    pluvs.forEach(p => {
-      const ex = existentes.find(l => l.pluviometro === p);
-      vals[p] = ex ? String(ex.mm) : '';
-    });
-    setValores(vals);
-    setShowForm(true);
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const registros = pluvs
-        .filter(p => valores[p] !== '' && valores[p] !== undefined)
-        .map(p => ({
-          fecha,
-          finca,
-          pluviometro: p,
-          mm: parseFloat(valores[p]) || 0,
-          registrado_por: userEmail || 'sistema'
-        }));
-      if (registros.length === 0) { setSaving(false); return; }
-      const saved = await db.insertLluviasBatch(registros);
-      // Actualizar estado local
-      setLluvias(prev => {
-        const updated = [...prev];
-        saved.forEach(s => {
-          const idx = updated.findIndex(l => l.fecha === s.fecha && l.finca === s.finca && l.pluviometro === s.pluviometro);
-          if (idx >= 0) updated[idx] = s;
-          else updated.push(s);
-        });
-        return updated;
-      });
-      setShowForm(false);
-      setValores({});
-    } catch (err) {
-      alert('Error guardando: ' + err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await db.deleteLluvia(id);
-      setLluvias(prev => prev.filter(l => l.id !== id));
-      setConfirmDel(null);
-    } catch (err) {
-      alert('Error eliminando: ' + err.message);
-    }
-  };
-
-  const colorPluv = (nombre) => {
-    if (nombre === 'Casa') return 'bg-blue-500';
-    if (nombre.includes('1')) return 'bg-green-500';
-    if (nombre.includes('2')) return 'bg-amber-500';
-    if (nombre.includes('3')) return 'bg-purple-500';
-    if (nombre.includes('4')) return 'bg-red-500';
-    return 'bg-gray-500';
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Header + Botón */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold flex items-center gap-2"><Droplets size={20} className="text-blue-400" /> Registro de Lluvias</h3>
-          <p className="text-sm text-gray-400 mt-1">Pluviómetros: {pluvs.join(', ')}</p>
-        </div>
-        <button onClick={() => abrirForm()} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors">
-          <PlusCircle size={16} /> Registrar Lluvia
-        </button>
-      </div>
-
-      {/* Gráfico mensual */}
-      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold flex items-center gap-2"><BarChart3 size={18} className="text-blue-400" /> Precipitación Mensual {añoNum || ''}</h4>
-          <div className="text-right">
-            <p className="text-xl font-bold text-blue-400">{Math.round(totalAnual)} mm</p>
-            <p className="text-xs text-gray-400">Acumulado {añoNum || ''} (prom. pluviómetros) · Prom {Math.round(promedioMensual)} mm/mes</p>
-          </div>
-        </div>
-        <div className="flex items-end gap-1 h-40">
-          {resumenMensual.map(m => (
-            <div key={m.mes} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-xs text-gray-400 font-medium">{m.total > 0 ? m.total.toFixed(0) : ''}</span>
-              <div className="w-full flex flex-col justify-end" style={{ height: '120px' }}>
-                <div className={`w-full rounded-t transition-all duration-500 ${m.total > 0 ? 'bg-blue-500/80' : 'bg-gray-800'}`}
-                  style={{ height: `${Math.max((m.total / maxMensual) * 100, m.total > 0 ? 4 : 1)}%` }}
-                  title={`${m.nombre}: ${Math.round(m.total)} mm en ${m.dias} días`} />
-              </div>
-              <span className="text-xs text-gray-500">{m.nombre}</span>
-            </div>
-          ))}
-        </div>
-        {/* Línea promedio */}
-        {totalAnual > 0 && (
-          <div className="mt-2 flex items-center gap-2">
-            <div className="h-px flex-1 border-t border-dashed border-blue-400/40" />
-            <span className="text-xs text-blue-400/60">Promedio: {Math.round(promedioMensual)} mm</span>
-          </div>
-        )}
-      </div>
-
-      {/* Comparativo Anual */}
-      {comparativoAnual.años.length > 1 && (
-        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold flex items-center gap-2"><BarChart3 size={18} className="text-green-400" /> Comparativo Anual de Lluvias</h4>
-          </div>
-          {/* Leyenda con totales */}
-          <div className="flex flex-wrap gap-4 mb-4">
-            {comparativoAnual.años.map((a, i) => (
-              <div key={a} className="flex items-center gap-2 text-sm">
-                <div className={`w-3 h-3 rounded-sm ${coloresAño[i] || coloresAño[0]}`} />
-                <span className={`font-medium ${coloresAñoText[i] || coloresAñoText[0]}`}>{a}</span>
-                <span className="text-gray-500">({comparativoAnual.totales[a]?.toFixed(0)} mm)</span>
-              </div>
-            ))}
-          </div>
-          {/* Tabla comparativa por mes */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="text-left py-2 px-2 text-gray-400 font-medium">Año</th>
-                  {comparativoAnual.meses.map(m => (
-                    <th key={m.mes} className="text-center py-2 px-1 text-gray-400 font-medium text-xs">{m.nombre}</th>
-                  ))}
-                  <th className="text-center py-2 px-2 text-gray-400 font-medium">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparativoAnual.años.map((a, i) => (
-                  <tr key={a} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                    <td className={`py-2 px-2 font-semibold ${coloresAñoText[i] || coloresAñoText[0]}`}>{a}</td>
-                    {comparativoAnual.meses.map(m => {
-                      const val = m[a] || 0;
-                      const intensity = val > 0 ? Math.min(val / comparativoAnual.maxVal, 1) : 0;
-                      return (
-                        <td key={m.mes} className="text-center py-2 px-1">
-                          {val > 0 ? (
-                            <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium"
-                              style={{ backgroundColor: `rgba(59, 130, 246, ${0.15 + intensity * 0.55})`, color: intensity > 0.5 ? '#fff' : '#93c5fd' }}>
-                              {val}
-                            </span>
-                          ) : (
-                            <span className="text-gray-700 text-xs">–</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                    <td className={`text-center py-2 px-2 font-bold ${coloresAñoText[i] || coloresAñoText[0]}`}>
-                      {comparativoAnual.totales[a]}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {/* Mini barras visuales por año */}
-          <div className="mt-4 space-y-2">
-            {comparativoAnual.años.map((a, i) => {
-              const maxTotal = Math.max(...Object.values(comparativoAnual.totales), 1);
-              const pct = (comparativoAnual.totales[a] / maxTotal) * 100;
-              return (
-                <div key={a} className="flex items-center gap-3">
-                  <span className={`text-xs font-semibold w-10 ${coloresAñoText[i] || coloresAñoText[0]}`}>{a}</span>
-                  <div className="flex-1 bg-gray-800 rounded-full h-5 overflow-hidden">
-                    <div className={`h-full rounded-full ${coloresAño[i] || coloresAño[0]} opacity-80 flex items-center justify-end pr-2 transition-all duration-700`}
-                      style={{ width: `${Math.max(pct, 3)}%` }}>
-                      <span className="text-[10px] font-bold text-white drop-shadow">{comparativoAnual.totales[a]} mm</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Detalle por pluviómetro */}
-      {totalAnual > 0 && (
-        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-          <h4 className="font-semibold mb-4 flex items-center gap-2"><MapPin size={18} className="text-green-400" /> Acumulado por Pluviómetro {añoNum || ''}</h4>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {pluvs.map(p => {
-              const total = lluviasAño.filter(l => l.pluviometro === p).reduce((s, l) => s + (parseFloat(l.mm) || 0), 0);
-              return (
-                <div key={p} className="bg-gray-800/50 rounded-xl p-4 text-center">
-                  <div className={`w-3 h-3 rounded-full ${colorPluv(p)} mx-auto mb-2`} />
-                  <p className="text-2xl font-bold text-gray-100">{Math.round(total)}</p>
-                  <p className="text-xs text-gray-400">mm</p>
-                  <p className="text-sm font-medium text-gray-300 mt-1">{p}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Filtro por mes + Tabla */}
-      <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold">Registros Diarios</h4>
-          <select value={mesSel} onChange={e => setMesSel(e.target.value)}
-            className="bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-1.5 text-sm">
-            <option value="todos">Todos los meses</option>
-            {mesesDisponibles.map(m => (
-              <option key={m} value={m}>{nombresMesFull[m]}</option>
-            ))}
-          </select>
-        </div>
-
-        {porFecha.length === 0 ? (
-          <p className="text-gray-500 text-sm text-center py-8">No hay registros de lluvia{mesSel !== 'todos' ? ` en ${nombresMesFull[parseInt(mesSel)]}` : ''}. Usa el botón "Registrar Lluvia" para empezar.</p>
-        ) : (
-          <div className="space-y-3">
-            {porFecha.slice(0, 50).map(([fecha, registros]) => {
-              const promDia = registros.length > 0 ? registros.reduce((s, r) => s + (parseFloat(r.mm) || 0), 0) / registros.length : 0;
-              return (
-                <div key={fecha} className="bg-gray-800/50 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-gray-200">
-                        {new Date(fecha + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-400 font-medium">{Math.round(promDia)} mm prom</span>
-                    </div>
-                    <button onClick={() => abrirForm(fecha)} className="text-gray-400 hover:text-blue-400 transition-colors" title="Editar día">
-                      <Edit2 size={14} />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    {registros.sort((a, b) => (a.pluviometro || '').localeCompare(b.pluviometro || '')).map(r => (
-                      <div key={r.id} className="flex items-center gap-2 text-sm">
-                        <div className={`w-2 h-2 rounded-full ${colorPluv(r.pluviometro)}`} />
-                        <span className="text-gray-400">{r.pluviometro}:</span>
-                        <span className="font-medium text-gray-200">{r.mm} mm</span>
-                        <button onClick={() => setConfirmDel(r.id)} className="text-gray-600 hover:text-red-400 transition-colors ml-1">
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-            {porFecha.length > 50 && <p className="text-xs text-gray-500 text-center">Mostrando 50 de {porFecha.length} días</p>}
-          </div>
-        )}
-      </div>
-
-      {/* Modal Form - Registro por lote */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowForm(false)}>
-          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Droplets size={20} className="text-blue-400" /> Registrar Lluvia — {finca}</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Fecha</label>
-                <input type="date" value={fecha} onChange={e => {
-                  setFecha(e.target.value);
-                  // Recargar valores existentes para nueva fecha
-                  const existentes = lluviasFinca.filter(l => l.fecha === e.target.value);
-                  const vals = {};
-                  pluvs.forEach(p => {
-                    const ex = existentes.find(l => l.pluviometro === p);
-                    vals[p] = ex ? String(ex.mm) : '';
-                  });
-                  setValores(vals);
-                }} className="w-full bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-2 text-sm" />
-              </div>
-
-              <div className="border-t border-gray-800 pt-3">
-                <p className="text-sm font-medium text-gray-400 mb-3">Milímetros por pluviómetro</p>
-                <div className="space-y-3">
-                  {pluvs.map(p => (
-                    <div key={p} className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${colorPluv(p)} flex-shrink-0`} />
-                      <span className="text-sm text-gray-300 w-24">{p}</span>
-                      <input
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        placeholder="0.0"
-                        value={valores[p] || ''}
-                        onChange={e => setValores({ ...valores, [p]: e.target.value })}
-                        className="flex-1 bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-2 text-sm text-right"
-                      />
-                      <span className="text-xs text-gray-500 w-8">mm</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Promedio del día */}
-              <div className="bg-gray-800/50 rounded-xl p-3 flex items-center justify-between">
-                <span className="text-sm text-gray-400">Promedio del día</span>
-                <span className="text-lg font-bold text-blue-400">
-                  {(() => { const vals = pluvs.map(p => parseFloat(valores[p])).filter(v => !isNaN(v) && v > 0); return vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : '0'; })()} mm
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowForm(false)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2.5 rounded-xl text-sm font-medium transition-colors">Cancelar</button>
-              <button onClick={handleSave} disabled={saving || pluvs.every(p => !valores[p])}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                {saving ? <><Loader2 size={16} className="animate-spin" /> Guardando...</> : <><Check size={16} /> Guardar</>}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Confirm Delete */}
-      {confirmDel && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setConfirmDel(null)}>
-          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
-            <p className="text-gray-200 mb-4">¿Eliminar este registro de lluvia?</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmDel(null)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-2 rounded-xl text-sm">Cancelar</button>
-              <button onClick={() => handleDelete(confirmDel)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl text-sm">Eliminar</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ==================== COMPONENTE PALPACIONES ====================
-function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }) {
-  const [showForm, setShowForm] = useState(false);
-  const [editando, setEditando] = useState(null);
-  const [confirmDel, setConfirmDel] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [busqueda, setBusqueda] = useState('');
-
-  const RESULTADOS = [
-    'Preñada', 'OICL', 'ODCL', 'OICL - PP', 'ODCL - PP',
-    'ODF', 'OIF', 'Anestro', 'Quiste OD', 'Quiste OI',
-    'Aborto / Reabsorción', 'Descarte'
-  ];
-  const ESTADOS = ['LACT', 'NVIE', 'SECA', 'NLEV'];
-  const CALIFICACIONES = ['R', 'R+', 'B', 'B+', 'MB', 'MB+', 'E'];
-  const TIPOS_SERVICIO = ['MN', 'IA', 'TE'];
-
-  const emptyForm = {
-    fecha: new Date().toISOString().split('T')[0],
-    hembra: '', estado: '', resultado: '', dias_gestacion: '',
-    dias_lactancia: '', dias_abiertos: '', reproductor: '',
-    condicion_corporal: '', calificacion: '', tipo_servicio: '',
-    observaciones: '', finca: 'La Vega'
-  };
-  const [form, setForm] = useState(emptyForm);
-
-  // Hembras conocidas (de nacimientos como madres)
-  const hembrasConocidas = useMemo(() => {
-    const madres = new Set();
-    (nacimientos || []).forEach(n => { if (n.madre) madres.add(n.madre.trim()); });
-    return [...madres].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  }, [nacimientos]);
-
-  // Palpaciones solo de La Vega, ordenadas por fecha desc
-  const palpLaVega = useMemo(() =>
-    (palpaciones || []).filter(p => p.finca === 'La Vega').sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')),
-    [palpaciones]);
-
-  const filtradas = useMemo(() => {
-    if (!busqueda.trim()) return palpLaVega;
-    const q = busqueda.toLowerCase();
-    return palpLaVega.filter(p =>
-      (p.hembra || '').toLowerCase().includes(q) ||
-      (p.resultado || '').toLowerCase().includes(q) ||
-      (p.reproductor || '').toLowerCase().includes(q)
-    );
-  }, [palpLaVega, busqueda]);
-
-  const openNew = () => { setForm(emptyForm); setEditando(null); setShowForm(true); };
-  const openEdit = (p) => {
-    setForm({
-      fecha: p.fecha || '', hembra: p.hembra || '', estado: p.estado || '',
-      resultado: p.resultado || p.detalle || '', dias_gestacion: p.dias_gestacion || '',
-      dias_lactancia: p.dias_lactancia || '', dias_abiertos: p.dias_abiertos || '',
-      reproductor: p.reproductor || '', condicion_corporal: p.condicion_corporal || '',
-      calificacion: p.calificacion || '', tipo_servicio: p.tipo_servicio || '',
-      observaciones: p.observaciones || '', finca: 'La Vega'
-    });
-    setEditando(p); setShowForm(true);
-  };
-
-  const handleSave = async () => {
-    if (!form.fecha || !form.hembra) return alert('Fecha y Hembra son obligatorios');
-    setSaving(true);
-    try {
-      const registro = {
-        ...form,
-        dias_gestacion: form.resultado === 'Preñada' ? form.dias_gestacion : 'VACIA',
-        dias_lactancia: form.dias_lactancia ? parseInt(form.dias_lactancia) : null,
-        dias_abiertos: form.dias_abiertos ? parseInt(form.dias_abiertos) : null,
-        condicion_corporal: form.condicion_corporal ? parseFloat(form.condicion_corporal) : null,
-        registrado_por: userEmail || 'manual',
-      };
-      if (editando) {
-        const updated = await db.updatePalpacion(editando.id, registro);
-        setPalpaciones(prev => prev.map(p => p.id === editando.id ? { ...p, ...updated } : p));
-      } else {
-        const nuevo = await db.insertPalpacion(registro);
-        setPalpaciones(prev => [nuevo, ...prev]);
-      }
-      setShowForm(false); setEditando(null);
-    } catch (e) { alert('Error guardando: ' + e.message); }
-    setSaving(false);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await db.deletePalpacion(id);
-      setPalpaciones(prev => prev.filter(p => p.id !== id));
-      setConfirmDel(null);
-    } catch (e) { alert('Error eliminando: ' + e.message); }
-  };
-
-  const esPreñada = form.resultado === 'Preñada';
-
-  return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">🔬 Registro de Palpaciones</h3>
-          <p className="text-sm text-gray-400">{palpLaVega.length} registros en La Vega</p>
-        </div>
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-medium transition-colors">
-          <PlusCircle size={16} /> Nueva Palpación
-        </button>
-      </div>
-
-      {/* Search */}
-      <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar por hembra, resultado, reproductor..."
-          className="w-full pl-9 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
-      </div>
-
-      {/* Table */}
-      <div className="overflow-x-auto bg-gray-900 rounded-2xl border border-gray-800">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase">
-              <th className="px-3 py-3 text-left">Fecha</th>
-              <th className="px-3 py-3 text-left">Hembra</th>
-              <th className="px-3 py-3 text-left">Estado</th>
-              <th className="px-3 py-3 text-left">Resultado</th>
-              <th className="px-3 py-3 text-left">Días Gest.</th>
-              <th className="px-3 py-3 text-left">Días Lact.</th>
-              <th className="px-3 py-3 text-left">Reproductor</th>
-              <th className="px-3 py-3 text-left">CC</th>
-              <th className="px-3 py-3 text-left">Calif.</th>
-              <th className="px-3 py-3 text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtradas.slice(0, 100).map(p => (
-              <tr key={p.id} className="border-b border-gray-800/50 hover:bg-gray-800/50 transition-colors">
-                <td className="px-3 py-2 text-gray-300">{p.fecha ? formatDate(p.fecha) : '-'}</td>
-                <td className="px-3 py-2 font-medium text-gray-100">{p.hembra || '-'}</td>
-                <td className="px-3 py-2">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    p.estado === 'LACT' ? 'bg-green-900/50 text-green-400' :
-                    p.estado === 'SECA' ? 'bg-amber-900/50 text-amber-400' :
-                    p.estado === 'NVIE' ? 'bg-blue-900/50 text-blue-400' :
-                    p.estado === 'NLEV' ? 'bg-purple-900/50 text-purple-400' :
-                    'bg-gray-800 text-gray-400'
-                  }`}>{p.estado || '-'}</span>
-                </td>
-                <td className="px-3 py-2">
-                  {(() => {
-                    const res = p.resultado || '';
-                    const det = p.detalle || '';
-                    const display = res || (det && !det.match(/^0\.\d+$/) ? det : '');
-                    return (
-                      <span className={`text-xs font-medium ${
-                        display.includes('Preñada') ? 'text-green-400' :
-                        display.includes('Descarte') ? 'text-red-400' :
-                        'text-gray-300'
-                      }`}>{display || '-'}</span>
-                    );
-                  })()}
-                </td>
-                <td className="px-3 py-2 text-gray-300">{p.dias_gestacion || '-'}</td>
-                <td className="px-3 py-2 text-gray-300">{p.dias_lactancia || '-'}</td>
-                <td className="px-3 py-2 text-gray-300">{p.reproductor || '-'}</td>
-                <td className="px-3 py-2 text-gray-300">{p.condicion_corporal || '-'}</td>
-                <td className="px-3 py-2">
-                  <span className={`text-xs font-medium ${
-                    (p.calificacion || '').startsWith('E') ? 'text-green-400' :
-                    (p.calificacion || '').startsWith('MB') ? 'text-blue-400' :
-                    (p.calificacion || '').startsWith('B') ? 'text-yellow-400' :
-                    'text-gray-400'
-                  }`}>{p.calificacion || '-'}</span>
-                </td>
-                <td className="px-3 py-2 text-center">
-                  <div className="flex justify-center gap-1">
-                    <button onClick={() => openEdit(p)} className="p-1.5 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-blue-400"><Edit2 size={14} /></button>
-                    <button onClick={() => setConfirmDel(p)} className="p-1.5 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-red-400"><Trash2 size={14} /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {filtradas.length === 0 && (
-              <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-500">No hay palpaciones registradas</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Modal Form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowForm(false)}>
-          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-700" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-100 mb-4">{editando ? 'Editar Palpación' : 'Nueva Palpación'}</h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Fecha */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Fecha *</label>
-                <input type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-              </div>
-
-              {/* Hembra */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Hembra *</label>
-                <input list="hembras-list" value={form.hembra} onChange={e => setForm({ ...form, hembra: e.target.value })}
-                  placeholder="Ej: 002-80" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-                <datalist id="hembras-list">
-                  {hembrasConocidas.map(h => <option key={h} value={h} />)}
-                </datalist>
-              </div>
-
-              {/* Estado */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Estado</label>
-                <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
-                  <option value="">Seleccionar...</option>
-                  {ESTADOS.map(e => <option key={e} value={e}>{e === 'LACT' ? 'LACT - Lactando' : e === 'NVIE' ? 'NVIE - Novilla Vientre' : e === 'SECA' ? 'SECA - Sin cría' : 'NLEV - Novilla Levante'}</option>)}
-                </select>
-              </div>
-
-              {/* Resultado */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Resultado</label>
-                <select value={form.resultado} onChange={e => setForm({ ...form, resultado: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
-                  <option value="">Seleccionar...</option>
-                  {RESULTADOS.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </div>
-
-              {/* Días Gestación */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Días Gestación {esPreñada && '*'}</label>
-                <input type="number" value={form.dias_gestacion} onChange={e => setForm({ ...form, dias_gestacion: e.target.value })}
-                  placeholder={esPreñada ? 'Ej: 65' : 'N/A si vacía'} disabled={!esPreñada}
-                  className={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm ${esPreñada ? 'text-gray-200' : 'text-gray-600'}`} />
-              </div>
-
-              {/* Días Lactancia */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Días Lactancia</label>
-                <input type="number" value={form.dias_lactancia} onChange={e => setForm({ ...form, dias_lactancia: e.target.value })}
-                  placeholder="Ej: 95" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-              </div>
-
-              {/* Días Abiertos */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Días Abiertos</label>
-                <input type="number" value={form.dias_abiertos} onChange={e => setForm({ ...form, dias_abiertos: e.target.value })}
-                  placeholder="Ej: 120" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-              </div>
-
-              {/* Reproductor */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Reproductor</label>
-                <input value={form.reproductor} onChange={e => setForm({ ...form, reproductor: e.target.value })}
-                  placeholder="Ej: 509-0" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-              </div>
-
-              {/* Tipo Servicio */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Tipo Servicio</label>
-                <select value={form.tipo_servicio} onChange={e => setForm({ ...form, tipo_servicio: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
-                  <option value="">Seleccionar...</option>
-                  {TIPOS_SERVICIO.map(t => <option key={t} value={t}>{t === 'MN' ? 'MN - Monta Natural' : t === 'IA' ? 'IA - Inseminación' : 'TE - Transferencia Embrión'}</option>)}
-                </select>
-              </div>
-
-              {/* Condición Corporal */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Condición Corporal (1.0 - 5.0)</label>
-                <input type="number" step="0.1" min="1" max="5" value={form.condicion_corporal}
-                  onChange={e => setForm({ ...form, condicion_corporal: e.target.value })}
-                  placeholder="Ej: 3.5" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-              </div>
-
-              {/* Calificación */}
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1">Calificación</label>
-                <select value={form.calificacion} onChange={e => setForm({ ...form, calificacion: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
-                  <option value="">Seleccionar...</option>
-                  {CALIFICACIONES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-
-              {/* Observaciones */}
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-gray-400 mb-1">Observaciones</label>
-                <textarea value={form.observaciones} onChange={e => setForm({ ...form, observaciones: e.target.value })}
-                  rows={2} placeholder="Notas adicionales..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm resize-none" />
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
-              <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
-                {saving ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> {editando ? 'Actualizar' : 'Guardar'}</>}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Confirm Delete */}
-      {confirmDel && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setConfirmDel(null)}>
-          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm border border-gray-700" onClick={e => e.stopPropagation()}>
-            <p className="text-gray-200 mb-4">¿Eliminar palpación de <strong>{confirmDel.hembra}</strong> del {confirmDel.fecha ? formatDate(confirmDel.fecha) : ''}?</p>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setConfirmDel(null)} className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm">Cancelar</button>
-              <button onClick={() => handleDelete(confirmDel.id)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm">Eliminar</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
