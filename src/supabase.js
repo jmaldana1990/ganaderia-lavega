@@ -1,9 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://dzykvitmgkrucicxvicz.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6eWt2aXRtZ2tydWNpY3h2aWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDU4MTksImV4cCI6MjA4NTcyMTgxOX0.lE2a1jj34r_NRZ3uEuPinllG6VOQBE4TQbtbwXngHg4'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storageKey: 'sb-dzykvitmgkrucicxvicz-auth-token',
+    flowType: 'implicit',
+    detectSessionInUrl: false,
+    persistSession: true,
+    autoRefreshToken: true,
+    lock: (name, acquireTimeout, fn) => fn(),
+  },
+})
 
 // ==================== NACIMIENTOS ====================
 export async function getNacimientos() {
@@ -124,22 +133,13 @@ export async function upsertInventario(registros) {
 
 // ==================== COSTOS ====================
 export async function getCostos() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('costos')
-      .select('*')
-      .order('fecha', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('costos')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(5000)
+  if (error) throw error
+  return data
 }
 
 // ==================== VENTAS ====================
@@ -187,82 +187,75 @@ export async function deleteCosto(id) {
 
 // ==================== PESAJES ====================
 export async function getPesajes() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('pesajes')
-      .select('*')
-      .order('fecha_pesaje', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('pesajes')
+    .select('*')
+    .order('fecha_pesaje', { ascending: false })
+    .limit(5000)
+  if (error) throw error
+  return data
 }
 
 // ==================== PALPACIONES ====================
 export async function getPalpaciones() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('palpaciones')
-      .select('*')
-      .order('fecha', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('palpaciones')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(3000)
+  if (error) throw error
+  return data
+}
+
+export async function insertPalpacion(registro) {
+  const { data, error } = await supabase
+    .from('palpaciones')
+    .insert(registro)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updatePalpacion(id, updates) {
+  const { data, error } = await supabase
+    .from('palpaciones')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deletePalpacion(id) {
+  const { error } = await supabase
+    .from('palpaciones')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
 }
 
 // ==================== SERVICIOS ====================
 export async function getServicios() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('servicios')
-      .select('*')
-      .order('fecha', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('servicios')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(3000)
+  if (error) throw error
+  return data
 }
 
 // ==================== DESTETES ====================
 export async function getDestetes() {
-  let allData = []
-  let from = 0
-  const pageSize = 1000
-  while (true) {
-    const { data, error } = await supabase
-      .from('destetes')
-      .select('*')
-      .order('fecha_destete', { ascending: false })
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    allData = allData.concat(data)
-    if (data.length < pageSize) break
-    from += pageSize
-  }
-  return allData
+  const { data, error } = await supabase
+    .from('destetes')
+    .select('*')
+    .order('fecha_destete', { ascending: false })
+    .limit(3000)
+  if (error) throw error
+  return data
 }
 
 // ==================== LOG DE CARGAS ====================
@@ -304,6 +297,62 @@ export async function getSession() {
 
 export function onAuthStateChange(callback) {
   return supabase.auth.onAuthStateChange(callback)
+}
+
+// ==================== LLUVIAS ====================
+export async function getLluvias(finca = null) {
+  let query = supabase
+    .from('lluvias')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(2000)
+
+  if (finca) {
+    query = query.eq('finca', finca)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export async function insertLluviasBatch(registros) {
+  const { data, error } = await supabase
+    .from('lluvias')
+    .upsert(registros, { onConflict: 'fecha,finca,pluviometro' })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateLluvia(id, updates) {
+  const { data, error } = await supabase
+    .from('lluvias')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteLluvia(id) {
+  const { error } = await supabase
+    .from('lluvias')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}
+
+// ==================== USUARIOS ====================
+export async function getUserRole(email) {
+  const { data, error } = await supabase
+    .from('usuarios')
+    .select('rol')
+    .eq('email', email)
+    .single()
+  if (error) return null
+  return data?.rol || null
 }
 
 // ==================== HATO REPRODUCTIVO ====================
