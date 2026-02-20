@@ -8,6 +8,7 @@ import * as db from './supabase';
 import Login from './Login';
 import CargaArchivos from './CargaArchivos';
 import KPITrends from './KPITrends';
+import Contabilidad from './Contabilidad';
 import { VENTAS_GANADO, TIPO_ANIMAL_LABELS } from './ventas-ganado';
 
 // ==================== HELPERS ====================
@@ -37,6 +38,7 @@ export default function GanaderiaApp() {
   // Auth
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
+  const [userRole, setUserRole] = useState('admin');
   const [showLogin, setShowLogin] = useState(false);
 
   // Conexión
@@ -85,9 +87,16 @@ export default function GanaderiaApp() {
     };
     init();
 
-    const { data: { subscription } } = db.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') { setUser(null); setSession(null); }
-      else if (session) { setSession(session); setUser(session.user); }
+    const { data: { subscription } } = db.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') { setUser(null); setSession(null); setUserRole('admin'); }
+      else if (session) {
+        setSession(session); setUser(session.user);
+        const role = await db.getUserRole(session.user.email);
+        if (role) {
+          setUserRole(role);
+          if (role === 'contadora') setView('contabilidad');
+        }
+      }
     });
 
     const handleOnline = () => checkConnection();
@@ -322,14 +331,16 @@ export default function GanaderiaApp() {
 
   if (showLogin) return <Login onLogin={handleLogin} onSkip={() => setShowLogin(false)} />;
 
-  const menuItems = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard' },
-    { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500' },
-    { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500' },
-    { id: 'nacimientos', icon: Baby, label: 'Nacimientos' },
-    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500' },
-    { id: 'costos', icon: Receipt, label: 'Costos y Gastos' },
+  const allMenuItems = [
+    { id: 'dashboard', icon: Home, label: 'Dashboard', roles: ['admin'] },
+    { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500', roles: ['admin'] },
+    { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500', roles: ['admin'] },
+    { id: 'nacimientos', icon: Baby, label: 'Nacimientos', roles: ['admin'] },
+    { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500', roles: ['admin'] },
+    { id: 'costos', icon: Receipt, label: 'Costos y Gastos', roles: ['admin'] },
+    { id: 'contabilidad', icon: FileText, label: 'Contabilidad', accent: 'text-amber-400', roles: ['admin', 'contadora'] },
   ];
+  const menuItems = allMenuItems.filter(item => item.roles.includes(userRole));
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200">
@@ -424,6 +435,12 @@ export default function GanaderiaApp() {
               filtros={filtros} setFiltros={updateFiltros} onNew={() => setShowForm(true)}
               onEdit={g => { setEditGasto(g); setShowForm(true); }} onDel={del} onApprove={approve}
               page={page} pages={totalPages} setPage={setPage} años={años} canEdit={!!user} />
+          )}
+          {view === 'contabilidad' && (
+            <Contabilidad gastos={gastos} onGastosChange={async () => {
+              const g = await db.getCostos();
+              setGastos(g);
+            }} userRole={userRole} userEmail={user?.email} />
           )}
         </main>
       </div>
@@ -2051,16 +2068,23 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }
                   }`}>{p.estado || '-'}</span>
                 </td>
                 <td className="px-3 py-2">
-                  <span className={`text-xs font-medium ${
-                    (p.resultado || '').includes('Preñada') ? 'text-green-400' :
-                    (p.resultado || '').includes('Descarte') ? 'text-red-400' :
-                    'text-gray-300'
-                  }`}>{p.resultado || p.detalle || '-'}</span>
+                  {(() => {
+                    const res = p.resultado || '';
+                    const det = p.detalle || '';
+                    const display = res || (det && !det.match(/^0\.\d+$/) ? det : '');
+                    return (
+                      <span className={`text-xs font-medium ${
+                        display.includes('Preñada') ? 'text-green-400' :
+                        display.includes('Descarte') ? 'text-red-400' :
+                        'text-gray-300'
+                      }`}>{display || '-'}</span>
+                    );
+                  })()}
                 </td>
-                <td className="px-3 py-2 text-gray-300">{p.dias_gestacion || '-'}</td>
-                <td className="px-3 py-2 text-gray-300">{p.dias_lactancia || '-'}</td>
+                <td className="px-3 py-2 text-gray-300">{p.dias_gestacion ? (isNaN(p.dias_gestacion) ? p.dias_gestacion : Math.round(Number(p.dias_gestacion))) : '-'}</td>
+                <td className="px-3 py-2 text-gray-300">{p.dias_lactancia ? Math.round(Number(p.dias_lactancia)) : '-'}</td>
                 <td className="px-3 py-2 text-gray-300">{p.reproductor || '-'}</td>
-                <td className="px-3 py-2 text-gray-300">{p.condicion_corporal || '-'}</td>
+                <td className="px-3 py-2 text-gray-300">{p.condicion_corporal ? Number(p.condicion_corporal).toFixed(1) : '-'}</td>
                 <td className="px-3 py-2">
                   <span className={`text-xs font-medium ${
                     (p.calificacion || '').startsWith('E') ? 'text-green-400' :
@@ -2396,8 +2420,8 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
                 <div className="flex justify-between"><span className="text-gray-400">Fecha</span><span className="text-gray-200">{formatDate(ultimaPalp.fecha)}</span></div>
                 <div className="flex justify-between"><span className="text-gray-400">Estado</span><span className="text-gray-200 font-medium">{ultimaPalp.estado || '-'}</span></div>
                 {ultimaPalp.detalle && <div className="flex justify-between"><span className="text-gray-400">Detalle</span><span className="text-gray-200">{ultimaPalp.detalle}</span></div>}
-                {ultimaPalp.dias_gestacion && <div className="flex justify-between"><span className="text-gray-400">Días gestación</span><span className="text-gray-200">{ultimaPalp.dias_gestacion}</span></div>}
-                {ultimaPalp.dias_abiertos && <div className="flex justify-between"><span className="text-gray-400">Días abiertos</span><span className="text-gray-200">{ultimaPalp.dias_abiertos}</span></div>}
+                {ultimaPalp.dias_gestacion && <div className="flex justify-between"><span className="text-gray-400">Días gestación</span><span className="text-gray-200">{isNaN(ultimaPalp.dias_gestacion) ? ultimaPalp.dias_gestacion : Math.round(Number(ultimaPalp.dias_gestacion))}</span></div>}
+                {ultimaPalp.dias_abiertos && <div className="flex justify-between"><span className="text-gray-400">Días abiertos</span><span className="text-gray-200">{Math.round(Number(ultimaPalp.dias_abiertos))}</span></div>}
                 {ultimaPalp.reproductor && <div className="flex justify-between"><span className="text-gray-400">Reproductor</span><span className="text-gray-200">{ultimaPalp.reproductor}</span></div>}
               </div>
             ) : <p className="text-sm text-gray-500">Sin datos de palpación</p>}
