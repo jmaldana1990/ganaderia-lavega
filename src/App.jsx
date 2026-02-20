@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle, Droplets, Stethoscope } from 'lucide-react';
+import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 import { NACIMIENTOS_LA_VEGA } from './nacimientos-lavega';
@@ -400,7 +400,7 @@ export default function GanaderiaApp() {
         {/* Main content */}
         <main className="flex-1 p-4 lg:p-6 max-w-7xl">
           {view === 'dashboard' && (
-            <Dashboard totales={totales} porCategoria={porCategoria} porCentro={porCentro}
+            <Dashboard totales={totales} promedioMes={promedioMes} porCategoria={porCategoria} porCentro={porCentro}
               pendientes={gastos.filter(g => g.estado === 'pendiente').slice(0, 5)} onApprove={approve}
               filtros={filtros} setFiltros={updateFiltros} años={años}
               nacimientos={nacimientos} inventario={inventario} gastos={gastos} ventas={ventas} />
@@ -437,7 +437,7 @@ export default function GanaderiaApp() {
 }
 
 // ==================== COMPONENTE DASHBOARD ====================
-function Dashboard({ totales, porCategoria, porCentro, pendientes, onApprove, filtros, setFiltros, años, nacimientos, inventario, gastos, ventas }) {
+function Dashboard({ totales, promedioMes, porCategoria, porCentro, pendientes, onApprove, filtros, setFiltros, años, nacimientos, inventario, gastos, ventas }) {
   const maxCat = Math.max(...porCategoria.map(c => c.total), 1);
   const maxCen = Math.max(...porCentro.map(c => c.total), 1);
   const añoFiltro = filtros.año ? parseInt(filtros.año) : null;
@@ -1157,8 +1157,8 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
           { key: 'resumen', label: '📊 Resumen', icon: BarChart3, hide: esTodos },
           { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
           { key: 'hato', label: '🐄 Hato', icon: Search, hide: esTodos },
-          { key: 'lluvias', label: '🌧️ Lluvias', icon: Droplets, hide: esTodos },
-          { key: 'palpaciones', label: '🔬 Palpaciones', icon: Stethoscope, hide: esTodos || finca !== 'La Vega' },
+          { key: 'lluvias', label: '🌧️ Lluvias', icon: Activity, hide: esTodos },
+          { key: 'palpaciones', label: '🔬 Palpaciones', icon: Activity, hide: esTodos || finca !== 'La Vega' },
         ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-gray-900 shadow text-gray-100' : 'text-gray-400 hover:text-gray-300'}`}>
@@ -1716,7 +1716,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2"><Droplets size={20} className="text-blue-400" /> Precipitación</h3>
+          <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">🌧️ Precipitación</h3>
           <p className="text-sm text-gray-400">{lluviasFinca.length} registros | {finca}</p>
         </div>
         <div className="flex gap-2">
