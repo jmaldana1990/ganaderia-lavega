@@ -306,44 +306,84 @@ export function onAuthStateChange(callback) {
   return supabase.auth.onAuthStateChange(callback)
 }
 
-// ==================== RPC — CÁLCULOS EN SERVIDOR ====================
+// ==================== HATO REPRODUCTIVO ====================
+export async function getHatoReproductivo(finca = null) {
+  let query = supabase
+    .from('hato_reproductivo')
+    .select('*')
+    .order('categoria', { ascending: true })
+    .order('numero', { ascending: true })
 
-// Dashboard: totales de egresos calculados en PostgreSQL
-export async function getRpcDashboardTotales(año = null) {
-  const { data, error } = await supabase
-    .rpc('get_dashboard_totales', { p_año: año })
+  if (finca) {
+    query = query.eq('finca', finca)
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export async function upsertHatoReproductivo(registros) {
+  const dbRecords = registros.map(r => ({
+    numero: r.numero,
+    finca: r.finca || 'La Vega',
+    categoria: r.categoria,
+    edad_anos: r.edad_anos,
+    estado_actual: r.estado_actual,
+    grupo: r.grupo,
+    dias_posparto: r.dias_posparto || 0,
+    num_partos: r.num_partos || 0,
+    cria_actual: r.cria_actual,
+    sexo_cria: r.sexo_cria,
+    fecha_ultimo_parto: r.fecha_ultimo_parto,
+    dias_gestacion: r.dias_gestacion || 0,
+    piep: r.piep || 0,
+    pduc: r.pduc || 0,
+    fecha_carga: new Date().toISOString().split('T')[0]
+  }))
+
+  let total = 0
+  for (let i = 0; i < dbRecords.length; i += 200) {
+    const batch = dbRecords.slice(i, i + 200)
+    const { data, error } = await supabase
+      .from('hato_reproductivo')
+      .upsert(batch, { onConflict: 'numero,finca' })
+      .select()
+
+    if (error) throw error
+    total += data?.length || 0
+  }
+
+  return { total, registros: dbRecords.length }
+}
+
+// ==================== RPC FUNCTIONS ====================
+export async function getRpcDashboardTotales(año) {
+  const { data, error } = await supabase.rpc('get_dashboard_totales', { p_año: año })
   if (error) throw error
   return data?.[0] || null
 }
 
-// Lluvias: resumen mensual agregado en servidor
 export async function getRpcLluviasMensual(finca = null) {
-  const { data, error } = await supabase
-    .rpc('get_lluvias_mensual', { p_finca: finca })
+  const { data, error } = await supabase.rpc('get_lluvias_mensual', { p_finca: finca })
   if (error) throw error
   return data || []
 }
 
-// Lluvias: totales anuales
 export async function getRpcLluviasAnuales(finca = null) {
-  const { data, error } = await supabase
-    .rpc('get_lluvias_anuales', { p_finca: finca })
+  const { data, error } = await supabase.rpc('get_lluvias_anuales', { p_finca: finca })
   if (error) throw error
   return data || []
 }
 
-// Fertilidad: KPI calculado en servidor
 export async function getRpcFertilidad(finca, año) {
-  const { data, error } = await supabase
-    .rpc('get_fertilidad_kpi', { p_finca: finca, p_año: año })
+  const { data, error } = await supabase.rpc('get_fertilidad_kpi', { p_finca: finca, p_año: año })
   if (error) throw error
   return data?.[0] || null
 }
 
-// IEP: Intervalo entre partos promedio
 export async function getRpcIep(finca = 'La Vega') {
-  const { data, error } = await supabase
-    .rpc('get_iep_promedio', { p_finca: finca })
+  const { data, error } = await supabase.rpc('get_iep_promedio', { p_finca: finca })
   if (error) throw error
   return data?.[0] || null
 }
