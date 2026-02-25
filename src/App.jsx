@@ -111,6 +111,234 @@ const HATO_CATEGORIAS = [
   { key: 't', label: 'Toros', color: 'bg-red-900/30 text-red-400' },
 ];
 
+// ==================== ANIMAL LINK (número clickeable) ====================
+function AnimalLink({ id, onAnimalClick, className = '' }) {
+  if (!id || !onAnimalClick) return <span className={className}>{id || '-'}</span>;
+  return (
+    <button onClick={(e) => { e.stopPropagation(); onAnimalClick(String(id).trim()); }}
+      className={`cursor-pointer hover:underline decoration-dotted underline-offset-2 ${className || 'text-green-400 font-medium'}`}
+      title={`Ver ficha de ${id}`}>
+      {id}
+    </button>
+  );
+}
+
+// ==================== ANIMAL MODAL (popup universal) ====================
+function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, servicios, ventas, destetes, onAnimalClick }) {
+  if (!animalId) return null;
+
+  const id = String(animalId).trim();
+
+  // Buscar en nacimientos como cría
+  const regCria = (nacimientos || []).find(n => n.cria && String(n.cria).trim() === id);
+
+  // Buscar como madre (partos)
+  const partos = (nacimientos || []).filter(n => n.madre && String(n.madre).trim() === id)
+    .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+
+  // Pesajes de este animal
+  const misPesajes = (pesajes || []).filter(p => p.animal && String(p.animal).trim() === id)
+    .sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || ''));
+
+  // Palpaciones
+  const misPalps = (palpaciones || []).filter(p => p.hembra && String(p.hembra).trim() === id)
+    .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+
+  // Servicios
+  const misServs = (servicios || []).filter(s => s.hembra && String(s.hembra).trim() === id)
+    .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+
+  // Destetes
+  const misDestetes = (destetes || []).filter(d => (d.cria && String(d.cria).trim() === id) || (d.animal && String(d.animal).trim() === id));
+
+  // Estado del animal
+  const estado = regCria?.estado || (partos.length > 0 ? 'Activo' : null);
+  const esMuerto = estado === 'Muerto' || estado === 'muerto';
+  const esVendido = estado === 'Vendido' || estado === 'vendido';
+
+  // Info básica
+  const sexo = regCria?.sexo;
+  const madre = regCria?.madre;
+  const padre = regCria?.padre;
+  const fechaNac = regCria?.fecha;
+  const pesoNacer = regCria?.pesoNacer || regCria?.peso_nacer;
+  const pesoDestete = regCria?.pesoDestete || regCria?.peso_destete;
+  const fechaDestete = regCria?.fechaDestete || regCria?.fecha_destete;
+  const comentario = regCria?.comentario;
+
+  const esMadre = partos.length > 0;
+
+  // GDP al destete
+  const gdpDestete = regCria ? calcularGDPDestete(regCria) : null;
+
+  // Categoría
+  let categoriaLabel = '—';
+  if (esMadre) {
+    categoriaLabel = '🐄 Vaca Madre';
+  } else if (regCria) {
+    const destetada = !!(pesoDestete || fechaDestete);
+    if (sexo === 'M') {
+      categoriaLabel = destetada ? '♂ Macho Levante' : '♂ Cría Macho';
+    } else {
+      if (!destetada) {
+        categoriaLabel = '♀ Cría Hembra';
+      } else {
+        const edad = calcularEdad(fechaNac);
+        categoriaLabel = (edad && edad.unidad === 'años' && edad.valor >= 2) ? '♀ Novilla Vientre' : '♀ Hembra Levante';
+      }
+    }
+  } else if (misPesajes.length > 0) {
+    categoriaLabel = misPesajes[0].categoria || 'Levante';
+  }
+
+  // Última palpación
+  const ultimaPalp = misPalps[0] || null;
+  const ultimoServ = misServs[0] || null;
+
+  const fmtDate = (d) => { if (!d) return '-'; return new Date(d + 'T00:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }); };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-start justify-center z-[60] p-4 overflow-y-auto" onClick={onClose}>
+      <div className="bg-gray-900 rounded-2xl w-full max-w-2xl border border-gray-700 my-8 shadow-2xl" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b border-gray-800">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl font-bold text-green-400">{id}</span>
+            <span className="text-sm text-gray-400">{categoriaLabel}</span>
+            {esMuerto && <span className="px-2 py-0.5 rounded-full text-xs bg-red-500/20 text-red-400">☠️ Muerto</span>}
+            {esVendido && <span className="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-400">🏷️ Vendido</span>}
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+          {/* Info básica */}
+          {(fechaNac || madre || padre || pesoNacer != null) && (
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Datos Básicos</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                {fechaNac && <div><span className="text-gray-500">Nacimiento</span><p className="text-gray-200 font-medium">{fmtDate(fechaNac)}</p><p className="text-xs text-gray-500">{formatEdad(fechaNac)}</p></div>}
+                {sexo && <div><span className="text-gray-500">Sexo</span><p className="text-gray-200 font-medium">{sexo === 'M' ? '♂ Macho' : '♀ Hembra'}</p></div>}
+                {madre && <div><span className="text-gray-500">Madre</span><p><AnimalLink id={madre} onAnimalClick={onAnimalClick} /></p></div>}
+                {padre && <div><span className="text-gray-500">Padre</span><p className="text-gray-200 font-medium">{padre}</p></div>}
+                {pesoNacer != null && <div><span className="text-gray-500">Peso Nacer</span><p className="text-gray-200 font-medium">{pesoNacer} kg</p></div>}
+                {pesoDestete != null && <div><span className="text-gray-500">Peso Destete</span><p className="text-gray-200 font-medium">{pesoDestete} kg</p></div>}
+                {fechaDestete && <div><span className="text-gray-500">Fecha Destete</span><p className="text-gray-200">{fmtDate(fechaDestete)}</p></div>}
+                {gdpDestete && <div><span className="text-gray-500">GDP Vida</span><p className={`font-medium ${gdpDestete >= 800 ? 'text-green-400' : gdpDestete >= 600 ? 'text-amber-400' : 'text-red-400'}`}>{gdpDestete} g/día</p></div>}
+              </div>
+              {comentario && <p className="text-xs text-gray-500 mt-3 italic">📝 {comentario}</p>}
+            </div>
+          )}
+
+          {/* Si no se encontró info */}
+          {!regCria && !esMadre && misPesajes.length === 0 && misPalps.length === 0 && misServs.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-lg mb-1">No se encontró información</p>
+              <p className="text-sm">El animal <strong>{id}</strong> no tiene registros en el sistema.</p>
+            </div>
+          )}
+
+          {/* Historial de partos (si es madre) */}
+          {esMadre && (
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">🍼 Historial de Partos ({partos.length})</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="text-gray-500 border-b border-gray-700 text-xs">
+                    <th className="text-left py-2 px-2">Cría</th><th className="text-left py-2 px-2">Fecha</th><th className="text-center py-2 px-2">Sexo</th><th className="text-right py-2 px-2">Peso Nacer</th><th className="text-right py-2 px-2">Peso Destete</th><th className="text-left py-2 px-2">Estado</th>
+                  </tr></thead>
+                  <tbody className="divide-y divide-gray-700/50">
+                    {partos.map((p, i) => (
+                      <tr key={i} className="hover:bg-gray-700/30">
+                        <td className="py-2 px-2"><AnimalLink id={p.cria} onAnimalClick={onAnimalClick} /></td>
+                        <td className="py-2 px-2 text-gray-300">{fmtDate(p.fecha)}</td>
+                        <td className="py-2 px-2 text-center">{p.sexo === 'M' ? <span className="text-blue-400">♂</span> : <span className="text-pink-400">♀</span>}</td>
+                        <td className="py-2 px-2 text-right text-gray-300">{p.pesoNacer || p.peso_nacer ? `${p.pesoNacer || p.peso_nacer} kg` : '-'}</td>
+                        <td className="py-2 px-2 text-right text-gray-300">{p.pesoDestete || p.peso_destete ? `${p.pesoDestete || p.peso_destete} kg` : '-'}</td>
+                        <td className="py-2 px-2"><span className={`px-2 py-0.5 rounded-full text-xs ${p.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : p.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>{p.estado || '-'}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Pesajes */}
+          {misPesajes.length > 0 && (
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">⚖️ Pesajes ({misPesajes.length})</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="text-gray-500 border-b border-gray-700 text-xs">
+                    <th className="text-left py-2 px-2">Fecha</th><th className="text-right py-2 px-2">Peso</th><th className="text-right py-2 px-2">Edad (meses)</th><th className="text-right py-2 px-2">GDP Vida</th>
+                  </tr></thead>
+                  <tbody className="divide-y divide-gray-700/50">
+                    {misPesajes.slice(0, 10).map((p, i) => (
+                      <tr key={i} className="hover:bg-gray-700/30">
+                        <td className="py-2 px-2 text-gray-300">{fmtDate(p.fecha_pesaje)}</td>
+                        <td className="py-2 px-2 text-right text-gray-200 font-medium">{p.peso ? `${p.peso} kg` : '-'}</td>
+                        <td className="py-2 px-2 text-right text-gray-400">{p.edad_meses ? `${p.edad_meses.toFixed(1)}` : '-'}</td>
+                        <td className="py-2 px-2 text-right text-gray-400">{p.gdp_vida ? `${Math.round(p.gdp_vida)} g/d` : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {misPesajes.length > 10 && <p className="text-xs text-gray-500 mt-2 text-center">...y {misPesajes.length - 10} más</p>}
+              </div>
+            </div>
+          )}
+
+          {/* Palpaciones */}
+          {misPalps.length > 0 && (
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">🔬 Palpaciones ({misPalps.length})</h4>
+              <div className="space-y-2">
+                {misPalps.slice(0, 5).map((p, i) => (
+                  <div key={i} className="flex flex-wrap gap-x-4 gap-y-1 text-sm py-2 border-b border-gray-700/50 last:border-0">
+                    <span className="text-gray-400">{fmtDate(p.fecha)}</span>
+                    <span className={`font-medium ${p.resultado === 'Preñada' ? 'text-green-400' : p.resultado?.includes('Descarte') ? 'text-red-400' : 'text-gray-200'}`}>{p.resultado || p.detalle || '-'}</span>
+                    {p.estado && <span className="text-gray-500">{p.estado}</span>}
+                    {p.dias_gestacion && p.dias_gestacion !== 'VACIA' && <span className="text-purple-400">{p.dias_gestacion}d gest.</span>}
+                    {p.reproductor && <span className="text-gray-500">♂ {p.reproductor}</span>}
+                  </div>
+                ))}
+                {misPalps.length > 5 && <p className="text-xs text-gray-500 text-center">...y {misPalps.length - 5} más</p>}
+              </div>
+            </div>
+          )}
+
+          {/* Servicios */}
+          {misServs.length > 0 && (
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">🧬 Servicios IA/TE ({misServs.length})</h4>
+              <div className="space-y-2">
+                {misServs.slice(0, 5).map((s, i) => (
+                  <div key={i} className="flex flex-wrap gap-x-4 gap-y-1 text-sm py-2 border-b border-gray-700/50 last:border-0">
+                    <span className="text-gray-400">{fmtDate(s.fecha)}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${s.tipo === 'TE' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}`}>{s.tipo || 'IA'}</span>
+                    {s.toro && <span className="text-gray-200">Pajilla: {s.toro}</span>}
+                    {s.embrion && <span className="text-gray-200">Embrión: {s.embrion}</span>}
+                    {s.tecnico && <span className="text-gray-500">Téc: {s.tecnico}</span>}
+                  </div>
+                ))}
+                {misServs.length > 5 && <p className="text-xs text-gray-500 text-center">...y {misServs.length - 5} más</p>}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-800 flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ==================== COMPONENTE PRINCIPAL ====================
 export default function GanaderiaApp() {
   // Auth
@@ -144,6 +372,9 @@ export default function GanaderiaApp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+
+  // Animal Modal
+  const [animalModalId, setAnimalModalId] = useState(null);
 
   // ---- Init & Auth ----
   useEffect(() => {
@@ -498,15 +729,15 @@ export default function GanaderiaApp() {
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
               inventario={inventario} nacimientos={nacimientos} setNacimientos={setNacimientos} gastos={gastos} años={años}
               pesajes={pesajes} palpaciones={palpaciones} setPalpaciones={setPalpaciones} servicios={servicios} setServicios={setServicios} destetes={destetes}
-              lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} />
+              lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
           {view === 'bariloche' && (
             <FincaView finca="Bariloche" subtitulo="Finca de Levante" color="blue"
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
               pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
-              lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} />
+              lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
-          {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} />}
+          {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} onAnimalClick={setAnimalModalId} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
@@ -527,6 +758,12 @@ export default function GanaderiaApp() {
       {showForm && <Form gasto={editGasto} onSave={save} onClose={() => { setShowForm(false); setEditGasto(null); }} />}
       {showCarga && <CargaArchivos user={user} onClose={() => setShowCarga(false)} onSuccess={() => { setShowCarga(false); loadCloudData(); }} />}
       {menuOpen && <div className="fixed inset-0 bg-black/60 z-30 lg:hidden" onClick={() => setMenuOpen(false)} />}
+      {animalModalId && (
+        <AnimalModal animalId={animalModalId} onClose={() => setAnimalModalId(null)}
+          nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones}
+          servicios={servicios} ventas={ventas} destetes={destetes}
+          onAnimalClick={(id) => setAnimalModalId(id)} />
+      )}
     </div>
   );
 }
@@ -927,7 +1164,7 @@ function VentasTotales({ ventas: ventasData }) {
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, palpaciones, setPalpaciones, servicios, setServicios, destetes, lluvias, setLluvias, userEmail, isOnline }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, palpaciones, setPalpaciones, servicios, setServicios, destetes, lluvias, setLluvias, userEmail, isOnline, onAnimalClick }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
   const esTodos = añoSel === 'todos';
@@ -1632,7 +1869,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
 
       {/* ==================== HATO ==================== */}
       {!esTodos && subView === 'hato' && (
-        <HatoView finca={finca} nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} isOnline={isOnline} userEmail={userEmail} />
+        <HatoView finca={finca} nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} isOnline={isOnline} userEmail={userEmail} onAnimalClick={onAnimalClick} />
       )}
 
       {!esTodos && subView === 'lluvias' && (
@@ -1640,11 +1877,11 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
       )}
 
       {!esTodos && subView === 'palpaciones' && finca === 'La Vega' && (
-        <PalpacionesView palpaciones={palpaciones} setPalpaciones={setPalpaciones} userEmail={userEmail} nacimientos={nacimientos} />
+        <PalpacionesView palpaciones={palpaciones} setPalpaciones={setPalpaciones} userEmail={userEmail} nacimientos={nacimientos} onAnimalClick={onAnimalClick} />
       )}
 
       {!esTodos && subView === 'servicios' && finca === 'La Vega' && (
-        <ServiciosView servicios={servicios} setServicios={setServicios} userEmail={userEmail} nacimientos={nacimientos} isOnline={isOnline} />
+        <ServiciosView servicios={servicios} setServicios={setServicios} userEmail={userEmail} nacimientos={nacimientos} isOnline={isOnline} onAnimalClick={onAnimalClick} />
       )}
 
     </div>
@@ -1652,7 +1889,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
 }
 
 // ==================== COMPONENTE SERVICIOS IA/TE ====================
-function ServiciosView({ servicios, setServicios, userEmail, nacimientos, isOnline }) {
+function ServiciosView({ servicios, setServicios, userEmail, nacimientos, isOnline, onAnimalClick }) {
   const [showForm, setShowForm] = useState(false);
   const [editando, setEditando] = useState(null);
   const [confirmDel, setConfirmDel] = useState(null);
@@ -1895,7 +2132,7 @@ function ServiciosView({ servicios, setServicios, userEmail, nacimientos, isOnli
                 <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${s.tipo === 'TE' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
                   {s.tipo || 'IA'}
                 </span>
-                <span className="text-lg font-bold text-green-400">{s.hembra}</span>
+                <AnimalLink id={s.hembra} onAnimalClick={onAnimalClick} className="text-lg font-bold" />
                 <span className="text-sm text-gray-400">{formatDate(s.fecha)}</span>
               </div>
               {isOnline && (
@@ -1911,7 +2148,7 @@ function ServiciosView({ servicios, setServicios, userEmail, nacimientos, isOnli
               )}
               {s.tipo === 'TE' && (<>
                 {s.embrion && <div><span className="text-gray-500">Embrión:</span> <span className="text-gray-200 font-medium">{s.embrion}</span></div>}
-                {s.donadora && <div><span className="text-gray-500">Donadora:</span> <span className="text-gray-200">{s.donadora}</span></div>}
+                {s.donadora && <div><span className="text-gray-500">Donadora:</span> <AnimalLink id={s.donadora} onAnimalClick={onAnimalClick} /></div>}
                 {s.toro && <div><span className="text-gray-500">Padre:</span> <span className="text-gray-200">{s.toro}</span></div>}
               </>)}
               {s.tecnico && <div><span className="text-gray-500">Técnico:</span> <span className="text-gray-200">{s.tecnico}</span></div>}
@@ -2286,7 +2523,7 @@ function LluviasView({ finca, lluvias, setLluvias, userEmail, añoSel }) {
 }
 
 // ==================== COMPONENTE PALPACIONES ====================
-function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }) {
+function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos, onAnimalClick }) {
   const [showForm, setShowForm] = useState(false);
   const [editando, setEditando] = useState(null);
   const [confirmDel, setConfirmDel] = useState(null);
@@ -2419,7 +2656,7 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }
             {filtradas.slice(0, 100).map(p => (
               <tr key={p.id} className="border-b border-gray-800/50 hover:bg-gray-800/50 transition-colors">
                 <td className="px-3 py-2 text-gray-300">{p.fecha ? formatDate(p.fecha) : '-'}</td>
-                <td className="px-3 py-2 font-medium text-gray-100">{p.hembra || '-'}</td>
+                <td className="px-3 py-2 font-medium"><AnimalLink id={p.hembra} onAnimalClick={onAnimalClick} /></td>
                 <td className="px-3 py-2">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                     p.estado === 'LACT' ? 'bg-green-900/50 text-green-400' :
@@ -2581,7 +2818,7 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }
 }
 
 // ==================== COMPONENTE HATO ====================
-function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, servicios, isOnline, userEmail }) {
+function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, servicios, isOnline, userEmail, onAnimalClick }) {
   const [busqueda, setBusqueda] = useState('');
   const [animalSel, setAnimalSel] = useState(null);
 
@@ -2874,7 +3111,7 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
           </button>
 
           {esLaVega ? (
-            <FichaLaVega animal={detalle} nacimientos={nacimientos} formatDate={formatDate} onRegistrarDestete={handleRegistrarDestete} onEditAnimal={handleEditAnimal} />
+            <FichaLaVega animal={detalle} nacimientos={nacimientos} formatDate={formatDate} onRegistrarDestete={handleRegistrarDestete} onEditAnimal={handleEditAnimal} onAnimalClick={onAnimalClick} />
           ) : (
             <FichaBariloche animal={detalle} formatDate={formatDate} />
           )}
@@ -2889,7 +3126,7 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
 }
 
 // ==================== FICHA LA VEGA (CRÍA) ====================
-function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEditAnimal }) {
+function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEditAnimal, onAnimalClick }) {
   // Destete form state (must be before any conditional returns)
   const [showDesteteForm, setShowDesteteForm] = useState(false);
   const [desteteData, setDesteteData] = useState({ fecha: new Date().toISOString().split('T')[0], peso: '' });
@@ -3047,7 +3284,7 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEd
                   const gdpVal = gdpCalc || (p.grDiaVida || p.gr_dia_vida ? Math.round(p.grDiaVida || p.gr_dia_vida) : null);
                   return (
                   <tr key={i} className="hover:bg-gray-700/50">
-                    <td className="py-2 px-2 font-medium text-green-400">{p.cria}</td>
+                    <td className="py-2 px-2 font-medium"><AnimalLink id={p.cria} onAnimalClick={onAnimalClick} /></td>
                     <td className="py-2 px-2 text-gray-300">{formatDate(p.fecha)}</td>
                     <td className="py-2 px-2 text-center">{p.sexo === 'M' ? <span className="text-blue-400">♂</span> : <span className="text-pink-400">♀</span>}</td>
                     <td className="py-2 px-2 text-right text-gray-300">{p.pesoNacer || p.peso_nacer ? `${p.pesoNacer || p.peso_nacer} kg` : '-'}</td>
@@ -3135,7 +3372,7 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEd
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Stat label="Edad" value={formatEdad(n.fecha)} />
         <Stat label="Fecha Nacimiento" value={formatDate(n.fecha)} />
-        <Stat label="Madre" value={n.madre || '-'} />
+        <div><p className="text-xs text-gray-500 mb-0.5">Madre</p><AnimalLink id={n.madre} onAnimalClick={onAnimalClick} className="text-lg font-semibold" /></div>
         <Stat label="Padre" value={n.padre || '-'} />
         <Stat label="Peso Nacer" value={n.pesoNacer || n.peso_nacer ? `${n.pesoNacer || n.peso_nacer} kg` : '-'} />
         <Stat label="Peso Destete" value={(n.pesoDestete || n.peso_destete) ? `${n.pesoDestete || n.peso_destete} kg` : '-'} />
@@ -3381,7 +3618,7 @@ function Stat({ label, value, sub }) {
     </div>
   );
 }
-function Nacimientos({ data, inventario }) {
+function Nacimientos({ data, inventario, onAnimalClick }) {
   const [filtros, setFiltros] = useState({ año: '2025', sexo: '', padre: '', busqueda: '', estado: 'Activo' });
   const años = [...new Set(data.map(n => n.año))].filter(Boolean).sort().reverse();
 
@@ -3558,14 +3795,14 @@ function Nacimientos({ data, inventario }) {
                 const gdpVal = calcularGDPDestete(n) || (n.grDiaVida || n.gr_dia_vida ? Math.round(n.grDiaVida || n.gr_dia_vida) : null);
                 return (
                 <tr key={n.id || n.cria} className={`hover:bg-gray-800/50 ${n.estado !== 'Activo' ? 'bg-red-900/20' : ''}`}>
-                  <td className="px-4 py-3 font-medium text-sm">{n.cria}</td>
+                  <td className="px-4 py-3 font-medium text-sm"><AnimalLink id={n.cria} onAnimalClick={onAnimalClick} /></td>
                   <td className="px-4 py-3 text-sm">{formatDate(n.fecha)}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${n.sexo === 'M' ? 'bg-blue-900/40 text-blue-400' : 'bg-pink-900/40 text-pink-400'}`}>
                       {n.sexo === 'M' ? '♂' : '♀'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm">{n.madre}</td>
+                  <td className="px-4 py-3 text-sm"><AnimalLink id={n.madre} onAnimalClick={onAnimalClick} /></td>
                   <td className="px-4 py-3 text-sm">{n.padre}</td>
                   <td className="px-4 py-3 text-sm text-right">{n.pesoNacer || n.peso_nacer || '-'}</td>
                   <td className="px-4 py-3 text-sm text-right font-medium">{n.pesoDestete || n.peso_destete || '-'}</td>
