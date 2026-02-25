@@ -648,7 +648,7 @@ export default function GanaderiaApp() {
     { id: 'dashboard', icon: Home, label: 'Dashboard', roles: ['admin'] },
     { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500', roles: ['admin'] },
     { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500', roles: ['admin'] },
-    { id: 'nacimientos', icon: Baby, label: 'Nacimientos', roles: ['admin'] },
+    { id: 'hato-general', icon: Beef, label: 'Hato General', roles: ['admin'] },
     { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500', roles: ['admin'] },
     { id: 'costos', icon: Receipt, label: 'Costos y Gastos', roles: ['admin'] },
     { id: 'contabilidad', icon: FileText, label: 'Contabilidad', accent: 'text-amber-400', roles: ['admin', 'contadora'] },
@@ -741,7 +741,7 @@ export default function GanaderiaApp() {
               pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
               lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
-          {view === 'nacimientos' && <Nacimientos data={nacimientos} inventario={inventario} onAnimalClick={setAnimalModalId} />}
+          {view === 'hato-general' && <HatoGeneral nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} onAnimalClick={setAnimalModalId} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
@@ -3622,207 +3622,310 @@ function Stat({ label, value, sub }) {
     </div>
   );
 }
-function Nacimientos({ data, inventario, onAnimalClick }) {
-  const [filtros, setFiltros] = useState({ año: '2025', sexo: '', padre: '', busqueda: '', estado: 'Activo' });
-  const años = [...new Set(data.map(n => n.año))].filter(Boolean).sort().reverse();
+function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, onAnimalClick }) {
+  const [filtros, setFiltros] = useState({ finca: '', categoria: '', estado: '', sexo: '', busqueda: '' });
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 50;
 
-  const filtered = useMemo(() => data.filter(n => {
-    if (filtros.año && n.año !== parseInt(filtros.año)) return false;
-    if (filtros.sexo && n.sexo !== filtros.sexo) return false;
-    if (filtros.padre && n.padre !== filtros.padre) return false;
-    if (filtros.estado && n.estado !== filtros.estado) return false;
-    if (filtros.busqueda) {
-      const b = filtros.busqueda.toLowerCase();
-      if (!n.cria?.toLowerCase().includes(b) && !n.madre?.toLowerCase().includes(b) && !n.padre?.toLowerCase().includes(b)) return false;
-    }
-    return true;
-  }), [data, filtros]);
+  // Construir lista unificada de TODOS los animales
+  const todosAnimales = useMemo(() => {
+    const mapa = {}; // id → animal
 
-  const activosParaDestete = useMemo(() => data.filter(n => {
-    const añoDest = n.añoDestete || n.año_destete;
-    if (filtros.año && añoDest !== parseInt(filtros.año)) return false;
-    return n.estado === 'Activo' && (n.pesoDestete || n.peso_destete);
-  }), [data, filtros.año]);
-
-  const activos = useMemo(() => data.filter(n => {
-    if (filtros.año && n.año !== parseInt(filtros.año)) return false;
-    return n.estado === 'Activo';
-  }), [data, filtros.año]);
-
-  const stats = useMemo(() => {
-    const base = filtros.estado ? filtered : activos;
-    const m = base.filter(n => n.sexo === 'M'), h = base.filter(n => n.sexo === 'H');
-    const pn = base.filter(n => n.pesoNacer || n.peso_nacer);
-    const getPeso = n => n.pesoDestete || n.peso_destete || 0;
-    const getPesoN = n => n.pesoNacer || n.peso_nacer || 0;
-    const activosM = activosParaDestete.filter(n => n.sexo === 'M');
-    const activosH = activosParaDestete.filter(n => n.sexo === 'H');
-
-    return {
-      total: filtered.length,
-      machos: m.length, hembras: h.length,
-      pesoNacer: pn.length ? (pn.reduce((s, n) => s + getPesoN(n), 0) / pn.length).toFixed(1) : '-',
-      pesoDesteteM: activosM.length ? (activosM.reduce((s, n) => s + getPeso(n), 0) / activosM.length).toFixed(1) : '-',
-      pesoDesteteH: activosH.length ? (activosH.reduce((s, n) => s + getPeso(n), 0) / activosH.length).toFixed(1) : '-',
-      totalActivos: activos.length,
-      totalVendidos: data.filter(n => (!filtros.año || n.año === parseInt(filtros.año)) && n.estado === 'Vendido').length,
-      totalMuertos: data.filter(n => (!filtros.año || n.año === parseInt(filtros.año)) && n.estado === 'Muerto').length
-    };
-  }, [filtered, activos, activosParaDestete, data, filtros]);
-
-  const porMes = useMemo(() => {
-    const d = {};
-    filtered.forEach(n => {
-      if (n.año && n.mes) { const k = `${n.año}-${String(n.mes).padStart(2, '0')}`; d[k] = (d[k] || 0) + 1; }
+    // 1) Crías de nacimientos (La Vega)
+    (nacimientos || []).forEach(n => {
+      if (!n.cria || !esAnimalValido(n.cria)) return;
+      const id = String(n.cria).trim();
+      if (!mapa[id]) mapa[id] = { id, finca: 'La Vega', fuente: 'nacimiento' };
+      const a = mapa[id];
+      a.sexo = n.sexo;
+      a.fechaNac = n.fecha;
+      a.madre = n.madre;
+      a.padre = n.padre;
+      a.pesoNacer = n.pesoNacer || n.peso_nacer;
+      a.pesoDestete = n.pesoDestete || n.peso_destete;
+      a.fechaDestete = n.fechaDestete || n.fecha_destete;
+      a.estado = n.estado || 'Activo';
+      a.comentario = n.comentario;
+      a.gdp = calcularGDPDestete(n);
     });
-    return Object.entries(d).sort().slice(-12);
-  }, [filtered]);
+
+    // 2) Madres de nacimientos (La Vega)
+    (nacimientos || []).forEach(n => {
+      if (!n.madre || !esAnimalValido(n.madre)) return;
+      const id = String(n.madre).trim();
+      if (!mapa[id]) mapa[id] = { id, finca: 'La Vega', fuente: 'madre', sexo: 'H', estado: 'Activo' };
+      const a = mapa[id];
+      a.esMadre = true;
+      a.numPartos = (a.numPartos || 0) + 1;
+      // Si esta madre también nació aquí, ya tiene datos de cría
+      if (!a.sexo) a.sexo = 'H';
+    });
+
+    // 3) Animales de Bariloche (pesajes)
+    (pesajes || []).filter(p => p.finca === 'Bariloche' && p.animal && esAnimalValido(p.animal)).forEach(p => {
+      const id = String(p.animal).trim();
+      if (!mapa[id]) mapa[id] = { id, finca: 'Bariloche', fuente: 'pesaje', estado: 'Activo' };
+      const a = mapa[id];
+      if (a.finca !== 'Bariloche') a.finca = 'Ambas'; // animal en ambas fincas
+      // Último pesaje
+      if (!a.ultimoPesaje || (p.fecha_pesaje || '') > (a.ultimoPesaje.fecha_pesaje || '')) {
+        a.ultimoPesaje = p;
+        a.pesoActual = p.peso;
+        a.categoriaBar = p.categoria;
+        a.gdpVida = p.gdp_vida;
+      }
+    });
+
+    // Calcular categoría para cada animal
+    Object.values(mapa).forEach(a => {
+      if (a.esMadre) {
+        a.categoria = 'VP';
+        a.categoriaLabel = 'Vaca Madre';
+      } else if (a.finca === 'Bariloche' || a.fuente === 'pesaje') {
+        a.categoria = a.categoriaBar || 'LEV';
+        a.categoriaLabel = a.categoriaBar || 'Levante';
+      } else if (a.sexo === 'M') {
+        const destetada = !!(a.pesoDestete || a.fechaDestete);
+        a.categoria = destetada ? 'ML' : 'CM';
+        a.categoriaLabel = destetada ? 'Macho Levante' : 'Cría Macho';
+      } else if (a.sexo === 'H') {
+        const destetada = !!(a.pesoDestete || a.fechaDestete);
+        if (!destetada) {
+          a.categoria = 'CH';
+          a.categoriaLabel = 'Cría Hembra';
+        } else {
+          const edad = calcularEdad(a.fechaNac);
+          if (edad && edad.unidad === 'años' && edad.valor >= 2) {
+            a.categoria = 'NV';
+            a.categoriaLabel = 'Novilla Vientre';
+          } else {
+            a.categoria = 'HL';
+            a.categoriaLabel = 'Hembra Levante';
+          }
+        }
+      } else {
+        a.categoria = '?';
+        a.categoriaLabel = 'Sin datos';
+      }
+    });
+
+    return Object.values(mapa).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+  }, [nacimientos, pesajes]);
+
+  // Categorías disponibles
+  const categoriasDisponibles = useMemo(() => {
+    const cats = {};
+    todosAnimales.forEach(a => { if (a.categoria) cats[a.categoria] = a.categoriaLabel; });
+    return Object.entries(cats).sort((a, b) => a[1].localeCompare(b[1]));
+  }, [todosAnimales]);
+
+  // Filtrar
+  const filtrados = useMemo(() => {
+    return todosAnimales.filter(a => {
+      if (filtros.finca && a.finca !== filtros.finca && a.finca !== 'Ambas') return false;
+      if (filtros.categoria && a.categoria !== filtros.categoria) return false;
+      if (filtros.estado) {
+        if (filtros.estado === 'Activo' && a.estado !== 'Activo') return false;
+        if (filtros.estado === 'Vendido' && a.estado !== 'Vendido') return false;
+        if (filtros.estado === 'Muerto' && a.estado !== 'Muerto') return false;
+      }
+      if (filtros.sexo && a.sexo !== filtros.sexo) return false;
+      if (filtros.busqueda) {
+        const q = filtros.busqueda.toLowerCase();
+        return a.id.toLowerCase().includes(q) || (a.madre || '').toLowerCase().includes(q) || (a.padre || '').toLowerCase().includes(q);
+      }
+      return true;
+    });
+  }, [todosAnimales, filtros]);
+
+  // Stats
+  const stats = useMemo(() => {
+    const f = filtrados;
+    const laVega = f.filter(a => a.finca === 'La Vega' || a.finca === 'Ambas').length;
+    const bariloche = f.filter(a => a.finca === 'Bariloche' || a.finca === 'Ambas').length;
+    const madres = f.filter(a => a.esMadre).length;
+    const machos = f.filter(a => a.sexo === 'M').length;
+    const hembras = f.filter(a => a.sexo === 'H').length;
+    const activos = f.filter(a => a.estado === 'Activo').length;
+    const vendidos = f.filter(a => a.estado === 'Vendido').length;
+    const muertos = f.filter(a => a.estado === 'Muerto').length;
+    return { total: f.length, laVega, bariloche, madres, machos, hembras, activos, vendidos, muertos };
+  }, [filtrados]);
+
+  // Paginación
+  const paginados = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filtrados.slice(start, start + PAGE_SIZE);
+  }, [filtrados, page]);
+  const totalPages = Math.ceil(filtrados.length / PAGE_SIZE);
+
+  // Reset page on filter change
+  const updateFiltro = (key, val) => { setFiltros(prev => ({ ...prev, [key]: val })); setPage(1); };
+
+  const catColor = (cat) => ({
+    'VP': 'bg-green-500/20 text-green-400',
+    'VS': 'bg-orange-500/20 text-orange-400',
+    'NV': 'bg-purple-500/20 text-purple-400',
+    'HL': 'bg-teal-500/20 text-teal-400',
+    'ML': 'bg-amber-500/20 text-amber-400',
+    'CM': 'bg-blue-500/20 text-blue-400',
+    'CH': 'bg-pink-500/20 text-pink-400',
+    'LEV': 'bg-amber-500/20 text-amber-400',
+  }[cat] || 'bg-gray-500/20 text-gray-400');
+
+  const catIcon = (cat) => ({
+    'VP': '🐄', 'VS': '🐄', 'NV': '♀', 'HL': '♀', 'ML': '♂', 'CM': '♂', 'CH': '♀', 'LEV': '🐂',
+  }[cat] || '❓');
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4 flex-wrap">
-        <h2 className="text-2xl font-bold text-gray-100">🐮 Nacimientos</h2>
-        <select value={filtros.año} onChange={e => setFiltros({ ...filtros, año: e.target.value })} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
-          <option value="">Todos</option>
-          {años.map(a => <option key={a} value={a}>{a}</option>)}
-        </select>
-        <select value={filtros.estado} onChange={e => setFiltros({ ...filtros, estado: e.target.value })} className="px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl">
-          <option value="">Todos</option>
-          <option value="Activo">Activos</option>
-          <option value="Vendido">Vendidos</option>
-          <option value="Muerto">Muertos</option>
-        </select>
-        <span className="text-sm text-gray-400">({stats.totalActivos} activos, {stats.totalVendidos} vendidos, {stats.totalMuertos} muertos)</span>
-      </div>
-
-      {/* Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card title="Total Nacimientos" value={stats.total} icon={Baby} color="from-green-500 to-green-600" />
-        <div className="bg-gradient-to-br from-blue-500 to-pink-500 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex justify-between">
-            <div>
-              <p className="text-white/80 text-sm">Machos / Hembras</p>
-              <p className="text-2xl font-bold mt-1">♂{stats.machos} / ♀{stats.hembras}</p>
-            </div>
-            <Users size={32} className="opacity-50" />
-          </div>
-        </div>
-        <Card title="Peso Nacer Prom." value={`${stats.pesoNacer} kg`} icon={Scale} color="from-amber-500 to-amber-600" />
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex justify-between">
-            <div>
-              <p className="text-white/80 text-sm">Peso Destete ({filtros.año || 'todos'})</p>
-              <p className="text-lg font-bold">♂ {stats.pesoDesteteM} kg</p>
-              <p className="text-lg font-bold">♀ {stats.pesoDesteteH} kg</p>
-            </div>
-            <TrendingUp size={32} className="opacity-50" />
-          </div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-100">🐮 Hato General</h2>
+          <p className="text-gray-400 text-sm">{todosAnimales.length} animales en total • {todosAnimales.filter(a => a.estado === 'Activo').length} activos</p>
         </div>
       </div>
 
-      {/* Gráficos */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm lg:col-span-2">
-          <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 size={20} className="text-green-500" />Nacimientos por Mes</h3>
-          <div className="h-48">
-            {porMes.length > 0 ? (
-              <div className="flex items-end justify-between h-full gap-1 px-2">
-                {porMes.map(([m, c]) => {
-                  const max = Math.max(...porMes.map(([, v]) => v));
-                  const mesNum = parseInt(m.split('-')[1]);
-                  return (
-                    <div key={m} className="flex-1 flex flex-col items-center h-full justify-end">
-                      <span className="text-xs font-semibold text-green-400 mb-1">{c}</span>
-                      <div className="w-full rounded-t transition-all duration-300 bg-gradient-to-t from-green-600 to-green-400"
-                        style={{ height: `${Math.max((c / max) * 100, 8)}%` }} />
-                      <span className="text-xs text-gray-400 mt-2 font-medium">{MESES[mesNum]}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-400"><p>Sin datos para el período</p></div>
-            )}
-          </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <p className="text-xs text-gray-500">Total Filtrado</p>
+          <p className="text-2xl font-bold text-gray-100">{stats.total}</p>
+          <p className="text-xs text-gray-500 mt-1">♂{stats.machos} / ♀{stats.hembras}</p>
         </div>
-        <div className="bg-gray-900 rounded-2xl p-6 shadow-sm">
-          <h3 className="font-semibold mb-4 flex items-center gap-2"><PieChart size={20} className="text-green-500" />Por Sexo</h3>
-          <div className="flex justify-center mb-4">
-            <div className="relative w-32 h-32">
-              <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                <circle cx="50" cy="50" r="40" fill="none" strokeWidth="20" className="stroke-blue-500" strokeDasharray={`${(stats.machos / (stats.total || 1)) * 251} 251`} />
-                <circle cx="50" cy="50" r="40" fill="none" strokeWidth="20" className="stroke-pink-500" strokeDasharray={`${(stats.hembras / (stats.total || 1)) * 251} 251`} strokeDashoffset={-(stats.machos / (stats.total || 1)) * 251} />
-              </svg>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-full" />Machos</span><span className="font-medium">{stats.machos}</span></div>
-            <div className="flex justify-between"><span className="flex items-center gap-2"><span className="w-3 h-3 bg-pink-500 rounded-full" />Hembras</span><span className="font-medium">{stats.hembras}</span></div>
+        <div className="bg-gray-800 rounded-xl p-4 border border-green-900/50">
+          <p className="text-xs text-green-500">La Vega</p>
+          <p className="text-2xl font-bold text-green-400">{stats.laVega}</p>
+          <p className="text-xs text-gray-500 mt-1">{stats.madres} madres</p>
+        </div>
+        <div className="bg-gray-800 rounded-xl p-4 border border-blue-900/50">
+          <p className="text-xs text-blue-500">Bariloche</p>
+          <p className="text-2xl font-bold text-blue-400">{stats.bariloche}</p>
+        </div>
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <p className="text-xs text-gray-500">Estado</p>
+          <p className="text-sm mt-1"><span className="text-green-400 font-medium">{stats.activos}</span> <span className="text-gray-600">activos</span></p>
+          <p className="text-sm"><span className="text-amber-400 font-medium">{stats.vendidos}</span> <span className="text-gray-600">vendidos</span></p>
+          <p className="text-sm"><span className="text-red-400 font-medium">{stats.muertos}</span> <span className="text-gray-600">muertos</span></p>
+        </div>
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <p className="text-xs text-gray-500">Categorías</p>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {categoriasDisponibles.slice(0, 4).map(([cat, label]) => {
+              const count = filtrados.filter(a => a.categoria === cat).length;
+              return count > 0 ? <span key={cat} className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${catColor(cat)}`}>{cat}: {count}</span> : null;
+            })}
           </div>
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-gray-800 flex flex-wrap gap-3">
-          <select value={filtros.sexo} onChange={e => setFiltros({ ...filtros, sexo: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
-            <option value="">Sexo</option>
-            <option value="M">Macho</option>
-            <option value="H">Hembra</option>
+      {/* Filters */}
+      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4">
+        <div className="flex flex-wrap gap-3">
+          <select value={filtros.finca} onChange={e => updateFiltro('finca', e.target.value)}
+            className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
+            <option value="">Todas las fincas</option>
+            <option value="La Vega">La Vega</option>
+            <option value="Bariloche">Bariloche</option>
           </select>
-          <select value={filtros.padre} onChange={e => setFiltros({ ...filtros, padre: e.target.value })} className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
-            <option value="">Padre</option>
-            {[...new Set(data.map(n => n.padre))].filter(Boolean).sort().map(p => <option key={p} value={p}>{p}</option>)}
+          <select value={filtros.categoria} onChange={e => updateFiltro('categoria', e.target.value)}
+            className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
+            <option value="">Todas las categorías</option>
+            {categoriasDisponibles.map(([cat, label]) => <option key={cat} value={cat}>{cat} - {label}</option>)}
+          </select>
+          <select value={filtros.estado} onChange={e => updateFiltro('estado', e.target.value)}
+            className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activos</option>
+            <option value="Vendido">Vendidos</option>
+            <option value="Muerto">Muertos</option>
+          </select>
+          <select value={filtros.sexo} onChange={e => updateFiltro('sexo', e.target.value)}
+            className="px-3 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm">
+            <option value="">Sexo</option>
+            <option value="M">♂ Macho</option>
+            <option value="H">♀ Hembra</option>
           </select>
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input type="text" placeholder="Buscar cría, madre o padre..." value={filtros.busqueda} onChange={e => setFiltros({ ...filtros, busqueda: e.target.value })} className="w-full pl-10 pr-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+            <input type="text" placeholder="Buscar por número, madre o padre..." value={filtros.busqueda}
+              onChange={e => updateFiltro('busqueda', e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-xl text-sm placeholder-gray-500" />
           </div>
+          {(filtros.finca || filtros.categoria || filtros.estado || filtros.sexo || filtros.busqueda) && (
+            <button onClick={() => { setFiltros({ finca: '', categoria: '', estado: '', sexo: '', busqueda: '' }); setPage(1); }}
+              className="px-3 py-2 bg-red-900/30 text-red-400 rounded-xl text-sm hover:bg-red-900/50 transition-colors">
+              Limpiar filtros
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-gray-900 rounded-2xl shadow-sm overflow-hidden border border-gray-800">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-800/50 border-b border-gray-700">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Cría</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Fecha</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Animal</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Finca</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Categoría</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Sexo</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Edad</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Madre</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Padre</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Nacer</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Destete</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">GDP g/d</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">Peso</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
-              {filtered.slice(0, 50).map(n => {
-                const gdpVal = calcularGDPDestete(n) || (n.grDiaVida || n.gr_dia_vida ? Math.round(n.grDiaVida || n.gr_dia_vida) : null);
+            <tbody className="divide-y divide-gray-800/50">
+              {paginados.map(a => {
+                const edadStr = formatEdad(a.fechaNac);
+                const peso = a.pesoActual || a.pesoDestete || a.pesoNacer;
+                const pesoLabel = a.pesoActual ? `${a.pesoActual} kg` : a.pesoDestete ? `${a.pesoDestete} kg (dest.)` : a.pesoNacer ? `${a.pesoNacer} kg (nac.)` : '-';
                 return (
-                <tr key={n.id || n.cria} className={`hover:bg-gray-800/50 ${n.estado !== 'Activo' ? 'bg-red-900/20' : ''}`}>
-                  <td className="px-4 py-3 font-medium text-sm"><AnimalLink id={n.cria} onAnimalClick={onAnimalClick} /></td>
-                  <td className="px-4 py-3 text-sm">{formatDate(n.fecha)}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${n.sexo === 'M' ? 'bg-blue-900/40 text-blue-400' : 'bg-pink-900/40 text-pink-400'}`}>
-                      {n.sexo === 'M' ? '♂' : '♀'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm"><AnimalLink id={n.madre} onAnimalClick={onAnimalClick} /></td>
-                  <td className="px-4 py-3 text-sm">{n.padre}</td>
-                  <td className="px-4 py-3 text-sm text-right">{n.pesoNacer || n.peso_nacer || '-'}</td>
-                  <td className="px-4 py-3 text-sm text-right font-medium">{n.pesoDestete || n.peso_destete || '-'}</td>
-                  <td className={`px-4 py-3 text-sm text-right font-medium ${gdpVal ? (gdpVal >= 800 ? 'text-green-400' : gdpVal >= 600 ? 'text-amber-400' : 'text-red-400') : ''}`}>{gdpVal || '-'}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${n.estado === 'Activo' ? 'bg-green-900/40 text-green-400' : n.estado === 'Vendido' ? 'bg-yellow-900/40 text-yellow-400' : 'bg-red-900/40 text-red-400'}`}>
-                      {n.estado}
-                    </span>
-                  </td>
-                </tr>
+                  <tr key={a.id} className={`hover:bg-gray-800/50 transition-colors ${a.estado === 'Muerto' ? 'bg-red-900/10' : a.estado === 'Vendido' ? 'bg-amber-900/10' : ''}`}>
+                    <td className="px-4 py-3"><AnimalLink id={a.id} onAnimalClick={onAnimalClick} className="text-green-400 font-bold text-sm" /></td>
+                    <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.finca === 'La Vega' ? 'bg-green-900/40 text-green-400' : a.finca === 'Bariloche' ? 'bg-blue-900/40 text-blue-400' : 'bg-purple-900/40 text-purple-400'}`}>{a.finca}</span></td>
+                    <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${catColor(a.categoria)}`}>{catIcon(a.categoria)} {a.categoria}{a.esMadre ? ` • ${a.numPartos}p` : ''}</span></td>
+                    <td className="px-4 py-3 text-center">{a.sexo === 'M' ? <span className="text-blue-400">♂</span> : a.sexo === 'H' ? <span className="text-pink-400">♀</span> : <span className="text-gray-600">-</span>}</td>
+                    <td className="px-4 py-3 text-sm text-gray-400">{edadStr || '-'}</td>
+                    <td className="px-4 py-3">{a.madre ? <AnimalLink id={a.madre} onAnimalClick={onAnimalClick} className="text-green-400/70 text-sm" /> : <span className="text-gray-600 text-sm">-</span>}</td>
+                    <td className="px-4 py-3 text-sm text-gray-400">{a.padre || '-'}</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-300">{pesoLabel}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.estado === 'Activo' ? 'bg-green-900/40 text-green-400' : a.estado === 'Vendido' ? 'bg-amber-900/40 text-amber-400' : a.estado === 'Muerto' ? 'bg-red-900/40 text-red-400' : 'bg-gray-700 text-gray-400'}`}>
+                        {a.estado || '-'}
+                      </span>
+                    </td>
+                  </tr>
                 );
               })}
+              {paginados.length === 0 && (
+                <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-500">No se encontraron animales con los filtros seleccionados</td></tr>
+              )}
             </tbody>
           </table>
         </div>
-        {filtered.length > 50 && <div className="p-4 text-center text-sm text-gray-400">Mostrando 50 de {filtered.length}</div>}
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between p-4 border-t border-gray-800">
+            <p className="text-sm text-gray-500">Mostrando {((page - 1) * PAGE_SIZE) + 1}-{Math.min(page * PAGE_SIZE, filtrados.length)} de {filtrados.length}</p>
+            <div className="flex gap-2">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                className="px-3 py-1.5 bg-gray-800 rounded-lg text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                <ChevronLeft size={16} />
+              </button>
+              <span className="px-3 py-1.5 text-sm text-gray-400">Pág. {page} / {totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                className="px-3 py-1.5 bg-gray-800 rounded-lg text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
