@@ -2268,11 +2268,61 @@ function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
         // Buscar fecha nacimiento de la madre (si nació en la finca)
         const nacMadre = crias[m];
         const fechaNacimiento = nacMadre?.fecha || null;
+
+        // === INDICADORES REPRODUCTIVOS AUTOMÁTICOS ===
+        const hoy = new Date();
+        const partosOrd = [...partos].sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+        const ultParto = partosOrd[0];
+
+        // Días abiertos: días desde último parto
+        let diasAbiertos = null;
+        if (ultParto?.fecha) {
+          const fp = new Date(ultParto.fecha + 'T00:00:00');
+          diasAbiertos = Math.round((hoy - fp) / (1000 * 60 * 60 * 24));
+        }
+
+        // Días lactancia: igual a días abiertos PERO se pone en 0 si la cría ya fue destetada
+        let diasLactancia = null;
+        let estaLactando = false;
+        if (ultParto?.fecha) {
+          const criaUltParto = ultParto.cria?.trim();
+          const regCria = criaUltParto ? crias[criaUltParto] : null;
+          const fueDestetada = regCria && (regCria.fechaDestete || regCria.fecha_destete);
+          if (fueDestetada) {
+            diasLactancia = 0; // vaca seca
+            estaLactando = false;
+          } else {
+            diasLactancia = diasAbiertos; // sigue lactando
+            estaLactando = true;
+          }
+        }
+
+        // Días gestación: si la última palpación dice "Preñada" con X días en fecha Y
+        let diasGestacion = null;
+        let fechaEstimadaParto = null;
+        if (ultimaPalp?.resultado === 'Preñada' && ultimaPalp.dias_gestacion && ultimaPalp.fecha) {
+          const diasPalpacion = parseInt(ultimaPalp.dias_gestacion);
+          if (!isNaN(diasPalpacion)) {
+            const fechaPalp = new Date(ultimaPalp.fecha + 'T00:00:00');
+            const diasTranscurridos = Math.round((hoy - fechaPalp) / (1000 * 60 * 60 * 24));
+            diasGestacion = diasPalpacion + diasTranscurridos;
+            // Fecha estimada de parto: 270 días desde el inicio de gestación
+            const inicioGest = new Date(fechaPalp);
+            inicioGest.setDate(inicioGest.getDate() - diasPalpacion);
+            const estParto = new Date(inicioGest);
+            estParto.setDate(estParto.getDate() + 270);
+            fechaEstimadaParto = estParto.toISOString().split('T')[0];
+          }
+        }
+
         lista.push({
           id: m, tipo: 'madre', numPartos: partos.length,
-          ultimoParto: partos.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0],
+          ultimoParto: ultParto,
           estadoRepro: ultimaPalp?.estado || null,
-          ultimaPalp, ultimoServ, partos, fechaNacimiento
+          ultimaPalp, ultimoServ, partos, fechaNacimiento,
+          // Indicadores reproductivos
+          diasAbiertos, diasLactancia, estaLactando,
+          diasGestacion, fechaEstimadaParto,
         });
       });
       // Add crías that are not mothers
@@ -2368,7 +2418,11 @@ function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
                         {a.tipo === 'madre' ? `🐄 Madre • ${a.numPartos} partos` : `${a.data?.sexo === 'M' ? '♂' : '♀'} Cría`}
                       </span>
                       {a.fechaNacimiento && <span className="text-xs text-gray-500">📅 {formatEdad(a.fechaNacimiento)}</span>}
-                      {a.estadoRepro && <span className="text-xs text-gray-400">{a.estadoRepro}</span>}
+                      {a.tipo === 'madre' && a.estaLactando && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400">🍼 Lact. {a.diasLactancia}d</span>}
+                      {a.tipo === 'madre' && a.diasLactancia === 0 && a.diasAbiertos != null && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400">Seca</span>}
+                      {a.tipo === 'madre' && a.diasGestacion != null && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-pink-500/20 text-pink-400">🤰 {a.diasGestacion}d gest.</span>}
+                      {a.tipo === 'madre' && !a.estaLactando && !a.diasGestacion && a.diasAbiertos != null && <span className="text-xs text-gray-500">DA: {a.diasAbiertos}d</span>}
+                      {a.estadoRepro && !a.estaLactando && !a.diasGestacion && <span className="text-xs text-gray-400">{a.estadoRepro}</span>}
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-sm flex-wrap">
@@ -2446,7 +2500,59 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
             <Stat label="Total Partos" value={animal.numPartos} />
             <Stat label="Prom. Peso Destete" value={promDestete ? `${promDestete} kg` : '-'} />
             <Stat label="IEP Promedio" value={iep ? `${iep} días` : '-'} sub={iep ? (iep <= 400 ? '✅ Bueno' : '⚠️ Alto') : ''} />
-            <Stat label="Estado Repro." value={ultimaPalp?.estado || 'Sin palpar'} sub={ultimaPalp?.fecha ? formatDate(ultimaPalp.fecha) : ''} />
+          </div>
+        </div>
+
+        {/* Indicadores Reproductivos Dinámicos */}
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+          <h4 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">📊 Indicadores Reproductivos <span className="text-[10px] text-gray-600 font-normal">(se actualizan automáticamente)</span></h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Días Abiertos</p>
+              <p className={`text-lg font-semibold ${animal.diasAbiertos != null ? (animal.diasAbiertos <= 120 ? 'text-green-400' : animal.diasAbiertos <= 200 ? 'text-yellow-400' : 'text-red-400') : 'text-gray-200'}`}>
+                {animal.diasAbiertos != null ? `${animal.diasAbiertos} días` : '-'}
+              </p>
+              {animal.diasAbiertos != null && <p className="text-xs text-gray-500">{animal.diasAbiertos <= 120 ? '✅ Óptimo' : animal.diasAbiertos <= 200 ? '⚠️ Vigilar' : '🔴 Crítico'}</p>}
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Estado Lactancia</p>
+              {animal.estaLactando ? (
+                <>
+                  <p className="text-lg font-semibold text-green-400">🍼 {animal.diasLactancia} días</p>
+                  <p className="text-xs text-gray-500">Lactando</p>
+                </>
+              ) : animal.diasLactancia === 0 ? (
+                <>
+                  <p className="text-lg font-semibold text-orange-400">Seca</p>
+                  <p className="text-xs text-gray-500">Cría destetada</p>
+                </>
+              ) : (
+                <p className="text-lg font-semibold text-gray-200">-</p>
+              )}
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Días Gestación</p>
+              {animal.diasGestacion != null ? (
+                <>
+                  <p className={`text-lg font-semibold ${animal.diasGestacion >= 255 ? 'text-pink-400' : 'text-purple-400'}`}>
+                    🤰 {animal.diasGestacion} días
+                  </p>
+                  <p className="text-xs text-gray-500">{animal.diasGestacion >= 255 ? '⏰ Parto inminente' : `Faltan ~${270 - animal.diasGestacion} días`}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-semibold text-gray-500">Vacía</p>
+                  <p className="text-xs text-gray-500">No preñada</p>
+                </>
+              )}
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">Parto Estimado</p>
+              <p className="text-lg font-semibold text-gray-200">
+                {animal.fechaEstimadaParto ? formatDate(animal.fechaEstimadaParto) : '-'}
+              </p>
+              {animal.fechaEstimadaParto && <p className="text-xs text-gray-500">±15 días</p>}
+            </div>
           </div>
         </div>
 
@@ -2459,9 +2565,14 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-gray-400">Fecha</span><span className="text-gray-200">{formatDate(ultimaPalp.fecha)}</span></div>
                 <div className="flex justify-between"><span className="text-gray-400">Estado</span><span className="text-gray-200 font-medium">{ultimaPalp.estado || '-'}</span></div>
-                {ultimaPalp.detalle && <div className="flex justify-between"><span className="text-gray-400">Detalle</span><span className="text-gray-200">{ultimaPalp.detalle}</span></div>}
-                {ultimaPalp.dias_gestacion && <div className="flex justify-between"><span className="text-gray-400">Días gestación</span><span className="text-gray-200">{isNaN(ultimaPalp.dias_gestacion) ? ultimaPalp.dias_gestacion : Math.round(Number(ultimaPalp.dias_gestacion))}</span></div>}
-                {ultimaPalp.dias_abiertos && <div className="flex justify-between"><span className="text-gray-400">Días abiertos</span><span className="text-gray-200">{Math.round(Number(ultimaPalp.dias_abiertos))}</span></div>}
+                <div className="flex justify-between"><span className="text-gray-400">Resultado</span><span className="text-gray-200">{ultimaPalp.resultado || ultimaPalp.detalle || '-'}</span></div>
+                {animal.diasGestacion != null && (
+                  <div className="flex justify-between"><span className="text-gray-400">Gestación actual</span><span className="text-purple-400 font-medium">{animal.diasGestacion} días</span></div>
+                )}
+                {!animal.diasGestacion && ultimaPalp.dias_gestacion && (
+                  <div className="flex justify-between"><span className="text-gray-400">Días gestación (palp.)</span><span className="text-gray-200">{isNaN(ultimaPalp.dias_gestacion) ? ultimaPalp.dias_gestacion : Math.round(Number(ultimaPalp.dias_gestacion))}</span></div>
+                )}
+                {ultimaPalp.dias_abiertos && <div className="flex justify-between"><span className="text-gray-400">Días abiertos (palp.)</span><span className="text-gray-200">{Math.round(Number(ultimaPalp.dias_abiertos))}</span></div>}
                 {ultimaPalp.reproductor && <div className="flex justify-between"><span className="text-gray-400">Reproductor</span><span className="text-gray-200">{ultimaPalp.reproductor}</span></div>}
               </div>
             ) : <p className="text-sm text-gray-500">Sin datos de palpación</p>}
