@@ -2444,6 +2444,44 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
     return { diasDestete, gdp };
   };
 
+  // Handler para editar datos de una cría
+  const handleEditAnimal = async (criaId, updates) => {
+    const cria = nacimientos.find(n => n.cria?.trim() === criaId);
+    if (!cria) return;
+    // Recalcular GDP si cambiaron pesos o fechas de destete
+    const pesoNacer = updates.peso_nacer ?? cria.pesoNacer ?? cria.peso_nacer;
+    const pesoDestete = updates.peso_destete ?? cria.pesoDestete ?? cria.peso_destete;
+    const fechaNac = cria.fecha;
+    const fechaDest = updates.fecha_destete ?? cria.fechaDestete ?? cria.fecha_destete;
+    let diasDestete = null;
+    let gdp = null;
+    if (fechaNac && fechaDest && pesoNacer && pesoDestete) {
+      diasDestete = Math.round((new Date(fechaDest + 'T00:00:00') - new Date(fechaNac + 'T00:00:00')) / (1000 * 60 * 60 * 24));
+      if (diasDestete > 0) gdp = Math.round((pesoDestete - pesoNacer) / diasDestete * 1000);
+    }
+    const añoDestete = fechaDest ? parseInt(fechaDest.split('-')[0]) : null;
+    const dbUpdates = { ...updates };
+    if (diasDestete != null) dbUpdates.edad_destete = diasDestete;
+    if (gdp != null) dbUpdates.gr_dia_vida = gdp;
+    if (añoDestete != null) dbUpdates.año_destete = añoDestete;
+    // Save to Supabase
+    if (isOnline && cria.id) {
+      try { await db.updateNacimiento(cria.id, dbUpdates); }
+      catch (e) { console.error('Error editando animal:', e); throw e; }
+    }
+    // Update local state
+    const localUpdates = { ...dbUpdates };
+    if (dbUpdates.peso_nacer != null) localUpdates.pesoNacer = dbUpdates.peso_nacer;
+    if (dbUpdates.peso_destete != null) localUpdates.pesoDestete = dbUpdates.peso_destete;
+    if (dbUpdates.fecha_destete != null) localUpdates.fechaDestete = dbUpdates.fecha_destete;
+    if (dbUpdates.edad_destete != null) localUpdates.edadDestete = dbUpdates.edad_destete;
+    if (dbUpdates.gr_dia_vida != null) localUpdates.grDiaVida = dbUpdates.gr_dia_vida;
+    if (dbUpdates.año_destete != null) localUpdates.añoDestete = dbUpdates.año_destete;
+    if (setNacimientos) {
+      setNacimientos(prev => prev.map(n => n.cria?.trim() === criaId ? { ...n, ...localUpdates } : n));
+    }
+  };
+
   const formatDate = (d) => {
     if (!d) return '-';
     const parts = d.split('-');
@@ -2519,7 +2557,7 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
           </button>
 
           {esLaVega ? (
-            <FichaLaVega animal={detalle} nacimientos={nacimientos} formatDate={formatDate} onRegistrarDestete={handleRegistrarDestete} />
+            <FichaLaVega animal={detalle} nacimientos={nacimientos} formatDate={formatDate} onRegistrarDestete={handleRegistrarDestete} onEditAnimal={handleEditAnimal} />
           ) : (
             <FichaBariloche animal={detalle} formatDate={formatDate} />
           )}
@@ -2534,11 +2572,15 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
 }
 
 // ==================== FICHA LA VEGA (CRÍA) ====================
-function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete }) {
+function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEditAnimal }) {
   // Destete form state (must be before any conditional returns)
   const [showDesteteForm, setShowDesteteForm] = useState(false);
   const [desteteData, setDesteteData] = useState({ fecha: new Date().toISOString().split('T')[0], peso: '' });
   const [savingDestete, setSavingDestete] = useState(false);
+  // Edit form state
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editData, setEditData] = useState({});
+  const [savingEdit, setSavingEdit] = useState(false);
 
   if (animal.tipo === 'madre') {
     const { partos, ultimaPalp, ultimoServ } = animal;
@@ -2754,12 +2796,26 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete }) {
             </span>
           )}
         </div>
-        {!yaDestetada && n.estado === 'Activo' && onRegistrarDestete && (
-          <button onClick={() => setShowDesteteForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-medium transition-colors">
-            <Scale size={16} /> Registrar Destete
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onEditAnimal && (
+            <button onClick={() => { setEditData({
+              peso_nacer: n.pesoNacer || n.peso_nacer || '',
+              peso_destete: n.pesoDestete || n.peso_destete || '',
+              fecha_destete: n.fechaDestete || n.fecha_destete || '',
+              estado: n.estado || 'Activo',
+              comentario: n.comentario || '',
+            }); setShowEditForm(true); }}
+              className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors">
+              <Edit2 size={14} /> Editar
+            </button>
+          )}
+          {!yaDestetada && n.estado === 'Activo' && onRegistrarDestete && (
+            <button onClick={() => setShowDesteteForm(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-medium transition-colors">
+              <Scale size={16} /> Registrar Destete
+            </button>
+          )}
+        </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Stat label="Edad" value={formatEdad(n.fecha)} />
@@ -2816,6 +2872,79 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete }) {
               <button onClick={handleDesteteSubmit} disabled={savingDestete}
                 className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
                 {savingDestete ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> Registrar Destete</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Animal */}
+      {showEditForm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowEditForm(false)}>
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-lg border border-gray-700" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-100 mb-1">✏️ Editar Animal</h3>
+            <p className="text-sm text-gray-400 mb-4">Cría: <strong className="text-green-400">{animal.id}</strong> • {n.sexo === 'M' ? '♂ Macho' : '♀ Hembra'} • Nacida: {formatDate(n.fecha)}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Peso Nacer (kg)</label>
+                <input type="number" step="0.1" value={editData.peso_nacer} onChange={e => setEditData({ ...editData, peso_nacer: e.target.value })}
+                  placeholder="Ej: 32" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Peso Destete (kg)</label>
+                <input type="number" step="0.1" value={editData.peso_destete} onChange={e => setEditData({ ...editData, peso_destete: e.target.value })}
+                  placeholder="Ej: 228" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Fecha Destete</label>
+                <input type="date" value={editData.fecha_destete} onChange={e => setEditData({ ...editData, fecha_destete: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Estado</label>
+                <select value={editData.estado} onChange={e => setEditData({ ...editData, estado: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                  <option value="Activo">Activo</option>
+                  <option value="Vendido">Vendido</option>
+                  <option value="Muerto">Muerto</option>
+                  <option value="Trasladado">Trasladado</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-gray-400 mb-1">Comentario</label>
+                <textarea value={editData.comentario} onChange={e => setEditData({ ...editData, comentario: e.target.value })}
+                  rows={2} placeholder="Notas adicionales..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm resize-none" />
+              </div>
+            </div>
+            {/* Preview GDP si hay peso nacer y destete */}
+            {editData.peso_nacer && editData.peso_destete && editData.fecha_destete && n.fecha && (
+              <div className="bg-gray-800 rounded-lg p-3 border border-gray-700 mt-4">
+                <p className="text-xs text-gray-500 mb-1">GDP recalculado:</p>
+                {(() => {
+                  const dias = Math.round((new Date(editData.fecha_destete + 'T00:00:00') - new Date(n.fecha + 'T00:00:00')) / (1000 * 60 * 60 * 24));
+                  const gdp = dias > 0 ? Math.round((parseFloat(editData.peso_destete) - parseFloat(editData.peso_nacer)) / dias * 1000) : null;
+                  return <p className={`text-lg font-bold ${gdp ? (gdp >= 800 ? 'text-green-400' : gdp >= 600 ? 'text-amber-400' : 'text-red-400') : 'text-gray-400'}`}>{gdp || '-'} g/día <span className="text-xs text-gray-500">({dias} días)</span></p>;
+                })()}
+              </div>
+            )}
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowEditForm(false)} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
+              <button onClick={async () => {
+                setSavingEdit(true);
+                try {
+                  const updates = {};
+                  if (editData.peso_nacer !== '' && editData.peso_nacer != null) updates.peso_nacer = parseFloat(editData.peso_nacer);
+                  if (editData.peso_destete !== '' && editData.peso_destete != null) updates.peso_destete = parseFloat(editData.peso_destete);
+                  if (editData.fecha_destete) updates.fecha_destete = editData.fecha_destete;
+                  if (editData.estado) updates.estado = editData.estado;
+                  if (editData.comentario !== undefined) updates.comentario = editData.comentario;
+                  await onEditAnimal(animal.id, updates);
+                  setShowEditForm(false);
+                } catch (e) { alert('Error guardando: ' + e.message); }
+                setSavingEdit(false);
+              }} disabled={savingEdit}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+                {savingEdit ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> Guardar Cambios</>}
               </button>
             </div>
           </div>
