@@ -1669,9 +1669,12 @@ function ServiciosView({ servicios, setServicios, userEmail, nacimientos, isOnli
   const [form, setForm] = useState(emptyForm);
 
   const hembrasConocidas = useMemo(() => {
-    const madres = new Set();
-    (nacimientos || []).forEach(n => { if (n.madre) madres.add(n.madre.trim()); });
-    return [...madres].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const hembras = new Set();
+    (nacimientos || []).forEach(n => {
+      if (n.madre) hembras.add(n.madre.trim());
+      if (n.cria && (n.sexo === 'H' || n.sexo === 'h')) hembras.add(String(n.cria).trim());
+    });
+    return [...hembras].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   }, [nacimientos]);
 
   const servLaVega = useMemo(() =>
@@ -2309,9 +2312,12 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }
   const [form, setForm] = useState(emptyForm);
 
   const hembrasConocidas = useMemo(() => {
-    const madres = new Set();
-    (nacimientos || []).forEach(n => { if (n.madre) madres.add(n.madre.trim()); });
-    return [...madres].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const hembras = new Set();
+    (nacimientos || []).forEach(n => {
+      if (n.madre) hembras.add(n.madre.trim());
+      if (n.cria && (n.sexo === 'H' || n.sexo === 'h')) hembras.add(String(n.cria).trim());
+    });
+    return [...hembras].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   }, [nacimientos]);
 
   const palpLaVega = useMemo(() =>
