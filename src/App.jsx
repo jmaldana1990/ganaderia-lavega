@@ -2520,9 +2520,22 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
                   <span className="text-lg font-bold text-green-400 group-hover:text-green-300 min-w-[60px]">{a.id}</span>
                   {esLaVega ? (
                     <div className="flex items-center gap-2 text-sm flex-wrap">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.tipo === 'madre' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'}`}>
-                        {a.tipo === 'madre' ? `🐄 Madre • ${a.numPartos} partos` : `${a.data?.sexo === 'M' ? '♂' : '♀'} Cría`}
-                      </span>
+                      {a.tipo === 'madre' ? (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-400">
+                          🐄 Madre • {a.numPartos} partos
+                        </span>
+                      ) : (() => {
+                        const destetada = !!(a.data?.pesoDestete || a.data?.peso_destete || a.data?.fechaDestete || a.data?.fecha_destete);
+                        const esMacho = a.data?.sexo === 'M';
+                        if (destetada) {
+                          return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${esMacho ? 'bg-amber-500/20 text-amber-400' : 'bg-teal-500/20 text-teal-400'}`}>
+                            {esMacho ? '♂ ML - Macho Levante' : '♀ HL - Hembra Levante'}
+                          </span>;
+                        }
+                        return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+                          {esMacho ? '♂' : '♀'} Cría
+                        </span>;
+                      })()}
                       {a.fechaNacimiento && <span className="text-xs text-gray-500">📅 {formatEdad(a.fechaNacimiento)}</span>}
                       {a.tipo === 'madre' && a.estaLactando && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400">🍼 Lact. {a.diasLactancia}d</span>}
                       {a.tipo === 'madre' && a.diasLactancia === 0 && a.diasAbiertos != null && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400">Seca</span>}
@@ -2787,9 +2800,15 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEd
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <span className="text-3xl font-bold text-green-400">{animal.id}</span>
-          <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
-            {n.sexo === 'M' ? '♂ Macho' : '♀ Hembra'} • Cría
-          </span>
+          {yaDestetada ? (
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${n.sexo === 'M' ? 'bg-amber-500/20 text-amber-400' : 'bg-teal-500/20 text-teal-400'}`}>
+              {n.sexo === 'M' ? '♂ ML - Macho Levante' : '♀ HL - Hembra Levante'}
+            </span>
+          ) : (
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
+              {n.sexo === 'M' ? '♂ Macho' : '♀ Hembra'} • Cría
+            </span>
+          )}
           {n.estado && (
             <span className={`px-2 py-0.5 rounded-full text-xs ${n.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : n.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>
               {n.estado}
