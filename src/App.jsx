@@ -45,6 +45,38 @@ const formatEdad = (fechaNac) => {
   return `${edad.valor} ${edad.unidad}`;
 };
 
+// Determina la categoría actual de un animal según su ciclo de vida
+// CM/CH → ML/HL (destete) → NV (hembra ≥24m sin partos) → VP (parida lactando) → VS (vaca seca)
+const getCategoriaAnimal = (animal) => {
+  if (animal.tipo === 'madre') {
+    // Madre con partos → VP o VS
+    if (animal.estaLactando) {
+      return { cat: 'VP', label: 'VP - Vaca Parida', icon: '🐄', color: 'bg-green-500/20 text-green-400' };
+    }
+    return { cat: 'VS', label: 'VS - Vaca Seca', icon: '🐄', color: 'bg-orange-500/20 text-orange-400' };
+  }
+  // Cría
+  const n = animal.data;
+  if (!n) return { cat: '?', label: 'Sin datos', icon: '❓', color: 'bg-gray-500/20 text-gray-400' };
+  const esMacho = n.sexo === 'M';
+  const destetada = !!(n.pesoDestete || n.peso_destete || n.fechaDestete || n.fecha_destete);
+  if (!destetada) {
+    return esMacho
+      ? { cat: 'CM', label: 'CM - Cría Macho', icon: '♂', color: 'bg-blue-500/20 text-blue-400' }
+      : { cat: 'CH', label: 'CH - Cría Hembra', icon: '♀', color: 'bg-pink-500/20 text-pink-400' };
+  }
+  // Destetada
+  if (esMacho) {
+    return { cat: 'ML', label: 'ML - Macho Levante', icon: '♂', color: 'bg-amber-500/20 text-amber-400' };
+  }
+  // Hembra destetada → HL o NV según edad
+  const edad = calcularEdad(animal.fechaNacimiento);
+  if (edad && edad.unidad === 'años' && edad.valor >= 2) {
+    return { cat: 'NV', label: 'NV - Novilla Vientre', icon: '♀', color: 'bg-purple-500/20 text-purple-400' };
+  }
+  return { cat: 'HL', label: 'HL - Hembra Levante', icon: '♀', color: 'bg-teal-500/20 text-teal-400' };
+};
+
 // Calcula ganancia gramos/día/vida al destete
 // Fórmula: (pesoDestete - pesoNacer) / díasEntreNacimientoYDestete * 1000
 const calcularGDPDestete = (n) => {
@@ -2520,20 +2552,10 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
                   <span className="text-lg font-bold text-green-400 group-hover:text-green-300 min-w-[60px]">{a.id}</span>
                   {esLaVega ? (
                     <div className="flex items-center gap-2 text-sm flex-wrap">
-                      {a.tipo === 'madre' ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-400">
-                          🐄 Madre • {a.numPartos} partos
-                        </span>
-                      ) : (() => {
-                        const destetada = !!(a.data?.pesoDestete || a.data?.peso_destete || a.data?.fechaDestete || a.data?.fecha_destete);
-                        const esMacho = a.data?.sexo === 'M';
-                        if (destetada) {
-                          return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${esMacho ? 'bg-amber-500/20 text-amber-400' : 'bg-teal-500/20 text-teal-400'}`}>
-                            {esMacho ? '♂ ML - Macho Levante' : '♀ HL - Hembra Levante'}
-                          </span>;
-                        }
-                        return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
-                          {esMacho ? '♂' : '♀'} Cría
+                      {(() => {
+                        const cat = getCategoriaAnimal(a);
+                        return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${cat.color}`}>
+                          {cat.icon} {cat.label}{a.tipo === 'madre' ? ` • ${a.numPartos} partos` : ''}
                         </span>;
                       })()}
                       {a.fechaNacimiento && <span className="text-xs text-gray-500">📅 {formatEdad(a.fechaNacimiento)}</span>}
@@ -2621,7 +2643,7 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEd
         <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl font-bold text-green-400">{animal.id}</span>
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-400">🐄 Vientre</span>
+            {(() => { const cat = getCategoriaAnimal(animal); return <span className={`px-3 py-1 rounded-full text-sm font-medium ${cat.color}`}>{cat.icon} {cat.label}</span>; })()}
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Stat label="Edad" value={formatEdad(animal.fechaNacimiento)} sub={animal.fechaNacimiento ? formatDate(animal.fechaNacimiento) : 'Sin fecha nac.'} />
@@ -2800,15 +2822,7 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEd
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <span className="text-3xl font-bold text-green-400">{animal.id}</span>
-          {yaDestetada ? (
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${n.sexo === 'M' ? 'bg-amber-500/20 text-amber-400' : 'bg-teal-500/20 text-teal-400'}`}>
-              {n.sexo === 'M' ? '♂ ML - Macho Levante' : '♀ HL - Hembra Levante'}
-            </span>
-          ) : (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
-              {n.sexo === 'M' ? '♂ Macho' : '♀ Hembra'} • Cría
-            </span>
-          )}
+          {(() => { const cat = getCategoriaAnimal(animal); return <span className={`px-3 py-1 rounded-full text-sm font-medium ${cat.color}`}>{cat.icon} {cat.label}</span>; })()}
           {n.estado && (
             <span className={`px-2 py-0.5 rounded-full text-xs ${n.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : n.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>
               {n.estado}
