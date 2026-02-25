@@ -22,6 +22,29 @@ const MESES = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep'
 const centroColor = (c) => ({ 'La Vega': 'bg-green-900/40 text-green-400', 'Bariloche': 'bg-blue-900/40 text-blue-400', 'Global': 'bg-purple-900/40 text-purple-400' }[c] || 'bg-gray-800 text-gray-300');
 const centroBarColor = (c) => ({ 'La Vega': 'bg-green-500', 'Bariloche': 'bg-blue-500', 'Global': 'bg-purple-500' }[c] || 'bg-gray-500');
 
+// Calcula la edad a partir de fecha de nacimiento (YYYY-MM-DD)
+// < 24 meses → muestra meses con 1 decimal | >= 24 meses → muestra años con 1 decimal
+const calcularEdad = (fechaNac) => {
+  if (!fechaNac) return null;
+  const nac = new Date(fechaNac + 'T00:00:00');
+  const hoy = new Date();
+  if (isNaN(nac.getTime())) return null;
+  const diffMs = hoy - nac;
+  if (diffMs < 0) return null;
+  const totalDias = diffMs / (1000 * 60 * 60 * 24);
+  const totalMeses = totalDias / 30.4375; // promedio días/mes
+  if (totalMeses < 24) {
+    return { valor: Math.round(totalMeses * 10) / 10, unidad: 'meses' };
+  }
+  const totalAños = totalDias / 365.25;
+  return { valor: Math.round(totalAños * 10) / 10, unidad: 'años' };
+};
+const formatEdad = (fechaNac) => {
+  const edad = calcularEdad(fechaNac);
+  if (!edad) return '-';
+  return `${edad.valor} ${edad.unidad}`;
+};
+
 const HATO_CATEGORIAS = [
   { key: 'vp', label: 'Vacas Paridas', color: 'bg-green-900/30 text-green-400' },
   { key: 'vh', label: 'Vacas Horras', color: 'bg-blue-900/30 text-blue-400' },
@@ -2242,17 +2265,20 @@ function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
         const partos = nacimientos.filter(n => n.madre && n.madre.trim() === m);
         const ultimaPalp = (palpaciones || []).filter(p => p.hembra === m && p.finca === finca).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0];
         const ultimoServ = (servicios || []).filter(s => s.hembra === m && s.finca === finca).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0];
+        // Buscar fecha nacimiento de la madre (si nació en la finca)
+        const nacMadre = crias[m];
+        const fechaNacimiento = nacMadre?.fecha || null;
         lista.push({
           id: m, tipo: 'madre', numPartos: partos.length,
           ultimoParto: partos.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0],
           estadoRepro: ultimaPalp?.estado || null,
-          ultimaPalp, ultimoServ, partos
+          ultimaPalp, ultimoServ, partos, fechaNacimiento
         });
       });
       // Add crías that are not mothers
       Object.entries(crias).forEach(([cria, data]) => {
         if (!madresSet.has(cria)) {
-          lista.push({ id: cria, tipo: 'cria', data });
+          lista.push({ id: cria, tipo: 'cria', data, fechaNacimiento: data.fecha || null });
         }
       });
       return lista.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
@@ -2263,14 +2289,25 @@ function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
         if (!animMap[p.animal]) animMap[p.animal] = [];
         animMap[p.animal].push(p);
       });
+      // Build nacimientos lookup for Bariloche animals (might have been born at La Vega)
+      const nacLookup = {};
+      (nacimientos || []).forEach(n => { if (n.cria) nacLookup[n.cria.trim()] = n; });
       return Object.entries(animMap).map(([animal, pesos]) => {
         const sorted = pesos.sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || ''));
         const ultimo = sorted[0];
+        // Fecha nacimiento: 1) del registro de nacimientos, 2) estimada desde pesaje
+        let fechaNacimiento = nacLookup[animal]?.fecha || null;
+        if (!fechaNacimiento && ultimo?.fecha_pesaje && ultimo?.edad_meses) {
+          const fp = new Date(ultimo.fecha_pesaje + 'T00:00:00');
+          fp.setDate(fp.getDate() - Math.round(ultimo.edad_meses * 30.4375));
+          fechaNacimiento = fp.toISOString().split('T')[0];
+        }
         return {
           id: animal, tipo: 'levante', pesajes: sorted, ultimo,
           categoria: ultimo?.categoria || '-',
           pesoActual: ultimo?.peso,
           gdpVida: ultimo?.gdp_vida,
+          fechaNacimiento,
         };
       }).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
     }
@@ -2326,16 +2363,18 @@ function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
                 <div className="flex items-center gap-3">
                   <span className="text-lg font-bold text-green-400 group-hover:text-green-300 min-w-[60px]">{a.id}</span>
                   {esLaVega ? (
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm flex-wrap">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.tipo === 'madre' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'}`}>
                         {a.tipo === 'madre' ? `🐄 Madre • ${a.numPartos} partos` : `${a.data?.sexo === 'M' ? '♂' : '♀'} Cría`}
                       </span>
+                      {a.fechaNacimiento && <span className="text-xs text-gray-500">📅 {formatEdad(a.fechaNacimiento)}</span>}
                       {a.estadoRepro && <span className="text-xs text-gray-400">{a.estadoRepro}</span>}
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm flex-wrap">
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">{a.categoria}</span>
                       <span className="text-gray-400">{a.pesoActual ? `${a.pesoActual} kg` : '-'}</span>
+                      {a.fechaNacimiento && <span className="text-xs text-gray-500">📅 {formatEdad(a.fechaNacimiento)}</span>}
                       {a.gdpVida && <span className="text-gray-500 text-xs">GDP: {Math.round(a.gdpVida)} g/d</span>}
                     </div>
                   )}
@@ -2403,6 +2442,7 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
             <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-400">🐄 Vientre</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Stat label="Edad" value={formatEdad(animal.fechaNacimiento)} sub={animal.fechaNacimiento ? formatDate(animal.fechaNacimiento) : 'Sin fecha nac.'} />
             <Stat label="Total Partos" value={animal.numPartos} />
             <Stat label="Prom. Peso Destete" value={promDestete ? `${promDestete} kg` : '-'} />
             <Stat label="IEP Promedio" value={iep ? `${iep} días` : '-'} sub={iep ? (iep <= 400 ? '✅ Bueno' : '⚠️ Alto') : ''} />
@@ -2499,6 +2539,7 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
         )}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Stat label="Edad" value={formatEdad(n.fecha)} />
         <Stat label="Fecha Nacimiento" value={formatDate(n.fecha)} />
         <Stat label="Madre" value={n.madre || '-'} />
         <Stat label="Padre" value={n.padre || '-'} />
@@ -2538,7 +2579,7 @@ function FichaBariloche({ animal, formatDate }) {
           <Stat label="Peso Actual" value={ultimo?.peso ? `${ultimo.peso} kg` : '-'} sub={ultimo?.fecha_pesaje ? formatDate(ultimo.fecha_pesaje) : ''} />
           <Stat label="GDP Vida" value={ultimo?.gdp_vida ? `${Math.round(ultimo.gdp_vida)} g/día` : '-'} sub={ultimo?.gdp_vida ? (ultimo.gdp_vida >= 500 ? '✅ Meta' : '⚠️ Bajo meta') : ''} />
           <Stat label="GDP Prom. Entre Pesajes" value={gdpPromEntre ? `${gdpPromEntre} g/día` : '-'} sub={gdpPromEntre ? (gdpPromEntre >= 500 ? '✅ Meta' : '⚠️ Bajo meta') : ''} />
-          <Stat label="Edad" value={ultimo?.edad_meses ? `${ultimo.edad_meses.toFixed(1)} meses` : '-'} />
+          <Stat label="Edad" value={formatEdad(animal.fechaNacimiento)} sub={animal.fechaNacimiento ? `Nac: ${formatDate(animal.fechaNacimiento)}` : 'Estimada'} />
         </div>
         {gananciaTotal !== null && (
           <div className="mt-3 pt-3 border-t border-gray-700 flex items-center gap-4 text-sm">
