@@ -45,6 +45,29 @@ const formatEdad = (fechaNac) => {
   return `${edad.valor} ${edad.unidad}`;
 };
 
+// Calcula ganancia gramos/día/vida al destete
+// Fórmula: (pesoDestete - pesoNacer) / díasEntreNacimientoYDestete * 1000
+const calcularGDPDestete = (n) => {
+  if (!n) return null;
+  const pesoNacer = n.pesoNacer || n.peso_nacer;
+  const pesoDestete = n.pesoDestete || n.peso_destete;
+  if (!pesoNacer || !pesoDestete) return null;
+  // Intentar obtener días de edad al destete
+  let diasDestete = n.edadDestete || n.edad_destete;
+  if (!diasDestete) {
+    // Calcular desde fechas
+    const fechaNac = n.fecha;
+    const fechaDest = n.fechaDestete || n.fecha_destete;
+    if (fechaNac && fechaDest) {
+      const d1 = new Date(fechaNac + 'T00:00:00');
+      const d2 = new Date(fechaDest + 'T00:00:00');
+      diasDestete = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+    }
+  }
+  if (!diasDestete || diasDestete <= 0) return null;
+  return Math.round((pesoDestete - pesoNacer) / diasDestete * 1000);
+};
+
 const HATO_CATEGORIAS = [
   { key: 'vp', label: 'Vacas Paridas', color: 'bg-green-900/30 text-green-400' },
   { key: 'vh', label: 'Vacas Horras', color: 'bg-blue-900/30 text-blue-400' },
@@ -441,7 +464,7 @@ export default function GanaderiaApp() {
           )}
           {view === 'lavega' && (
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
-              inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
+              inventario={inventario} nacimientos={nacimientos} setNacimientos={setNacimientos} gastos={gastos} años={años}
               pesajes={pesajes} palpaciones={palpaciones} setPalpaciones={setPalpaciones} servicios={servicios} destetes={destetes}
               lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} />
           )}
@@ -872,7 +895,7 @@ function VentasTotales({ ventas: ventasData }) {
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, años, pesajes, palpaciones, setPalpaciones, servicios, destetes, lluvias, setLluvias, userEmail, isOnline }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, palpaciones, setPalpaciones, servicios, destetes, lluvias, setLluvias, userEmail, isOnline }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
   const esTodos = añoSel === 'todos';
@@ -1003,8 +1026,9 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       destM = dm.length;
       destH = dh.length;
       destetadosTotal = destetadosTab.length;
-      const conGDP = destetadosTab.filter(d => d.gdp_predestete && d.gdp_predestete > 0);
-      gdpProm = conGDP.length ? conGDP.reduce((s, d) => s + d.gdp_predestete, 0) / conGDP.length : null;
+      // GDP: calcular automáticamente, fallback a gdp_predestete
+      const gdps = destetadosTab.map(d => calcularGDPDestete(d) || (d.gdp_predestete > 0 ? d.gdp_predestete : null)).filter(Boolean);
+      gdpProm = gdps.length ? gdps.reduce((s, v) => s + v, 0) / gdps.length : null;
     } else {
       const dm = destetadosNac.filter(n => n.sexo === 'M');
       const dh = destetadosNac.filter(n => n.sexo === 'H');
@@ -1013,8 +1037,9 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
       destM = dm.length;
       destH = dh.length;
       destetadosTotal = destetadosNac.length;
-      const conGDP = destetadosNac.filter(n => n.grDiaVida && n.grDiaVida > 0);
-      gdpProm = conGDP.length ? conGDP.reduce((s, n) => s + n.grDiaVida, 0) / conGDP.length : null;
+      // GDP: calcular automáticamente, fallback a grDiaVida
+      const gdps = destetadosNac.map(n => calcularGDPDestete(n) || (n.grDiaVida > 0 ? n.grDiaVida : null)).filter(Boolean);
+      gdpProm = gdps.length ? gdps.reduce((s, v) => s + v, 0) / gdps.length : null;
     }
 
     // Tasa de mortalidad
@@ -1574,7 +1599,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, gastos, a
 
       {/* ==================== HATO ==================== */}
       {!esTodos && subView === 'hato' && (
-        <HatoView finca={finca} nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} />
+        <HatoView finca={finca} nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} isOnline={isOnline} userEmail={userEmail} />
       )}
 
       {!esTodos && subView === 'lluvias' && (
@@ -2242,7 +2267,7 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos }
 }
 
 // ==================== COMPONENTE HATO ====================
-function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
+function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, servicios, isOnline, userEmail }) {
   const [busqueda, setBusqueda] = useState('');
   const [animalSel, setAnimalSel] = useState(null);
 
@@ -2376,6 +2401,49 @@ function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
     return animales.find(a => a.id === animalSel) || null;
   }, [animalSel, animales]);
 
+  // Handler para registrar destete de una cría
+  const handleRegistrarDestete = async (criaId, fechaDestete, pesoDestete) => {
+    // Buscar la cría en nacimientos
+    const cria = nacimientos.find(n => n.cria?.trim() === criaId);
+    if (!cria) return alert('Cría no encontrada');
+    const pesoNacer = cria.pesoNacer || cria.peso_nacer || 0;
+    const fechaNac = cria.fecha;
+    // Calcular días y GDP
+    let diasDestete = null;
+    if (fechaNac && fechaDestete) {
+      diasDestete = Math.round((new Date(fechaDestete + 'T00:00:00') - new Date(fechaNac + 'T00:00:00')) / (1000 * 60 * 60 * 24));
+    }
+    const gdp = diasDestete && diasDestete > 0 && pesoNacer ? Math.round((pesoDestete - pesoNacer) / diasDestete * 1000) : null;
+    const añoDestete = fechaDestete ? parseInt(fechaDestete.split('-')[0]) : null;
+
+    const updates = {
+      pesoDestete: pesoDestete, peso_destete: pesoDestete,
+      fechaDestete: fechaDestete, fecha_destete: fechaDestete,
+      edadDestete: diasDestete, edad_destete: diasDestete,
+      grDiaVida: gdp, gr_dia_vida: gdp,
+      añoDestete: añoDestete, año_destete: añoDestete,
+    };
+    // Update in Supabase if online
+    if (isOnline && cria.id) {
+      try {
+        await db.updateNacimiento(cria.id, {
+          peso_destete: pesoDestete,
+          fecha_destete: fechaDestete,
+          edad_destete: diasDestete,
+          gr_dia_vida: gdp,
+          año_destete: añoDestete,
+        });
+      } catch (e) { console.error('Error actualizando destete en Supabase:', e); }
+    }
+    // Update local state
+    if (setNacimientos) {
+      setNacimientos(prev => prev.map(n =>
+        n.cria?.trim() === criaId ? { ...n, ...updates } : n
+      ));
+    }
+    return { diasDestete, gdp };
+  };
+
   const formatDate = (d) => {
     if (!d) return '-';
     const parts = d.split('-');
@@ -2451,7 +2519,7 @@ function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
           </button>
 
           {esLaVega ? (
-            <FichaLaVega animal={detalle} nacimientos={nacimientos} formatDate={formatDate} />
+            <FichaLaVega animal={detalle} nacimientos={nacimientos} formatDate={formatDate} onRegistrarDestete={handleRegistrarDestete} />
           ) : (
             <FichaBariloche animal={detalle} formatDate={formatDate} />
           )}
@@ -2466,7 +2534,12 @@ function HatoView({ finca, nacimientos, pesajes, palpaciones, servicios }) {
 }
 
 // ==================== FICHA LA VEGA (CRÍA) ====================
-function FichaLaVega({ animal, nacimientos, formatDate }) {
+function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete }) {
+  // Destete form state (must be before any conditional returns)
+  const [showDesteteForm, setShowDesteteForm] = useState(false);
+  const [desteteData, setDesteteData] = useState({ fecha: new Date().toISOString().split('T')[0], peso: '' });
+  const [savingDestete, setSavingDestete] = useState(false);
+
   if (animal.tipo === 'madre') {
     const { partos, ultimaPalp, ultimoServ } = animal;
     const partosOrden = [...partos].sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
@@ -2610,14 +2683,17 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {partosOrden.map((p, i) => (
+                {partosOrden.map((p, i) => {
+                  const gdpCalc = calcularGDPDestete(p);
+                  const gdpVal = gdpCalc || (p.grDiaVida || p.gr_dia_vida ? Math.round(p.grDiaVida || p.gr_dia_vida) : null);
+                  return (
                   <tr key={i} className="hover:bg-gray-700/50">
                     <td className="py-2 px-2 font-medium text-green-400">{p.cria}</td>
                     <td className="py-2 px-2 text-gray-300">{formatDate(p.fecha)}</td>
                     <td className="py-2 px-2 text-center">{p.sexo === 'M' ? <span className="text-blue-400">♂</span> : <span className="text-pink-400">♀</span>}</td>
                     <td className="py-2 px-2 text-right text-gray-300">{p.pesoNacer || p.peso_nacer ? `${p.pesoNacer || p.peso_nacer} kg` : '-'}</td>
                     <td className="py-2 px-2 text-right text-gray-300">{(p.pesoDestete || p.peso_destete) ? `${p.pesoDestete || p.peso_destete} kg` : '-'}</td>
-                    <td className="py-2 px-2 text-right text-gray-300">{(p.grDiaVida || p.gr_dia_vida) ? `${Math.round(p.grDiaVida || p.gr_dia_vida)} g` : '-'}</td>
+                    <td className={`py-2 px-2 text-right font-medium ${gdpVal ? (gdpVal >= 800 ? 'text-green-400' : gdpVal >= 600 ? 'text-amber-400' : 'text-red-400') : 'text-gray-300'}`}>{gdpVal ? `${gdpVal} g` : '-'}</td>
                     <td className="py-2 px-2 text-gray-400">{p.padre || '-'}</td>
                     <td className="py-2 px-2">
                       <span className={`px-2 py-0.5 rounded-full text-xs ${p.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : p.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>
@@ -2625,7 +2701,8 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
                       </span>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -2636,17 +2713,52 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
 
   // Cría card
   const n = animal.data;
+  const gdpCalc = calcularGDPDestete(n);
+  const gdpFinal = gdpCalc || (n.grDiaVida || n.gr_dia_vida ? Math.round(n.grDiaVida || n.gr_dia_vida) : null);
+  // Calcular edad al destete si no viene precalculada
+  let edadDestFinal = n.edadDestete || n.edad_destete;
+  if (!edadDestFinal && n.fecha && (n.fechaDestete || n.fecha_destete)) {
+    const d1 = new Date(n.fecha + 'T00:00:00');
+    const d2 = new Date((n.fechaDestete || n.fecha_destete) + 'T00:00:00');
+    edadDestFinal = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+  }
+  const yaDestetada = !!(n.pesoDestete || n.peso_destete || n.fechaDestete || n.fecha_destete);
+
+  const handleDesteteSubmit = async () => {
+    if (!desteteData.fecha || !desteteData.peso) return alert('Fecha y peso son obligatorios');
+    const peso = parseFloat(desteteData.peso);
+    if (isNaN(peso) || peso <= 0) return alert('Peso inválido');
+    setSavingDestete(true);
+    try {
+      const result = await onRegistrarDestete(animal.id, desteteData.fecha, peso);
+      if (result) {
+        alert(`✅ Destete registrado\nDías de edad: ${result.diasDestete}\nGDP: ${result.gdp ? result.gdp + ' g/día' : 'No calculado'}`);
+      }
+      setShowDesteteForm(false);
+      setDesteteData({ fecha: new Date().toISOString().split('T')[0], peso: '' });
+    } catch (e) { alert('Error: ' + e.message); }
+    setSavingDestete(false);
+  };
+
   return (
     <div className="bg-gray-800 rounded-xl p-5 border border-gray-700 space-y-4">
-      <div className="flex items-center gap-3 mb-2">
-        <span className="text-3xl font-bold text-green-400">{animal.id}</span>
-        <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
-          {n.sexo === 'M' ? '♂ Macho' : '♀ Hembra'} • Cría
-        </span>
-        {n.estado && (
-          <span className={`px-2 py-0.5 rounded-full text-xs ${n.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : n.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>
-            {n.estado}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl font-bold text-green-400">{animal.id}</span>
+          <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-400">
+            {n.sexo === 'M' ? '♂ Macho' : '♀ Hembra'} • Cría
           </span>
+          {n.estado && (
+            <span className={`px-2 py-0.5 rounded-full text-xs ${n.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : n.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>
+              {n.estado}
+            </span>
+          )}
+        </div>
+        {!yaDestetada && n.estado === 'Activo' && onRegistrarDestete && (
+          <button onClick={() => setShowDesteteForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-medium transition-colors">
+            <Scale size={16} /> Registrar Destete
+          </button>
         )}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -2657,10 +2769,58 @@ function FichaLaVega({ animal, nacimientos, formatDate }) {
         <Stat label="Peso Nacer" value={n.pesoNacer || n.peso_nacer ? `${n.pesoNacer || n.peso_nacer} kg` : '-'} />
         <Stat label="Peso Destete" value={(n.pesoDestete || n.peso_destete) ? `${n.pesoDestete || n.peso_destete} kg` : '-'} />
         <Stat label="Fecha Destete" value={formatDate(n.fechaDestete || n.fecha_destete)} />
-        <Stat label="Edad Destete" value={(n.edadDestete || n.edad_destete) ? `${n.edadDestete || n.edad_destete} días` : '-'} />
-        <Stat label="GDP Vida" value={(n.grDiaVida || n.gr_dia_vida) ? `${Math.round(n.grDiaVida || n.gr_dia_vida)} g/día` : '-'} />
+        <Stat label="Edad Destete" value={edadDestFinal ? `${edadDestFinal} días` : '-'} />
+        <Stat label="GDP Vida" value={gdpFinal ? `${gdpFinal} g/día` : '-'} sub={gdpFinal ? (gdpFinal >= 800 ? '✅ Excelente' : gdpFinal >= 600 ? '👍 Bueno' : '⚠️ Bajo') : ''} />
       </div>
       {n.comentario && <p className="text-sm text-gray-400 mt-2">📝 {n.comentario}</p>}
+
+      {/* Modal Destete */}
+      {showDesteteForm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowDesteteForm(false)}>
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-md border border-gray-700" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-100 mb-1">🐄 Registrar Destete</h3>
+            <p className="text-sm text-gray-400 mb-4">Cría: <strong className="text-green-400">{animal.id}</strong> • Peso nacer: {n.pesoNacer || n.peso_nacer || '?'} kg • Nacida: {formatDate(n.fecha)}</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Fecha de Destete *</label>
+                <input type="date" value={desteteData.fecha} onChange={e => setDesteteData({ ...desteteData, fecha: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Peso al Destete (kg) *</label>
+                <input type="number" step="0.1" value={desteteData.peso} onChange={e => setDesteteData({ ...desteteData, peso: e.target.value })}
+                  placeholder="Ej: 228" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              {/* Preview cálculos */}
+              {desteteData.fecha && desteteData.peso && n.fecha && (
+                <div className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                  <p className="text-xs text-gray-500 mb-2">Vista previa del cálculo:</p>
+                  {(() => {
+                    const dias = Math.round((new Date(desteteData.fecha + 'T00:00:00') - new Date(n.fecha + 'T00:00:00')) / (1000 * 60 * 60 * 24));
+                    const pesoN = n.pesoNacer || n.peso_nacer || 0;
+                    const pesoD = parseFloat(desteteData.peso) || 0;
+                    const gdp = dias > 0 && pesoN ? Math.round((pesoD - pesoN) / dias * 1000) : null;
+                    return (
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div><p className="text-xs text-gray-500">Edad destete</p><p className="text-lg font-bold text-gray-200">{dias > 0 ? dias : '-'} <span className="text-xs">días</span></p></div>
+                        <div><p className="text-xs text-gray-500">Ganancia</p><p className="text-lg font-bold text-gray-200">{pesoD && pesoN ? (pesoD - pesoN).toFixed(1) : '-'} <span className="text-xs">kg</span></p></div>
+                        <div><p className="text-xs text-gray-500">GDP</p><p className={`text-lg font-bold ${gdp ? (gdp >= 800 ? 'text-green-400' : gdp >= 600 ? 'text-amber-400' : 'text-red-400') : 'text-gray-200'}`}>{gdp || '-'} <span className="text-xs">g/d</span></p></div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowDesteteForm(false)} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
+              <button onClick={handleDesteteSubmit} disabled={savingDestete}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+                {savingDestete ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> Registrar Destete</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2945,11 +3105,14 @@ function Nacimientos({ data, inventario }) {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Padre</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Nacer</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">P.Destete</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">GDP g/d</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Estado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {filtered.slice(0, 50).map(n => (
+              {filtered.slice(0, 50).map(n => {
+                const gdpVal = calcularGDPDestete(n) || (n.grDiaVida || n.gr_dia_vida ? Math.round(n.grDiaVida || n.gr_dia_vida) : null);
+                return (
                 <tr key={n.id || n.cria} className={`hover:bg-gray-800/50 ${n.estado !== 'Activo' ? 'bg-red-900/20' : ''}`}>
                   <td className="px-4 py-3 font-medium text-sm">{n.cria}</td>
                   <td className="px-4 py-3 text-sm">{formatDate(n.fecha)}</td>
@@ -2962,13 +3125,15 @@ function Nacimientos({ data, inventario }) {
                   <td className="px-4 py-3 text-sm">{n.padre}</td>
                   <td className="px-4 py-3 text-sm text-right">{n.pesoNacer || n.peso_nacer || '-'}</td>
                   <td className="px-4 py-3 text-sm text-right font-medium">{n.pesoDestete || n.peso_destete || '-'}</td>
+                  <td className={`px-4 py-3 text-sm text-right font-medium ${gdpVal ? (gdpVal >= 800 ? 'text-green-400' : gdpVal >= 600 ? 'text-amber-400' : 'text-red-400') : ''}`}>{gdpVal || '-'}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${n.estado === 'Activo' ? 'bg-green-900/40 text-green-400' : n.estado === 'Vendido' ? 'bg-yellow-900/40 text-yellow-400' : 'bg-red-900/40 text-red-400'}`}>
                       {n.estado}
                     </span>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
