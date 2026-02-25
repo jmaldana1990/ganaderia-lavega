@@ -22,6 +22,10 @@ const MESES = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep'
 const centroColor = (c) => ({ 'La Vega': 'bg-green-900/40 text-green-400', 'Bariloche': 'bg-blue-900/40 text-blue-400', 'Global': 'bg-purple-900/40 text-purple-400' }[c] || 'bg-gray-800 text-gray-300');
 const centroBarColor = (c) => ({ 'La Vega': 'bg-green-500', 'Bariloche': 'bg-blue-500', 'Global': 'bg-purple-500' }[c] || 'bg-gray-500');
 
+// Filtra filas de resumen/totales que no son animales reales (se colan al cargar archivos de movimientos)
+const RESUMEN_KEYWORDS = new Set(['VACIAS', 'VACIA', 'PÑ', 'PREÑADAS', 'TOTAL', 'SECAS', 'LACTANTES', 'NOVILLAS', 'RESUMEN', 'DESCARTE', 'DESCARTES']);
+const esAnimalValido = (id) => { if (!id) return false; return !RESUMEN_KEYWORDS.has(String(id).trim().toUpperCase()); };
+
 // Calcula la edad a partir de fecha de nacimiento (YYYY-MM-DD)
 // < 24 meses → muestra meses con 1 decimal | >= 24 meses → muestra años con 1 decimal
 const calcularEdad = (fechaNac) => {
@@ -2558,7 +2562,7 @@ function PalpacionesView({ palpaciones, setPalpaciones, userEmail, nacimientos, 
   }, [nacimientos]);
 
   const palpLaVega = useMemo(() =>
-    (palpaciones || []).filter(p => p.finca === 'La Vega').sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')),
+    (palpaciones || []).filter(p => p.finca === 'La Vega' && esAnimalValido(p.hembra)).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')),
     [palpaciones]);
 
   const filtradas = useMemo(() => {
