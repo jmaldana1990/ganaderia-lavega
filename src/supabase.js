@@ -259,6 +259,35 @@ export async function getServicios() {
   return data
 }
 
+export async function insertServicio(registro) {
+  const { data, error } = await supabase
+    .from('servicios')
+    .insert(registro)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateServicio(id, updates) {
+  const { data, error } = await supabase
+    .from('servicios')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteServicio(id) {
+  const { error } = await supabase
+    .from('servicios')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}
+
 // ==================== DESTETES ====================
 export async function getDestetes() {
   const { data, error } = await supabase

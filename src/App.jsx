@@ -497,7 +497,7 @@ export default function GanaderiaApp() {
           {view === 'lavega' && (
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
               inventario={inventario} nacimientos={nacimientos} setNacimientos={setNacimientos} gastos={gastos} años={años}
-              pesajes={pesajes} palpaciones={palpaciones} setPalpaciones={setPalpaciones} servicios={servicios} destetes={destetes}
+              pesajes={pesajes} palpaciones={palpaciones} setPalpaciones={setPalpaciones} servicios={servicios} setServicios={setServicios} destetes={destetes}
               lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} />
           )}
           {view === 'bariloche' && (
@@ -927,7 +927,7 @@ function VentasTotales({ ventas: ventasData }) {
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, palpaciones, setPalpaciones, servicios, destetes, lluvias, setLluvias, userEmail, isOnline }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, palpaciones, setPalpaciones, servicios, setServicios, destetes, lluvias, setLluvias, userEmail, isOnline }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
   const esTodos = añoSel === 'todos';
@@ -1256,6 +1256,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
           { key: 'hato', label: '🐄 Hato', icon: Search, hide: esTodos },
           { key: 'lluvias', label: '🌧️ Lluvias', icon: Activity, hide: esTodos },
           { key: 'palpaciones', label: '🔬 Palpaciones', icon: Activity, hide: esTodos || finca !== 'La Vega' },
+          { key: 'servicios', label: '🧬 IA/TE', icon: Activity, hide: esTodos || finca !== 'La Vega' },
         ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-gray-900 shadow text-gray-100' : 'text-gray-400 hover:text-gray-300'}`}>
@@ -1642,6 +1643,281 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
         <PalpacionesView palpaciones={palpaciones} setPalpaciones={setPalpaciones} userEmail={userEmail} nacimientos={nacimientos} />
       )}
 
+      {!esTodos && subView === 'servicios' && finca === 'La Vega' && (
+        <ServiciosView servicios={servicios} setServicios={setServicios} userEmail={userEmail} nacimientos={nacimientos} isOnline={isOnline} />
+      )}
+
+    </div>
+  );
+}
+
+// ==================== COMPONENTE SERVICIOS IA/TE ====================
+function ServiciosView({ servicios, setServicios, userEmail, nacimientos, isOnline }) {
+  const [showForm, setShowForm] = useState(false);
+  const [editando, setEditando] = useState(null);
+  const [confirmDel, setConfirmDel] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('todos');
+
+  const emptyForm = {
+    fecha: new Date().toISOString().split('T')[0],
+    hembra: '', tipo: 'IA', toro: '', tecnico: '',
+    donadora: '', embrion: '', num_servicio: '',
+    observaciones: '', finca: 'La Vega'
+  };
+  const [form, setForm] = useState(emptyForm);
+
+  const hembrasConocidas = useMemo(() => {
+    const madres = new Set();
+    (nacimientos || []).forEach(n => { if (n.madre) madres.add(n.madre.trim()); });
+    return [...madres].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  }, [nacimientos]);
+
+  const servLaVega = useMemo(() =>
+    (servicios || []).filter(s => s.finca === 'La Vega').sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')),
+    [servicios]);
+
+  const filtrados = useMemo(() => {
+    let list = servLaVega;
+    if (filtroTipo !== 'todos') list = list.filter(s => s.tipo === filtroTipo);
+    if (!busqueda.trim()) return list;
+    const q = busqueda.toLowerCase();
+    return list.filter(s =>
+      (s.hembra || '').toLowerCase().includes(q) ||
+      (s.toro || '').toLowerCase().includes(q) ||
+      (s.tecnico || '').toLowerCase().includes(q) ||
+      (s.donadora || '').toLowerCase().includes(q)
+    );
+  }, [servLaVega, busqueda, filtroTipo]);
+
+  const stats = useMemo(() => {
+    const ia = servLaVega.filter(s => s.tipo === 'IA').length;
+    const te = servLaVega.filter(s => s.tipo === 'TE').length;
+    return { ia, te, total: ia + te };
+  }, [servLaVega]);
+
+  const openNew = () => { setForm(emptyForm); setEditando(null); setShowForm(true); };
+  const openEdit = (s) => {
+    setForm({
+      fecha: s.fecha || '', hembra: s.hembra || '', tipo: s.tipo || 'IA',
+      toro: s.toro || '', tecnico: s.tecnico || '',
+      donadora: s.donadora || '', embrion: s.embrion || '',
+      num_servicio: s.num_servicio || '', observaciones: s.observaciones || '',
+      finca: 'La Vega'
+    });
+    setEditando(s); setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.fecha || !form.hembra) return alert('Fecha y Hembra son obligatorios');
+    if (form.tipo === 'IA' && !form.toro) return alert('Debe indicar la pajilla (toro)');
+    if (form.tipo === 'TE' && !form.embrion) return alert('Debe indicar el embrión');
+    setSaving(true);
+    try {
+      const registro = {
+        ...form,
+        num_servicio: form.num_servicio ? parseInt(form.num_servicio) : null,
+        registrado_por: userEmail || 'manual',
+      };
+      // Remove TE-only fields if IA
+      if (form.tipo === 'IA') { registro.donadora = null; registro.embrion = null; }
+      if (editando) {
+        const updated = await db.updateServicio(editando.id, registro);
+        setServicios(prev => prev.map(s => s.id === editando.id ? updated : s));
+      } else {
+        const nuevo = await db.insertServicio(registro);
+        setServicios(prev => [nuevo, ...prev]);
+      }
+      setShowForm(false); setEditando(null);
+    } catch (err) {
+      alert('Error al guardar: ' + err.message);
+    }
+    setSaving(false);
+  };
+
+  const handleDelete = async (s) => {
+    try {
+      await db.deleteServicio(s.id);
+      setServicios(prev => prev.filter(x => x.id !== s.id));
+      setConfirmDel(null);
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+
+  const F = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  return (
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+          <p className="text-2xl font-bold text-blue-400">{stats.total}</p>
+          <p className="text-xs text-gray-400">Total Servicios</p>
+        </div>
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+          <p className="text-2xl font-bold text-cyan-400">{stats.ia}</p>
+          <p className="text-xs text-gray-400">Inseminaciones</p>
+        </div>
+        <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+          <p className="text-2xl font-bold text-purple-400">{stats.te}</p>
+          <p className="text-xs text-gray-400">Transf. Embriones</p>
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <input value={busqueda} onChange={e => setBusqueda(e.target.value)}
+          placeholder="Buscar hembra, toro, técnico..." className="flex-1 min-w-[200px] px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200" />
+        <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}
+          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200">
+          <option value="todos">Todos</option>
+          <option value="IA">IA - Inseminación</option>
+          <option value="TE">TE - Transf. Embrión</option>
+        </select>
+        {isOnline && (
+          <button onClick={openNew} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium text-white flex items-center gap-2">
+            + Registrar Servicio
+          </button>
+        )}
+      </div>
+
+      {/* Modal Form */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowForm(false)}>
+          <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto border border-gray-600" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-100 mb-4">{editando ? '✏️ Editar Servicio' : '🧬 Nuevo Servicio IA/TE'}</h3>
+            <div className="space-y-3">
+              {/* Tipo */}
+              <div>
+                <label className="text-xs text-gray-400">Tipo de Servicio *</label>
+                <div className="flex gap-2 mt-1">
+                  {['IA', 'TE'].map(t => (
+                    <button key={t} onClick={() => F('tipo', t)}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${form.tipo === t ? (t === 'IA' ? 'bg-cyan-600 text-white' : 'bg-purple-600 text-white') : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}>
+                      {t === 'IA' ? '💉 Inseminación Artificial' : '🧬 Transf. Embriones'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Fecha */}
+              <div>
+                <label className="text-xs text-gray-400">Fecha *</label>
+                <input type="date" value={form.fecha} onChange={e => F('fecha', e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200" />
+              </div>
+              {/* Hembra */}
+              <div>
+                <label className="text-xs text-gray-400">Hembra *</label>
+                <input list="hembras-serv" value={form.hembra} onChange={e => F('hembra', e.target.value)}
+                  placeholder="Número de la hembra" className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200" />
+                <datalist id="hembras-serv">{hembrasConocidas.map(h => <option key={h} value={h} />)}</datalist>
+              </div>
+              {/* Técnico */}
+              <div>
+                <label className="text-xs text-gray-400">Técnico / Responsable</label>
+                <input value={form.tecnico} onChange={e => F('tecnico', e.target.value)}
+                  placeholder="Nombre del técnico" className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200" />
+              </div>
+              {/* IA: Pajilla / Toro */}
+              {form.tipo === 'IA' && (
+                <div>
+                  <label className="text-xs text-gray-400">Pajilla (Toro) *</label>
+                  <input value={form.toro} onChange={e => F('toro', e.target.value)}
+                    placeholder="Nombre del toro / pajilla" className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200" />
+                </div>
+              )}
+              {/* TE fields */}
+              {form.tipo === 'TE' && (<>
+                <div>
+                  <label className="text-xs text-gray-400">Embrión *</label>
+                  <input value={form.embrion} onChange={e => F('embrion', e.target.value)}
+                    placeholder="Identificación del embrión" className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400">Madre Donadora</label>
+                  <input value={form.donadora} onChange={e => F('donadora', e.target.value)}
+                    placeholder="Nombre/número de la donadora" className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400">Padre (Toro)</label>
+                  <input value={form.toro} onChange={e => F('toro', e.target.value)}
+                    placeholder="Nombre del padre" className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200" />
+                </div>
+              </>)}
+              {/* # Servicio */}
+              <div>
+                <label className="text-xs text-gray-400"># Servicio</label>
+                <input type="number" value={form.num_servicio} onChange={e => F('num_servicio', e.target.value)}
+                  placeholder="Número de servicio" className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200" />
+              </div>
+              {/* Observaciones */}
+              <div>
+                <label className="text-xs text-gray-400">Observaciones</label>
+                <textarea value={form.observaciones} onChange={e => F('observaciones', e.target.value)}
+                  rows={2} placeholder="Notas adicionales..." className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 resize-none" />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setShowForm(false)} className="flex-1 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-gray-300">Cancelar</button>
+              <button onClick={handleSave} disabled={saving}
+                className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium text-white disabled:opacity-50">
+                {saving ? 'Guardando...' : editando ? 'Actualizar' : 'Guardar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm delete */}
+      {confirmDel && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setConfirmDel(null)}>
+          <div className="bg-gray-800 rounded-xl p-6 max-w-sm border border-gray-600" onClick={e => e.stopPropagation()}>
+            <p className="text-gray-200 mb-4">¿Eliminar servicio de <strong>{confirmDel.hembra}</strong> del {formatDate(confirmDel.fecha)}?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDel(null)} className="flex-1 py-2 bg-gray-700 rounded-lg text-sm text-gray-300">Cancelar</button>
+              <button onClick={() => handleDelete(confirmDel)} className="flex-1 py-2 bg-red-600 rounded-lg text-sm text-white">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* List */}
+      <div className="space-y-2">
+        {filtrados.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">No hay servicios registrados{busqueda ? ' con ese filtro' : ''}</div>
+        ) : filtrados.map(s => (
+          <div key={s.id} className="bg-gray-800 rounded-xl p-4 border border-gray-700 hover:border-gray-500 transition-all">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${s.tipo === 'TE' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
+                  {s.tipo || 'IA'}
+                </span>
+                <span className="text-lg font-bold text-green-400">{s.hembra}</span>
+                <span className="text-sm text-gray-400">{formatDate(s.fecha)}</span>
+              </div>
+              {isOnline && (
+                <div className="flex gap-1">
+                  <button onClick={() => openEdit(s)} className="p-1.5 rounded-lg hover:bg-gray-700 text-blue-400 text-xs">✏️</button>
+                  <button onClick={() => setConfirmDel(s)} className="p-1.5 rounded-lg hover:bg-gray-700 text-red-400 text-xs">🗑️</button>
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+              {s.tipo === 'IA' && s.toro && (
+                <div><span className="text-gray-500">Pajilla:</span> <span className="text-gray-200 font-medium">{s.toro}</span></div>
+              )}
+              {s.tipo === 'TE' && (<>
+                {s.embrion && <div><span className="text-gray-500">Embrión:</span> <span className="text-gray-200 font-medium">{s.embrion}</span></div>}
+                {s.donadora && <div><span className="text-gray-500">Donadora:</span> <span className="text-gray-200">{s.donadora}</span></div>}
+                {s.toro && <div><span className="text-gray-500">Padre:</span> <span className="text-gray-200">{s.toro}</span></div>}
+              </>)}
+              {s.tecnico && <div><span className="text-gray-500">Técnico:</span> <span className="text-gray-200">{s.tecnico}</span></div>}
+              {s.num_servicio && <div><span className="text-gray-500"># Servicio:</span> <span className="text-gray-200">{s.num_servicio}</span></div>}
+            </div>
+            {s.observaciones && <p className="text-xs text-gray-500 mt-2 italic">{s.observaciones}</p>}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
