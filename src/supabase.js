@@ -39,7 +39,9 @@ export async function getNacimientos() {
     edadDestete: n.edad_destete,
     grDiaVida: n.gr_dia_vida,
     estado: n.estado,
-    comentario: n.comentario
+    comentario: n.comentario,
+    categoriaActual: n.categoria_actual,
+    fincaDB: n.finca
   }))
 }
 
