@@ -85,6 +85,10 @@ const getCategoriaAnimal = (animal) => {
   const destetada = !!(n.pesoDestete || n.peso_destete || n.fechaDestete || n.fecha_destete);
 
   if (!destetada) {
+    // Sin destete pero DB dice categoría avanzada → confiar en DB
+    if (catDB && CAT_MAP_STYLES[catDB] && !['CM', 'CH'].includes(catDB)) {
+      return CAT_MAP_STYLES[catDB];
+    }
     return esMacho ? CAT_MAP_STYLES['CM'] : CAT_MAP_STYLES['CH'];
   }
 
@@ -219,7 +223,9 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
   } else if (regCria) {
     const destetada = !!(pesoDestete || fechaDestete);
     if (sexo === 'M') {
-      if (!destetada) {
+      if (!destetada && catActual && ['TR', 'ML'].includes(catActual)) {
+        categoriaLabel = catActual === 'TR' ? '🐂 Toro' : '♂ Macho Levante';
+      } else if (!destetada) {
         categoriaLabel = '♂ Cría Macho';
       } else {
         const edad = calcularEdad(fechaNac);
@@ -231,7 +237,9 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
         }
       }
     } else {
-      if (!destetada) {
+      if (!destetada && catActual && ['NV', 'HL'].includes(catActual)) {
+        categoriaLabel = catActual === 'NV' ? '♀ Novilla Vientre' : '♀ Hembra Levante';
+      } else if (!destetada) {
         categoriaLabel = '♀ Cría Hembra';
       } else {
         const edad = calcularEdad(fechaNac);
@@ -3829,7 +3837,12 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
         a.categoriaLabel = a.categoriaBar || 'Levante';
       } else if (a.sexo === 'M') {
         const destetada = !!(a.pesoDestete || a.fechaDestete);
-        if (!destetada) {
+        const catDB = a.categoriaActual;
+        if (!destetada && catDB && ['TR', 'ML'].includes(catDB)) {
+          // Sin datos de destete pero DB dice TR o ML → confiar en DB
+          a.categoria = catDB;
+          a.categoriaLabel = catDB === 'TR' ? 'Toro' : 'Macho Levante';
+        } else if (!destetada) {
           a.categoria = 'CM';
           a.categoriaLabel = 'Cría Macho';
         } else {
@@ -3846,7 +3859,12 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
         }
       } else if (a.sexo === 'H') {
         const destetada = !!(a.pesoDestete || a.fechaDestete);
-        if (!destetada) {
+        const catDB = a.categoriaActual;
+        if (!destetada && catDB && ['NV', 'HL', 'VP', 'VS'].includes(catDB)) {
+          // Sin datos de destete pero DB dice NV/HL/VP/VS → confiar en DB
+          a.categoria = catDB;
+          a.categoriaLabel = { NV: 'Novilla Vientre', HL: 'Hembra Levante', VP: 'Vaca Parida', VS: 'Vaca Seca' }[catDB];
+        } else if (!destetada) {
           a.categoria = 'CH';
           a.categoriaLabel = 'Cría Hembra';
         } else {
