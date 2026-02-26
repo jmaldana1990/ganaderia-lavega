@@ -269,8 +269,8 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
                 {sexo && <div><span className="text-gray-500">Sexo</span><p className="text-gray-200 font-medium">{sexo === 'M' ? '♂ Macho' : '♀ Hembra'}</p></div>}
                 {madre && <div><span className="text-gray-500">Madre</span><p><AnimalLink id={madre} onAnimalClick={onAnimalClick} /></p></div>}
                 {padre && <div><span className="text-gray-500">Padre</span><p className="text-gray-200 font-medium">{padre}</p></div>}
-                {pesoNacer != null && <div><span className="text-gray-500">Peso Nacer</span><p className="text-gray-200 font-medium">{pesoNacer} kg</p></div>}
-                {pesoDestete != null && <div><span className="text-gray-500">Peso Destete</span><p className="text-gray-200 font-medium">{pesoDestete} kg</p></div>}
+                {pesoNacer != null && <div><span className="text-gray-500">Peso Nacer</span><p className="text-gray-200 font-medium">{Math.round(pesoNacer)} kg</p></div>}
+                {pesoDestete != null && <div><span className="text-gray-500">Peso Destete</span><p className="text-gray-200 font-medium">{Math.round(pesoDestete)} kg</p></div>}
                 {fechaDestete && <div><span className="text-gray-500">Fecha Destete</span><p className="text-gray-200">{fmtDate(fechaDestete)}</p></div>}
                 {gdpDestete && <div><span className="text-gray-500">GDP Vida</span><p className={`font-medium ${gdpDestete >= 800 ? 'text-green-400' : gdpDestete >= 600 ? 'text-amber-400' : 'text-red-400'}`}>{gdpDestete} g/día</p></div>}
               </div>
@@ -301,8 +301,8 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
                         <td className="py-2 px-2"><AnimalLink id={p.cria} onAnimalClick={onAnimalClick} /></td>
                         <td className="py-2 px-2 text-gray-300">{fmtDate(p.fecha)}</td>
                         <td className="py-2 px-2 text-center">{p.sexo === 'M' ? <span className="text-blue-400">♂</span> : <span className="text-pink-400">♀</span>}</td>
-                        <td className="py-2 px-2 text-right text-gray-300">{p.pesoNacer || p.peso_nacer ? `${p.pesoNacer || p.peso_nacer} kg` : '-'}</td>
-                        <td className="py-2 px-2 text-right text-gray-300">{p.pesoDestete || p.peso_destete ? `${p.pesoDestete || p.peso_destete} kg` : '-'}</td>
+                        <td className="py-2 px-2 text-right text-gray-300">{p.pesoNacer || p.peso_nacer ? `${Math.round(p.pesoNacer || p.peso_nacer)} kg` : '-'}</td>
+                        <td className="py-2 px-2 text-right text-gray-300">{p.pesoDestete || p.peso_destete ? `${Math.round(p.pesoDestete || p.peso_destete)} kg` : '-'}</td>
                         <td className="py-2 px-2"><span className={`px-2 py-0.5 rounded-full text-xs ${p.estado === 'Activo' ? 'bg-green-500/20 text-green-400' : p.estado === 'Muerto' ? 'bg-red-500/20 text-red-400' : 'bg-gray-600/20 text-gray-400'}`}>{p.estado || '-'}</span></td>
                       </tr>
                     ))}
@@ -325,7 +325,7 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
                     {misPesajes.slice(0, 10).map((p, i) => (
                       <tr key={i} className="hover:bg-gray-700/30">
                         <td className="py-2 px-2 text-gray-300">{fmtDate(p.fecha_pesaje)}</td>
-                        <td className="py-2 px-2 text-right text-gray-200 font-medium">{p.peso ? `${p.peso} kg` : '-'}</td>
+                        <td className="py-2 px-2 text-right text-gray-200 font-medium">{p.peso ? `${Math.round(p.peso)} kg` : '-'}</td>
                         <td className="py-2 px-2 text-right text-gray-400">{p.edad_meses ? `${p.edad_meses.toFixed(1)}` : '-'}</td>
                         <td className="py-2 px-2 text-right text-gray-400">{p.gdp_vida ? `${Math.round(p.gdp_vida)} g/d` : '-'}</td>
                       </tr>
@@ -3333,8 +3333,8 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEd
                     <td className="py-2 px-2 font-medium"><AnimalLink id={p.cria} onAnimalClick={onAnimalClick} /></td>
                     <td className="py-2 px-2 text-gray-300">{formatDate(p.fecha)}</td>
                     <td className="py-2 px-2 text-center">{p.sexo === 'M' ? <span className="text-blue-400">♂</span> : <span className="text-pink-400">♀</span>}</td>
-                    <td className="py-2 px-2 text-right text-gray-300">{p.pesoNacer || p.peso_nacer ? `${p.pesoNacer || p.peso_nacer} kg` : '-'}</td>
-                    <td className="py-2 px-2 text-right text-gray-300">{(p.pesoDestete || p.peso_destete) ? `${p.pesoDestete || p.peso_destete} kg` : '-'}</td>
+                    <td className="py-2 px-2 text-right text-gray-300">{p.pesoNacer || p.peso_nacer ? `${Math.round(p.pesoNacer || p.peso_nacer)} kg` : '-'}</td>
+                    <td className="py-2 px-2 text-right text-gray-300">{(p.pesoDestete || p.peso_destete) ? `${Math.round(p.pesoDestete || p.peso_destete)} kg` : '-'}</td>
                     <td className={`py-2 px-2 text-right font-medium ${gdpVal ? (gdpVal >= 800 ? 'text-green-400' : gdpVal >= 600 ? 'text-amber-400' : 'text-red-400') : 'text-gray-300'}`}>{gdpVal ? `${gdpVal} g` : '-'}</td>
                     <td className="py-2 px-2 text-gray-400">{p.padre || '-'}</td>
                     <td className="py-2 px-2">
@@ -3420,8 +3420,8 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEd
         <Stat label="Fecha Nacimiento" value={formatDate(n.fecha)} />
         <div><p className="text-xs text-gray-500 mb-0.5">Madre</p><AnimalLink id={n.madre} onAnimalClick={onAnimalClick} className="text-lg font-semibold" /></div>
         <Stat label="Padre" value={n.padre || '-'} />
-        <Stat label="Peso Nacer" value={n.pesoNacer || n.peso_nacer ? `${n.pesoNacer || n.peso_nacer} kg` : '-'} />
-        <Stat label="Peso Destete" value={(n.pesoDestete || n.peso_destete) ? `${n.pesoDestete || n.peso_destete} kg` : '-'} />
+        <Stat label="Peso Nacer" value={n.pesoNacer || n.peso_nacer ? `${Math.round(n.pesoNacer || n.peso_nacer)} kg` : '-'} />
+        <Stat label="Peso Destete" value={(n.pesoDestete || n.peso_destete) ? `${Math.round(n.pesoDestete || n.peso_destete)} kg` : '-'} />
         <Stat label="Fecha Destete" value={formatDate(n.fechaDestete || n.fecha_destete)} />
         <Stat label="Edad Destete" value={edadDestFinal ? `${edadDestFinal} días` : '-'} />
         <Stat label="GDP Vida" value={gdpFinal ? `${gdpFinal} g/día` : '-'} sub={gdpFinal ? (gdpFinal >= 800 ? '✅ Excelente' : gdpFinal >= 600 ? '👍 Bueno' : '⚠️ Bajo') : ''} />
@@ -3433,7 +3433,7 @@ function FichaLaVega({ animal, nacimientos, formatDate, onRegistrarDestete, onEd
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowDesteteForm(false)}>
           <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-md border border-gray-700" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-gray-100 mb-1">🐄 Registrar Destete</h3>
-            <p className="text-sm text-gray-400 mb-4">Cría: <strong className="text-green-400">{animal.id}</strong> • Peso nacer: {n.pesoNacer || n.peso_nacer || '?'} kg • Nacida: {formatDate(n.fecha)}</p>
+            <p className="text-sm text-gray-400 mb-4">Cría: <strong className="text-green-400">{animal.id}</strong> • Peso nacer: {Math.round(n.pesoNacer || n.peso_nacer) || '?'} kg • Nacida: {formatDate(n.fecha)}</p>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-400 mb-1">Fecha de Destete *</label>
@@ -3601,7 +3601,7 @@ function FichaBariloche({ animal, formatDate }) {
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-700 text-gray-200 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-10 transition-opacity pointer-events-none">
-                    {p.peso} kg • {formatDate(p.fecha_pesaje)}
+                    {Math.round(p.peso)} kg • {formatDate(p.fecha_pesaje)}
                   </div>
                   <div className={`w-full rounded-t transition-all ${p.gdp_entre_pesajes && p.gdp_entre_pesajes >= 500 ? 'bg-green-500' : p.gdp_entre_pesajes && p.gdp_entre_pesajes < 0 ? 'bg-red-500' : 'bg-amber-500'}`} style={{ height: `${height}%` }} />
                   <span className="text-[9px] text-gray-500 leading-none">{(p.fecha_pesaje || '').slice(5)}</span>
@@ -3632,8 +3632,8 @@ function FichaBariloche({ animal, formatDate }) {
               {[...pesajes].sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || '')).map((p, i) => (
                 <tr key={i} className="hover:bg-gray-700/50">
                   <td className="py-2 px-2 text-gray-300">{formatDate(p.fecha_pesaje)}</td>
-                  <td className="py-2 px-2 text-right font-medium text-gray-200">{p.peso ? `${p.peso} kg` : '-'}</td>
-                  <td className="py-2 px-2 text-right text-gray-400">{p.peso_anterior ? `${p.peso_anterior} kg` : '-'}</td>
+                  <td className="py-2 px-2 text-right font-medium text-gray-200">{p.peso ? `${Math.round(p.peso)} kg` : '-'}</td>
+                  <td className="py-2 px-2 text-right text-gray-400">{p.peso_anterior ? `${Math.round(p.peso_anterior)} kg` : '-'}</td>
                   <td className={`py-2 px-2 text-right font-medium ${p.incremento_kg > 0 ? 'text-green-400' : p.incremento_kg < 0 ? 'text-red-400' : 'text-gray-400'}`}>
                     {p.incremento_kg != null ? `${p.incremento_kg > 0 ? '+' : ''}${p.incremento_kg}` : '-'}
                   </td>
@@ -3720,7 +3720,7 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
       if (!a.sexo) a.sexo = 'H';
     });
 
-    // 3) Animales de Bariloche (pesajes)
+    // 3) Animales de Bariloche (pesajes) — crea nuevas entradas
     (pesajes || []).filter(p => p.finca === 'Bariloche' && p.animal && esAnimalValido(p.animal)).forEach(p => {
       const id = String(p.animal).trim();
       if (!mapa[id]) {
@@ -3735,6 +3735,18 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
         a.ultimoPesaje = p;
         a.pesoActual = p.peso;
         a.categoriaBar = p.categoria;
+        a.gdpVida = p.gdp_vida;
+      }
+    });
+
+    // 4) Pesajes de La Vega — solo actualiza peso de animales que ya existen en mapa
+    (pesajes || []).filter(p => p.finca === 'La Vega' && p.animal && esAnimalValido(p.animal)).forEach(p => {
+      const id = String(p.animal).trim();
+      if (!mapa[id]) return; // no crear nuevas entradas desde pesajes LV
+      const a = mapa[id];
+      if (!a.ultimoPesaje || (p.fecha_pesaje || '') > (a.ultimoPesaje.fecha_pesaje || '')) {
+        a.ultimoPesaje = p;
+        a.pesoActual = p.peso;
         a.gdpVida = p.gdp_vida;
       }
     });
@@ -3965,7 +3977,8 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Edad</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Madre</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Padre</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">Peso</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">Último Peso</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Fecha U. Peso</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Estado</th>
               </tr>
             </thead>
@@ -3973,7 +3986,8 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
               {paginados.map(a => {
                 const edadStr = formatEdad(a.fechaNac);
                 const peso = a.pesoActual || a.pesoDestete || a.pesoNacer;
-                const pesoLabel = a.pesoActual ? `${a.pesoActual} kg` : a.pesoDestete ? `${a.pesoDestete} kg (dest.)` : a.pesoNacer ? `${a.pesoNacer} kg (nac.)` : '-';
+                const pesoLabel = a.pesoActual ? `${Math.round(a.pesoActual)} kg` : a.pesoDestete ? `${Math.round(a.pesoDestete)} kg` : a.pesoNacer ? `${Math.round(a.pesoNacer)} kg` : '-';
+                const fechaPeso = a.ultimoPesaje?.fecha_pesaje ? formatDate(a.ultimoPesaje.fecha_pesaje) : a.fechaDestete ? formatDate(a.fechaDestete) : a.fechaNac && a.pesoNacer ? formatDate(a.fechaNac) : '-';
                 return (
                   <tr key={a.id} className={`hover:bg-gray-800/50 transition-colors ${a.estado === 'Muerto' ? 'bg-red-900/10' : a.estado === 'Vendido' ? 'bg-amber-900/10' : ''}`}>
                     <td className="px-4 py-3"><AnimalLink id={a.id} onAnimalClick={onAnimalClick} className="text-green-400 font-bold text-sm" /></td>
@@ -3984,6 +3998,7 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
                     <td className="px-4 py-3">{a.madre ? <AnimalLink id={a.madre} onAnimalClick={onAnimalClick} className="text-green-400/70 text-sm" /> : <span className="text-gray-600 text-sm">-</span>}</td>
                     <td className="px-4 py-3 text-sm text-gray-400">{a.padre || '-'}</td>
                     <td className="px-4 py-3 text-right text-sm text-gray-300">{pesoLabel}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500">{fechaPeso}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${a.estado === 'Activo' ? 'bg-green-900/40 text-green-400' : a.estado === 'Vendido' ? 'bg-amber-900/40 text-amber-400' : a.estado === 'Muerto' ? 'bg-red-900/40 text-red-400' : 'bg-gray-700 text-gray-400'}`}>
                         {a.estado || '-'}
@@ -3993,7 +4008,7 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
                 );
               })}
               {paginados.length === 0 && (
-                <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-500">No se encontraron animales con los filtros seleccionados</td></tr>
+                <tr><td colSpan={10} className="px-4 py-12 text-center text-gray-500">No se encontraron animales con los filtros seleccionados</td></tr>
               )}
             </tbody>
           </table>
