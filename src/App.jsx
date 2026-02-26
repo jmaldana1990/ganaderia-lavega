@@ -3665,13 +3665,22 @@ function Stat({ label, value, sub }) {
   );
 }
 function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, onAnimalClick }) {
-  const [filtros, setFiltros] = useState({ finca: '', categoria: '', estado: '', sexo: '', busqueda: '' });
+  const [filtros, setFiltros] = useState({ finca: '', categoria: '', estado: 'Activo', sexo: '', busqueda: '' });
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 50;
 
   // Construir lista unificada de TODOS los animales
   const todosAnimales = useMemo(() => {
     const mapa = {}; // id → animal
+
+    // Lookup de estado por cría ID (para madres y Bariloche que tengan registro)
+    const estadoPorId = {};
+    (nacimientos || []).forEach(n => {
+      if (n.cria) {
+        const id = String(n.cria).trim();
+        estadoPorId[id] = n.estado || 'Activo';
+      }
+    });
 
     // 1) Crías de nacimientos (La Vega)
     (nacimientos || []).forEach(n => {
@@ -3696,7 +3705,11 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
     (nacimientos || []).forEach(n => {
       if (!n.madre || !esAnimalValido(n.madre)) return;
       const id = String(n.madre).trim();
-      if (!mapa[id]) mapa[id] = { id, finca: 'La Vega', fuente: 'madre', sexo: 'H', estado: 'Activo' };
+      if (!mapa[id]) {
+        // Si la madre tiene registro como cría, usar su estado; sino 'Activo' por defecto
+        const estadoCria = estadoPorId[id] || 'Inactivo';
+        mapa[id] = { id, finca: 'La Vega', fuente: 'madre', sexo: 'H', estado: estadoCria };
+      }
       const a = mapa[id];
       a.esMadre = true;
       a.numPartos = (a.numPartos || 0) + 1;
@@ -3707,9 +3720,12 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
     // 3) Animales de Bariloche (pesajes)
     (pesajes || []).filter(p => p.finca === 'Bariloche' && p.animal && esAnimalValido(p.animal)).forEach(p => {
       const id = String(p.animal).trim();
-      if (!mapa[id]) mapa[id] = { id, finca: 'Bariloche', fuente: 'pesaje', estado: 'Activo' };
+      if (!mapa[id]) {
+        const estadoCria = estadoPorId[id] || 'Inactivo';
+        mapa[id] = { id, finca: 'Bariloche', fuente: 'pesaje', estado: estadoCria };
+      }
       const a = mapa[id];
-      if (a.finca !== 'Bariloche') a.finca = 'Ambas'; // animal en ambas fincas
+      if (a.finca === 'La Vega') a.finca = 'Bariloche'; // trasladado de La Vega a Bariloche
       // Último pesaje
       if (!a.ultimoPesaje || (p.fecha_pesaje || '') > (a.ultimoPesaje.fecha_pesaje || '')) {
         a.ultimoPesaje = p;
@@ -3787,7 +3803,7 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
   // Filtrar
   const filtrados = useMemo(() => {
     return todosAnimales.filter(a => {
-      if (filtros.finca && a.finca !== filtros.finca && a.finca !== 'Ambas') return false;
+      if (filtros.finca && a.finca !== filtros.finca) return false;
       if (filtros.categoria && a.categoria !== filtros.categoria) return false;
       if (filtros.estado) {
         if (filtros.estado === 'Activo' && a.estado !== 'Activo') return false;
@@ -3806,8 +3822,8 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
   // Stats
   const stats = useMemo(() => {
     const f = filtrados;
-    const laVega = f.filter(a => a.finca === 'La Vega' || a.finca === 'Ambas').length;
-    const bariloche = f.filter(a => a.finca === 'Bariloche' || a.finca === 'Ambas').length;
+    const laVega = f.filter(a => a.finca === 'La Vega').length;
+    const bariloche = f.filter(a => a.finca === 'Bariloche').length;
     const madres = f.filter(a => a.esMadre).length;
     const machos = f.filter(a => a.sexo === 'M').length;
     const hembras = f.filter(a => a.sexo === 'H').length;
