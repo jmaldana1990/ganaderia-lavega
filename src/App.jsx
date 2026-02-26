@@ -51,34 +51,60 @@ const formatEdad = (fechaNac) => {
 
 // Determina la categoría actual de un animal según su ciclo de vida
 // CM/CH → ML/HL (destete) → NV (hembra ≥24m sin partos) → VP (parida lactando) → VS (vaca seca)
+const CAT_MAP_STYLES = {
+  VP: { cat: 'VP', label: 'VP - Vaca Parida', icon: '🐄', color: 'bg-green-500/20 text-green-400' },
+  VS: { cat: 'VS', label: 'VS - Vaca Seca', icon: '🐄', color: 'bg-orange-500/20 text-orange-400' },
+  NV: { cat: 'NV', label: 'NV - Novilla Vientre', icon: '♀', color: 'bg-purple-500/20 text-purple-400' },
+  HL: { cat: 'HL', label: 'HL - Hembra Levante', icon: '♀', color: 'bg-teal-500/20 text-teal-400' },
+  ML: { cat: 'ML', label: 'ML - Macho Levante', icon: '♂', color: 'bg-amber-500/20 text-amber-400' },
+  CM: { cat: 'CM', label: 'CM - Cría Macho', icon: '♂', color: 'bg-blue-500/20 text-blue-400' },
+  CH: { cat: 'CH', label: 'CH - Cría Hembra', icon: '♀', color: 'bg-pink-500/20 text-pink-400' },
+  TR: { cat: 'TR', label: 'TR - Toro', icon: '🐂', color: 'bg-red-500/20 text-red-400' },
+};
+
 const getCategoriaAnimal = (animal) => {
+  const catDB = animal.data?.categoriaActual || animal.data?.categoria_actual;
+
+  // Cálculo dinámico: madre con partos → VP o VS
   if (animal.tipo === 'madre') {
-    // Madre con partos → VP o VS
     if (animal.estaLactando) {
-      return { cat: 'VP', label: 'VP - Vaca Parida', icon: '🐄', color: 'bg-green-500/20 text-green-400' };
+      return CAT_MAP_STYLES['VP'];
     }
-    return { cat: 'VS', label: 'VS - Vaca Seca', icon: '🐄', color: 'bg-orange-500/20 text-orange-400' };
+    return CAT_MAP_STYLES['VS'];
   }
-  // Cría
+
+  // Cría: calcular por destete, sexo, edad
   const n = animal.data;
-  if (!n) return { cat: '?', label: 'Sin datos', icon: '❓', color: 'bg-gray-500/20 text-gray-400' };
+  if (!n) {
+    // Sin datos de cría → usar DB como fallback
+    if (catDB && CAT_MAP_STYLES[catDB]) return CAT_MAP_STYLES[catDB];
+    return { cat: '?', label: 'Sin datos', icon: '❓', color: 'bg-gray-500/20 text-gray-400' };
+  }
+
   const esMacho = n.sexo === 'M';
   const destetada = !!(n.pesoDestete || n.peso_destete || n.fechaDestete || n.fecha_destete);
+
   if (!destetada) {
-    return esMacho
-      ? { cat: 'CM', label: 'CM - Cría Macho', icon: '♂', color: 'bg-blue-500/20 text-blue-400' }
-      : { cat: 'CH', label: 'CH - Cría Hembra', icon: '♀', color: 'bg-pink-500/20 text-pink-400' };
+    return esMacho ? CAT_MAP_STYLES['CM'] : CAT_MAP_STYLES['CH'];
   }
+
   // Destetada
   if (esMacho) {
-    return { cat: 'ML', label: 'ML - Macho Levante', icon: '♂', color: 'bg-amber-500/20 text-amber-400' };
+    // ML → TR si edad ≥ 3 años o peso ≥ 400 kg
+    const edad = calcularEdad(animal.fechaNacimiento);
+    const pesoUltimo = n.pesoDestete || n.peso_destete || 0;
+    if ((edad && edad.unidad === 'años' && edad.valor >= 3) || pesoUltimo >= 400) {
+      return CAT_MAP_STYLES['TR'];
+    }
+    return CAT_MAP_STYLES['ML'];
   }
+
   // Hembra destetada → HL o NV según edad
   const edad = calcularEdad(animal.fechaNacimiento);
   if (edad && edad.unidad === 'años' && edad.valor >= 2) {
-    return { cat: 'NV', label: 'NV - Novilla Vientre', icon: '♀', color: 'bg-purple-500/20 text-purple-400' };
+    return CAT_MAP_STYLES['NV'];
   }
-  return { cat: 'HL', label: 'HL - Hembra Levante', icon: '♀', color: 'bg-teal-500/20 text-teal-400' };
+  return CAT_MAP_STYLES['HL'];
 };
 
 // Calcula ganancia gramos/día/vida al destete
@@ -175,14 +201,27 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
   // GDP al destete
   const gdpDestete = regCria ? calcularGDPDestete(regCria) : null;
 
-  // Categoría
+  // Categoría - cálculo dinámico siempre
+  const catActual = regCria?.categoriaActual || regCria?.categoria_actual;
+  const CAT_ICONS = { VP: '🐄', VS: '🐄', NV: '♀', HL: '♀', ML: '♂', CM: '♂', CH: '♀', TR: '🐂' };
+  const CAT_LABELS_MODAL = { VP: 'Vaca Parida', VS: 'Vaca Seca', NV: 'Novilla Vientre', HL: 'Hembra Levante', ML: 'Macho Levante', CM: 'Cría Macho', CH: 'Cría Hembra', TR: 'Toro' };
   let categoriaLabel = '—';
   if (esMadre) {
     categoriaLabel = '🐄 Vaca Madre';
   } else if (regCria) {
     const destetada = !!(pesoDestete || fechaDestete);
     if (sexo === 'M') {
-      categoriaLabel = destetada ? '♂ Macho Levante' : '♂ Cría Macho';
+      if (!destetada) {
+        categoriaLabel = '♂ Cría Macho';
+      } else {
+        const edad = calcularEdad(fechaNac);
+        const pesoUltimo = misPesajes[0]?.peso || pesoDestete || 0;
+        if ((edad && edad.unidad === 'años' && edad.valor >= 3) || pesoUltimo >= 400) {
+          categoriaLabel = '🐂 Toro';
+        } else {
+          categoriaLabel = '♂ Macho Levante';
+        }
+      }
     } else {
       if (!destetada) {
         categoriaLabel = '♀ Cría Hembra';
@@ -193,6 +232,9 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
     }
   } else if (misPesajes.length > 0) {
     categoriaLabel = misPesajes[0].categoria || 'Levante';
+  } else if (catActual) {
+    // Fallback: usar DB si no se pudo calcular
+    categoriaLabel = `${CAT_ICONS[catActual] || ''} ${CAT_LABELS_MODAL[catActual] || catActual}`;
   }
 
   // Última palpación
@@ -3646,6 +3688,7 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
       a.fechaDestete = n.fechaDestete || n.fecha_destete;
       a.estado = n.estado || 'Activo';
       a.comentario = n.comentario;
+      a.categoriaActual = n.categoriaActual || n.categoria_actual || null;
       a.gdp = calcularGDPDestete(n);
     });
 
@@ -3677,6 +3720,9 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
     });
 
     // Calcular categoría para cada animal
+    // Regla: cálculo dinámico SIEMPRE tiene prioridad (destetes, partos, edad)
+    // Calcular categoría dinámicamente. categoriaActual del DB solo como fallback
+    const CAT_LABELS = { VP: 'Vaca Parida', VS: 'Vaca Seca', NV: 'Novilla Vientre', HL: 'Hembra Levante', ML: 'Macho Levante', CM: 'Cría Macho', CH: 'Cría Hembra', TR: 'Toro', LEV: 'Levante' };
     Object.values(mapa).forEach(a => {
       if (a.esMadre) {
         a.categoria = 'VP';
@@ -3686,8 +3732,21 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
         a.categoriaLabel = a.categoriaBar || 'Levante';
       } else if (a.sexo === 'M') {
         const destetada = !!(a.pesoDestete || a.fechaDestete);
-        a.categoria = destetada ? 'ML' : 'CM';
-        a.categoriaLabel = destetada ? 'Macho Levante' : 'Cría Macho';
+        if (!destetada) {
+          a.categoria = 'CM';
+          a.categoriaLabel = 'Cría Macho';
+        } else {
+          // ML → TR si edad ≥ 3 años o peso ≥ 400 kg
+          const edad = calcularEdad(a.fechaNac);
+          const pesoUltimo = a.pesoActual || a.pesoDestete || 0;
+          if ((edad && edad.unidad === 'años' && edad.valor >= 3) || pesoUltimo >= 400) {
+            a.categoria = 'TR';
+            a.categoriaLabel = 'Toro';
+          } else {
+            a.categoria = 'ML';
+            a.categoriaLabel = 'Macho Levante';
+          }
+        }
       } else if (a.sexo === 'H') {
         const destetada = !!(a.pesoDestete || a.fechaDestete);
         if (!destetada) {
@@ -3704,12 +3763,18 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
           }
         }
       } else {
-        a.categoria = '?';
-        a.categoriaLabel = 'Sin datos';
+        // Sin datos suficientes para calcular → usar DB como fallback
+        if (a.categoriaActual && CAT_LABELS[a.categoriaActual]) {
+          a.categoria = a.categoriaActual;
+          a.categoriaLabel = CAT_LABELS[a.categoriaActual];
+        } else {
+          a.categoria = '?';
+          a.categoriaLabel = 'Sin datos';
+        }
       }
     });
 
-    return Object.values(mapa).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+    return Object.values(mapa).filter(a => a.categoriaActual !== 'EA').sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
   }, [nacimientos, pesajes]);
 
   // Categorías disponibles
