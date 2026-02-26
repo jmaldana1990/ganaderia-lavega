@@ -14,7 +14,7 @@ import { VENTAS_GANADO, TIPO_ANIMAL_LABELS } from './ventas-ganado';
 // ==================== HELPERS ====================
 const formatCurrency = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v);
 const formatDate = (d) => {
-  if (!d) return '-';
+  if (!d || d === '1900-01-01' || (typeof d === 'string' && d.startsWith('1900'))) return '-';
   return new Date(d + 'T00:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 const ITEMS_PER_PAGE = 50;
@@ -29,7 +29,7 @@ const esAnimalValido = (id) => { if (!id) return false; return !RESUMEN_KEYWORDS
 // Calcula la edad a partir de fecha de nacimiento (YYYY-MM-DD)
 // < 24 meses → muestra meses con 1 decimal | >= 24 meses → muestra años con 1 decimal
 const calcularEdad = (fechaNac) => {
-  if (!fechaNac) return null;
+  if (!fechaNac || fechaNac === '1900-01-01' || fechaNac.startsWith('1900')) return null;
   const nac = new Date(fechaNac + 'T00:00:00');
   const hoy = new Date();
   if (isNaN(nac.getTime())) return null;
@@ -241,7 +241,7 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
   const ultimaPalp = misPalps[0] || null;
   const ultimoServ = misServs[0] || null;
 
-  const fmtDate = (d) => { if (!d) return '-'; return new Date(d + 'T00:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }); };
+  const fmtDate = (d) => { if (!d || d === '1900-01-01' || (typeof d === 'string' && d.startsWith('1900'))) return '-'; return new Date(d + 'T00:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }); };
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-start justify-center z-[60] p-4 overflow-y-auto" onClick={onClose}>
@@ -783,7 +783,7 @@ export default function GanaderiaApp() {
               pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
               lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
-          {view === 'hato-general' && <HatoGeneral nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} onAnimalClick={setAnimalModalId} />}
+          {view === 'hato-general' && <HatoGeneral nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} onAnimalClick={setAnimalModalId} isOnline={isOnline} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
@@ -3080,7 +3080,7 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
   };
 
   const formatDate = (d) => {
-    if (!d) return '-';
+    if (!d || d === '1900-01-01' || (typeof d === 'string' && d.startsWith('1900'))) return '-';
     const parts = d.split('-');
     if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
     return d;
@@ -3664,10 +3664,13 @@ function Stat({ label, value, sub }) {
     </div>
   );
 }
-function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, onAnimalClick }) {
+function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servicios, destetes, onAnimalClick, isOnline }) {
   const [filtros, setFiltros] = useState({ finca: '', categoria: '', estado: 'Activo', sexo: '', busqueda: '' });
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 50;
+  const [editAnimal, setEditAnimal] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // Construir lista unificada de TODOS los animales
   const todosAnimales = useMemo(() => {
@@ -3980,6 +3983,7 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400">Último Peso</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Fecha U. Peso</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Estado</th>
+                <th className="px-2 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800/50">
@@ -4004,11 +4008,31 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
                         {a.estado || '-'}
                       </span>
                     </td>
+                    <td className="px-2 py-3 text-center">
+                      <button onClick={() => {
+                        const nac = (nacimientos || []).find(n => String(n.cria).trim() === a.id);
+                        setEditAnimal(a);
+                        setEditForm({
+                          fecha: nac?.fecha && nac.fecha !== '1900-01-01' ? nac.fecha : '',
+                          sexo: a.sexo || '',
+                          madre: a.madre || '',
+                          padre: a.padre || '',
+                          peso_nacer: nac?.pesoNacer || nac?.peso_nacer || '',
+                          peso_destete: nac?.pesoDestete || nac?.peso_destete || '',
+                          fecha_destete: nac?.fechaDestete || nac?.fecha_destete || '',
+                          estado: a.estado || 'Activo',
+                          finca: a.finca || '',
+                          comentario: a.comentario || nac?.comentario || '',
+                        });
+                      }} className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-gray-700 rounded-lg transition-colors">
+                        <Edit2 size={14} />
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
               {paginados.length === 0 && (
-                <tr><td colSpan={10} className="px-4 py-12 text-center text-gray-500">No se encontraron animales con los filtros seleccionados</td></tr>
+                <tr><td colSpan={11} className="px-4 py-12 text-center text-gray-500">No se encontraron animales con los filtros seleccionados</td></tr>
               )}
             </tbody>
           </table>
@@ -4032,6 +4056,108 @@ function HatoGeneral({ nacimientos, pesajes, palpaciones, servicios, destetes, o
           </div>
         )}
       </div>
+
+      {/* Modal Editar Animal */}
+      {editAnimal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setEditAnimal(null)}>
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-lg border border-gray-700" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-100 mb-1">✏️ Editar Animal</h3>
+            <p className="text-sm text-gray-400 mb-4">Animal: <strong className="text-green-400">{editAnimal.id}</strong> • {editAnimal.finca}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Fecha Nacimiento</label>
+                <input type="date" value={editForm.fecha} onChange={e => setEditForm({ ...editForm, fecha: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Sexo</label>
+                <select value={editForm.sexo} onChange={e => setEditForm({ ...editForm, sexo: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                  <option value="">—</option>
+                  <option value="M">♂ Macho</option>
+                  <option value="H">♀ Hembra</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Madre</label>
+                <input type="text" value={editForm.madre} onChange={e => setEditForm({ ...editForm, madre: e.target.value })}
+                  placeholder="Ej: 092-8" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Padre</label>
+                <input type="text" value={editForm.padre} onChange={e => setEditForm({ ...editForm, padre: e.target.value })}
+                  placeholder="Ej: 477-375" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Peso Nacer (kg)</label>
+                <input type="number" step="0.1" value={editForm.peso_nacer} onChange={e => setEditForm({ ...editForm, peso_nacer: e.target.value })}
+                  placeholder="Ej: 28" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Peso Destete (kg)</label>
+                <input type="number" step="0.1" value={editForm.peso_destete} onChange={e => setEditForm({ ...editForm, peso_destete: e.target.value })}
+                  placeholder="Ej: 205" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Fecha Destete</label>
+                <input type="date" value={editForm.fecha_destete} onChange={e => setEditForm({ ...editForm, fecha_destete: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Estado</label>
+                <select value={editForm.estado} onChange={e => setEditForm({ ...editForm, estado: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                  <option value="Activo">Activo</option>
+                  <option value="Vendido">Vendido</option>
+                  <option value="Muerto">Muerto</option>
+                  <option value="Inactivo">Inactivo</option>
+                  <option value="Sociedad">Sociedad</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Finca</label>
+                <select value={editForm.finca} onChange={e => setEditForm({ ...editForm, finca: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                  <option value="La Vega">La Vega</option>
+                  <option value="Bariloche">Bariloche</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Comentario</label>
+                <input type="text" value={editForm.comentario} onChange={e => setEditForm({ ...editForm, comentario: e.target.value })}
+                  placeholder="Notas..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setEditAnimal(null)} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
+              <button disabled={savingEdit} onClick={async () => {
+                setSavingEdit(true);
+                try {
+                  const nac = (nacimientos || []).find(n => String(n.cria).trim() === editAnimal.id);
+                  if (!nac) { alert('No se encontró registro en nacimientos para este animal'); setSavingEdit(false); return; }
+                  const updates = {};
+                  if (editForm.fecha) { updates.fecha = editForm.fecha; updates['año'] = parseInt(editForm.fecha.split('-')[0]); updates.mes = parseInt(editForm.fecha.split('-')[1]); }
+                  if (editForm.sexo) updates.sexo = editForm.sexo;
+                  if (editForm.madre !== undefined) updates.madre = editForm.madre || null;
+                  if (editForm.padre !== undefined) updates.padre = editForm.padre || null;
+                  if (editForm.peso_nacer !== '' && editForm.peso_nacer != null) updates.peso_nacer = parseFloat(editForm.peso_nacer);
+                  if (editForm.peso_destete !== '' && editForm.peso_destete != null) updates.peso_destete = parseFloat(editForm.peso_destete);
+                  if (editForm.fecha_destete) updates.fecha_destete = editForm.fecha_destete;
+                  if (editForm.estado) updates.estado = editForm.estado;
+                  if (editForm.finca) updates.finca = editForm.finca;
+                  if (editForm.comentario !== undefined) updates.comentario = editForm.comentario;
+                  await db.updateNacimiento(nac.id, updates);
+                  setNacimientos(prev => prev.map(n => n.id === nac.id ? { ...n, ...updates, pesoNacer: updates.peso_nacer || n.pesoNacer, pesoDestete: updates.peso_destete || n.pesoDestete, fechaDestete: updates.fecha_destete || n.fechaDestete, categoriaActual: n.categoriaActual, fincaDB: updates.finca || n.fincaDB } : n));
+                  setEditAnimal(null);
+                } catch (e) { alert('Error guardando: ' + e.message); }
+                setSavingEdit(false);
+              }} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+                {savingEdit ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> Guardar</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
