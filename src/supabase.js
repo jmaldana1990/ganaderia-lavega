@@ -75,13 +75,12 @@ export async function upsertNacimientos(registros) {
 
 // Actualizar un registro de nacimiento (destetes, cambios de estado, etc.)
 export async function updateNacimiento(id, updates) {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('nacimientos')
     .update(updates)
     .eq('id', id)
-    .select()
   if (error) throw error
-  return data?.[0] || updates
+  return { id, ...updates }
 }
 
 // ==================== INVENTARIO ====================
