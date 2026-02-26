@@ -80,9 +80,8 @@ export async function updateNacimiento(id, updates) {
     .update(updates)
     .eq('id', id)
     .select()
-    .single()
   if (error) throw error
-  return data
+  return data?.[0] || updates
 }
 
 // ==================== INVENTARIO ====================

@@ -4163,7 +4163,7 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
                 setSavingEdit(true);
                 try {
                   const nac = (nacimientos || []).find(n => String(n.cria).trim() === editAnimal.id);
-                  if (!nac) { alert('No se encontró registro en nacimientos para este animal'); setSavingEdit(false); return; }
+                  if (!nac) { alert('No se encontró registro en nacimientos para este animal (cria: ' + editAnimal.id + ')'); setSavingEdit(false); return; }
                   const updates = {};
                   if (editForm.fecha) { updates.fecha = editForm.fecha; updates['año'] = parseInt(editForm.fecha.split('-')[0]); updates.mes = parseInt(editForm.fecha.split('-')[1]); }
                   if (editForm.sexo) updates.sexo = editForm.sexo;
@@ -4175,10 +4175,13 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
                   if (editForm.estado) updates.estado = editForm.estado;
                   if (editForm.finca) updates.finca = editForm.finca;
                   if (editForm.comentario !== undefined) updates.comentario = editForm.comentario;
-                  await db.updateNacimiento(nac.id, updates);
-                  setNacimientos(prev => prev.map(n => n.id === nac.id ? { ...n, ...updates, pesoNacer: updates.peso_nacer || n.pesoNacer, pesoDestete: updates.peso_destete || n.pesoDestete, fechaDestete: updates.fecha_destete || n.fechaDestete, categoriaActual: n.categoriaActual, fincaDB: updates.finca || n.fincaDB } : n));
+                  if (Object.keys(updates).length === 0) { alert('No hay cambios para guardar'); setSavingEdit(false); return; }
+                  console.log('Guardando animal:', editAnimal.id, 'nac.id:', nac.id, 'updates:', updates);
+                  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: la operación tardó más de 15 segundos')), 15000));
+                  await Promise.race([db.updateNacimiento(nac.id, updates), timeoutPromise]);
+                  setNacimientos(prev => prev.map(n => n.id === nac.id ? { ...n, ...updates, pesoNacer: updates.peso_nacer ?? n.pesoNacer, pesoDestete: updates.peso_destete ?? n.pesoDestete, fechaDestete: updates.fecha_destete ?? n.fechaDestete, fincaDB: updates.finca ?? n.fincaDB } : n));
                   setEditAnimal(null);
-                } catch (e) { alert('Error guardando: ' + e.message); }
+                } catch (e) { console.error('Error guardando:', e); alert('Error guardando: ' + e.message); }
                 setSavingEdit(false);
               }} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
                 {savingEdit ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> Guardar</>}
