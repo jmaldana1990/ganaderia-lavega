@@ -207,7 +207,15 @@ function AnimalModal({ animalId, onClose, nacimientos, pesajes, palpaciones, ser
   const CAT_LABELS_MODAL = { VP: 'Vaca Parida', VS: 'Vaca Seca', NV: 'Novilla Vientre', HL: 'Hembra Levante', ML: 'Macho Levante', CM: 'Cría Macho', CH: 'Cría Hembra', TR: 'Toro' };
   let categoriaLabel = '—';
   if (esMadre) {
-    categoriaLabel = '🐄 Vaca Madre';
+    // VP si última cría NO destetada, VS si ya se destetó
+    const ultimoParto = partos.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0];
+    const ultimaCriaDestetada = ultimoParto && !!(ultimoParto.pesoDestete || ultimoParto.peso_destete || ultimoParto.fechaDestete || ultimoParto.fecha_destete);
+    if (ultimoParto && !ultimaCriaDestetada) {
+      categoriaLabel = '🐄 Vaca Parida';
+    } else {
+      const catDB = catActual;
+      categoriaLabel = (catDB === 'VP') ? '🐄 Vaca Parida' : '🐄 Vaca Seca';
+    }
   } else if (regCria) {
     const destetada = !!(pesoDestete || fechaDestete);
     if (sexo === 'M') {
@@ -3763,10 +3771,31 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
     // Regla: cálculo dinámico SIEMPRE tiene prioridad (destetes, partos, edad)
     // Calcular categoría dinámicamente. categoriaActual del DB solo como fallback
     const CAT_LABELS = { VP: 'Vaca Parida', VS: 'Vaca Seca', NV: 'Novilla Vientre', HL: 'Hembra Levante', ML: 'Macho Levante', CM: 'Cría Macho', CH: 'Cría Hembra', TR: 'Toro', LEV: 'Levante' };
+    // Construir lookup de última cría por madre para determinar VP vs VS
+    const ultimaCriaPorMadre = {};
+    (nacimientos || []).forEach(n => {
+      if (!n.madre || !n.cria || !esAnimalValido(n.madre)) return;
+      const madreId = String(n.madre).trim();
+      const prev = ultimaCriaPorMadre[madreId];
+      if (!prev || (n.fecha || '') > (prev.fecha || '')) {
+        ultimaCriaPorMadre[madreId] = n;
+      }
+    });
+
     Object.values(mapa).forEach(a => {
       if (a.esMadre) {
-        a.categoria = 'VP';
-        a.categoriaLabel = 'Vaca Madre';
+        // VP si última cría NO está destetada, VS si ya se destetó
+        const ultimaCria = ultimaCriaPorMadre[a.id];
+        const ultimaCriaDestetada = ultimaCria && !!(ultimaCria.pesoDestete || ultimaCria.peso_destete || ultimaCria.fechaDestete || ultimaCria.fecha_destete);
+        if (ultimaCria && !ultimaCriaDestetada) {
+          a.categoria = 'VP';
+          a.categoriaLabel = 'Vaca Parida';
+        } else {
+          // Destetada o sin datos de cría → usar DB como fallback, default VS
+          const catDB = a.categoriaActual;
+          a.categoria = (catDB === 'VP' || catDB === 'VS') ? catDB : 'VS';
+          a.categoriaLabel = a.categoria === 'VP' ? 'Vaca Parida' : 'Vaca Seca';
+        }
       } else if (a.finca === 'Bariloche' || a.fuente === 'pesaje') {
         a.categoria = a.categoriaBar || 'LEV';
         a.categoriaLabel = a.categoriaBar || 'Levante';
