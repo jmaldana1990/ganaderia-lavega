@@ -4225,7 +4225,7 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
                   const nac = (nacimientos || []).find(n => String(n.cria).trim() === editAnimal.id);
                   if (!nac) { alert('No se encontró registro en nacimientos para este animal (cria: ' + editAnimal.id + ')'); setSavingEdit(false); return; }
                   const updates = {};
-                  if (editForm.fecha) { updates.fecha = editForm.fecha; updates['año'] = parseInt(editForm.fecha.split('-')[0]); updates.mes = parseInt(editForm.fecha.split('-')[1]); }
+                  if (editForm.fecha) { updates.fecha = editForm.fecha; }
                   if (editForm.sexo) updates.sexo = editForm.sexo;
                   if (editForm.madre !== undefined) updates.madre = editForm.madre || null;
                   if (editForm.padre !== undefined) updates.padre = editForm.padre || null;
@@ -4237,12 +4237,18 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
                   if (editForm.comentario !== undefined) updates.comentario = editForm.comentario;
                   if (Object.keys(updates).length === 0) { alert('No hay cambios para guardar'); setSavingEdit(false); return; }
                   console.log('Guardando animal:', editAnimal.id, 'nac.id:', nac.id, 'updates:', updates);
-                  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: la operación tardó más de 15 segundos')), 15000));
-                  await Promise.race([db.updateNacimiento(nac.id, updates), timeoutPromise]);
+                  // Optimistic update: actualizar estado local inmediatamente
                   setNacimientos(prev => prev.map(n => n.id === nac.id ? { ...n, ...updates, pesoNacer: updates.peso_nacer ?? n.pesoNacer, pesoDestete: updates.peso_destete ?? n.pesoDestete, fechaDestete: updates.fecha_destete ?? n.fechaDestete, fincaDB: updates.finca ?? n.fincaDB } : n));
                   setEditAnimal(null);
-                } catch (e) { console.error('Error guardando:', e); alert('Error guardando: ' + e.message); }
-                setSavingEdit(false);
+                  setSavingEdit(false);
+                  // Fire-and-forget: enviar a DB en background
+                  db.updateNacimiento(nac.id, updates).then(() => {
+                    console.log('✅ Guardado en DB:', editAnimal.id);
+                  }).catch(e => {
+                    console.error('❌ Error guardando en DB:', e);
+                    alert('Los cambios se ven localmente pero hubo un error al guardar en la base de datos. Recarga la página para verificar.');
+                  });
+                } catch (e) { console.error('Error:', e); alert('Error: ' + e.message); setSavingEdit(false); }
               }} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
                 {savingEdit ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> Guardar</>}
               </button>
