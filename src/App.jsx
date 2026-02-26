@@ -2881,10 +2881,15 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
   // Build animal list depending on finca type
   const animales = useMemo(() => {
     if (esLaVega) {
+      // Filtrar nacimientos por finca (usar fincaDB del registro)
+      const nacFinca = nacimientos.filter(n => {
+        const f = n.fincaDB || n.finca;
+        return !f || f === 'La Vega'; // si no tiene finca asignada, asumir La Vega (legacy)
+      });
       // Get all unique animals: mothers from nacimientos + all crías
       const madresSet = new Set();
       const crias = {};
-      nacimientos.forEach(n => {
+      nacFinca.forEach(n => {
         if (n.madre) madresSet.add(n.madre.trim());
         if (n.cria) crias[n.cria.trim()] = n;
       });
@@ -2892,7 +2897,7 @@ function HatoView({ finca, nacimientos, setNacimientos, pesajes, palpaciones, se
       const lista = [];
       // Add mothers
       madresSet.forEach(m => {
-        const partos = nacimientos.filter(n => n.madre && n.madre.trim() === m);
+        const partos = nacFinca.filter(n => n.madre && n.madre.trim() === m);
         const ultimaPalp = (palpaciones || []).filter(p => p.hembra === m && p.finca === finca).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0];
         const ultimoServ = (servicios || []).filter(s => s.hembra === m && s.finca === finca).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''))[0];
         // Buscar fecha nacimiento de la madre (si nació en la finca)
