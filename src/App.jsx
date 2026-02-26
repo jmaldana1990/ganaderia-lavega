@@ -3684,6 +3684,29 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
   const [editAnimal, setEditAnimal] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [savingEdit, setSavingEdit] = useState(false);
+  const [showMadreList, setShowMadreList] = useState(false);
+  const [showPadreList, setShowPadreList] = useState(false);
+
+  // Build hembras and padres lists for autocomplete
+  const { hembras, padres } = useMemo(() => {
+    const hSet = new Set();
+    const pSet = new Set();
+    (nacimientos || []).forEach(n => {
+      if (n.estado !== 'Activo') return;
+      const finca = n.fincaDB || n.finca || '';
+      const id = n.cria ? String(n.cria).trim() : null;
+      // Hembras: madres + crías hembra activas
+      if (n.madre) hSet.add(String(n.madre).trim());
+      if (id && n.sexo === 'H') hSet.add(id);
+      // Padres: registrados + toros
+      if (n.padre) pSet.add(String(n.padre).trim());
+      if (id && n.sexo === 'M') {
+        const edad = calcularEdad(n.fecha);
+        if ((edad && edad.unidad === 'años' && edad.valor >= 3)) pSet.add(id);
+      }
+    });
+    return { hembras: [...hSet].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })), padres: [...pSet].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })) };
+  }, [nacimientos]);
 
   // Construir lista unificada de TODOS los animales
   const todosAnimales = useMemo(() => {
@@ -4094,7 +4117,7 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
       {/* Modal Editar Animal */}
       {editAnimal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setEditAnimal(null)}>
-          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-lg border border-gray-700" onClick={e => e.stopPropagation()}>
+          <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-lg border border-gray-700 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-gray-100 mb-1">✏️ Editar Animal</h3>
             <p className="text-sm text-gray-400 mb-4">Animal: <strong className="text-green-400">{editAnimal.id}</strong> • {editAnimal.finca}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -4112,15 +4135,47 @@ function HatoGeneral({ nacimientos, setNacimientos, pesajes, palpaciones, servic
                   <option value="H">♀ Hembra</option>
                 </select>
               </div>
-              <div>
+              <div className="relative">
                 <label className="block text-xs font-medium text-gray-400 mb-1">Madre</label>
-                <input type="text" value={editForm.madre} onChange={e => setEditForm({ ...editForm, madre: e.target.value })}
-                  placeholder="Ej: 092-8" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                <input type="text" value={editForm.madre} 
+                  onChange={e => { setEditForm({ ...editForm, madre: e.target.value }); setShowMadreList(true); }}
+                  onFocus={() => setShowMadreList(true)}
+                  onBlur={() => setTimeout(() => setShowMadreList(false), 200)}
+                  placeholder="Buscar hembra..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                {showMadreList && editForm.madre !== undefined && (
+                  <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg max-h-40 overflow-y-auto shadow-lg">
+                    {hembras.filter(h => !editForm.madre || h.toLowerCase().includes(String(editForm.madre).toLowerCase())).slice(0, 20).map(h => (
+                      <button key={h} type="button" onClick={() => { setEditForm({ ...editForm, madre: h }); setShowMadreList(false); }}
+                        className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-700 transition-colors">
+                        {h}
+                      </button>
+                    ))}
+                    {hembras.filter(h => !editForm.madre || h.toLowerCase().includes(String(editForm.madre).toLowerCase())).length === 0 && (
+                      <p className="px-3 py-2 text-xs text-gray-500">No se encontró</p>
+                    )}
+                  </div>
+                )}
               </div>
-              <div>
+              <div className="relative">
                 <label className="block text-xs font-medium text-gray-400 mb-1">Padre</label>
-                <input type="text" value={editForm.padre} onChange={e => setEditForm({ ...editForm, padre: e.target.value })}
-                  placeholder="Ej: 477-375" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                <input type="text" value={editForm.padre} 
+                  onChange={e => { setEditForm({ ...editForm, padre: e.target.value }); setShowPadreList(true); }}
+                  onFocus={() => setShowPadreList(true)}
+                  onBlur={() => setTimeout(() => setShowPadreList(false), 200)}
+                  placeholder="Buscar toro..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                {showPadreList && editForm.padre !== undefined && (
+                  <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg max-h-40 overflow-y-auto shadow-lg">
+                    {padres.filter(p => !editForm.padre || p.toLowerCase().includes(String(editForm.padre).toLowerCase())).slice(0, 20).map(p => (
+                      <button key={p} type="button" onClick={() => { setEditForm({ ...editForm, padre: p }); setShowPadreList(false); }}
+                        className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-gray-700 transition-colors">
+                        {p}
+                      </button>
+                    ))}
+                    {padres.filter(p => !editForm.padre || p.toLowerCase().includes(String(editForm.padre).toLowerCase())).length === 0 && (
+                      <p className="px-3 py-2 text-xs text-gray-500">No se encontró</p>
+                    )}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-400 mb-1">Peso Nacer (kg)</label>
