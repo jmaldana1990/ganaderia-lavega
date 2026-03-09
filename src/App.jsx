@@ -789,17 +789,17 @@ export default function GanaderiaApp() {
           {view === 'lavega' && (
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
               inventario={inventario} nacimientos={nacimientos} setNacimientos={setNacimientos} gastos={gastos} años={años}
-              pesajes={pesajes} palpaciones={palpaciones} setPalpaciones={setPalpaciones} servicios={servicios} setServicios={setServicios} destetes={destetes}
+              pesajes={pesajes} setPesajes={setPesajes} palpaciones={palpaciones} setPalpaciones={setPalpaciones} servicios={servicios} setServicios={setServicios} destetes={destetes}
               lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
           {view === 'bariloche' && (
             <FincaView finca="Bariloche" subtitulo="Finca de Levante" color="blue"
               inventario={inventario} nacimientos={nacimientos} gastos={gastos} años={años}
-              pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
+              pesajes={pesajes} setPesajes={setPesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes}
               lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
           {view === 'hato-general' && <HatoGeneral nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} onAnimalClick={setAnimalModalId} isOnline={isOnline} />}
-          {view === 'venta-traslado' && <VentaTrasladoView nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} setPesajes={setPesajes} ventas={ventas} setVentas={setVentas} traslados={traslados} setTraslados={setTraslados} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />}
+          {view === 'venta-traslado' && <VentaTrasladoView nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} ventas={ventas} setVentas={setVentas} traslados={traslados} setTraslados={setTraslados} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} gastos={gastos} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
@@ -1255,8 +1255,8 @@ function VentasTotales({ ventas: ventasData, gastos: gastosData }) {
 }
 
 // ==================== COMPONENTE VENTA / TRASLADO ====================
-function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, ventas, setVentas, traslados, setTraslados, userEmail, isOnline, onAnimalClick }) {
-  const [modo, setModo] = useState('venta'); // 'venta' | 'traslado' | 'muerte' | 'pesaje'
+function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVentas, traslados, setTraslados, userEmail, isOnline, onAnimalClick }) {
+  const [modo, setModo] = useState('venta'); // 'venta' | 'traslado' | 'muerte'
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [busqueda, setBusqueda] = useState('');
@@ -1286,10 +1286,6 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
     observaciones: ''
   });
 
-  // Pesaje fields
-  const [pesajeForm, setPesajeForm] = useState({
-    fecha: new Date().toISOString().split('T')[0]
-  });
 
   // Per-animal weight overrides for batch sales
   const [pesosPorAnimal, setPesosPorAnimal] = useState({}); // {animalId: peso}
@@ -1544,59 +1540,6 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
     }
   };
 
-  const handleSavePesaje = async () => {
-    if (selectedAnimals.length === 0) return alert('Selecciona al menos un animal');
-    if (!pesajeForm.fecha) return alert('Selecciona la fecha del pesaje');
-    const sinPeso = selectedAnimals.filter(a => !pesosPorAnimal[a.id] || parseFloat(pesosPorAnimal[a.id]) <= 0);
-    if (sinPeso.length > 0) return alert(`Falta el peso de: ${sinPeso.map(a => a.id).join(', ')}`);
-
-    setSaving(true);
-    try {
-      const registros = selectedAnimals.map(a => {
-        const nacReg = (nacimientos || []).find(n => String(n.cria).trim() === a.id);
-        const fechaNac = nacReg?.fecha;
-        let edadMeses = null;
-        let gdpVida = null;
-        const pesoAnimal = parseFloat(pesosPorAnimal[a.id]);
-        if (fechaNac && fechaNac !== '1900-01-01') {
-          const nacDate = new Date(fechaNac + 'T00:00:00');
-          const pesDate = new Date(pesajeForm.fecha + 'T00:00:00');
-          const diffDias = Math.round((pesDate - nacDate) / (1000 * 60 * 60 * 24));
-          edadMeses = diffDias > 0 ? Math.round((diffDias / 30.44) * 10) / 10 : null;
-          const pesoNacer = nacReg?.pesoNacer || nacReg?.peso_nacer || 0;
-          if (diffDias > 0 && pesoAnimal > pesoNacer) {
-            gdpVida = Math.round(((pesoAnimal - pesoNacer) / diffDias) * 1000);
-          }
-        }
-        return {
-          animal: a.id,
-          fecha_pesaje: pesajeForm.fecha,
-          peso: pesoAnimal,
-          finca: a.finca,
-          categoria: a.categoria,
-          edad_meses: edadMeses,
-          gdp_vida: gdpVida
-        };
-      });
-
-      await db.insertPesajesBatch(registros);
-
-      // Update local pesajes state
-      setPesajes(prev => [...registros, ...prev]);
-
-      setSuccessMsg(`✅ ${selectedAnimals.length} pesaje(s) registrado(s) exitosamente`);
-      setSelectedAnimals([]);
-      setPesosPorAnimal({});
-      setPesajeForm({ fecha: new Date().toISOString().split('T')[0] });
-      setTimeout(() => setSuccessMsg(''), 5000);
-    } catch (e) {
-      console.error('Error registrando pesajes:', e);
-      alert('Error al registrar pesajes: ' + e.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const CAT_COLORS = { VP: 'bg-green-500/20 text-green-400', VS: 'bg-orange-500/20 text-orange-400', NV: 'bg-purple-500/20 text-purple-400', HL: 'bg-teal-500/20 text-teal-400', ML: 'bg-amber-500/20 text-amber-400', CM: 'bg-blue-500/20 text-blue-400', CH: 'bg-pink-500/20 text-pink-400', TR: 'bg-red-500/20 text-red-400', LEV: 'bg-amber-500/20 text-amber-400' };
 
   // Recent history
@@ -1607,12 +1550,9 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
     if (modo === 'traslado') {
       return (traslados || []).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 20);
     }
-    if (modo === 'pesaje') {
-      return (pesajes || []).sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || '')).slice(0, 30);
-    }
     // muerte: show dead animals from nacimientos
     return (nacimientos || []).filter(n => n.estado === 'Muerto').sort((a, b) => (b.comentario || '').localeCompare(a.comentario || '')).slice(0, 20);
-  }, [modo, ventas, traslados, pesajes, nacimientos]);
+  }, [modo, ventas, traslados, nacimientos]);
 
   return (
     <div className="space-y-6">
@@ -1646,10 +1586,6 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
         <button onClick={() => { setModo('muerte'); setSelectedAnimals([]); setPesosPorAnimal({}); }}
           className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${modo === 'muerte' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
           <Skull size={18} /> Muerte
-        </button>
-        <button onClick={() => { setModo('pesaje'); setSelectedAnimals([]); setPesosPorAnimal({}); }}
-          className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${modo === 'pesaje' ? 'bg-green-600 text-white shadow-lg shadow-green-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
-          <Scale size={18} /> Pesaje
         </button>
       </div>
 
@@ -1708,7 +1644,7 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
                   <span className="font-bold text-green-400 text-sm w-20">{a.id}</span>
                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${CAT_COLORS[a.categoria] || 'bg-gray-600 text-gray-300'}`}>{a.categoria}</span>
                   <span className={`text-xs ${a.finca === 'La Vega' ? 'text-green-500' : 'text-blue-500'}`}>{a.finca}</span>
-                  {(modo === 'venta' || modo === 'pesaje') && (
+                  {modo === 'venta' && (
                     <div className="flex items-center gap-2 ml-auto">
                       <label className="text-xs text-gray-500">Peso:</label>
                       <input type="number" step="1"
@@ -1830,23 +1766,9 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
           </div>
         )}
 
-        {/* Pesaje-specific fields */}
-        {modo === 'pesaje' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1">Fecha del Pesaje</label>
-              <input type="date" value={pesajeForm.fecha} onChange={e => setPesajeForm({ ...pesajeForm, fecha: e.target.value })}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
-            </div>
-            <div className="flex items-end">
-              <p className="text-xs text-gray-500 pb-2">Ingresa el peso de cada animal en la lista de arriba. Se calculará automáticamente la edad y GDP vida.</p>
-            </div>
-          </div>
-        )}
-
         {/* Summary & Save */}
         {selectedAnimals.length > 0 && (
-          <div className={`rounded-xl p-4 border ${modo === 'venta' ? 'bg-amber-900/20 border-amber-800' : modo === 'muerte' ? 'bg-red-900/20 border-red-800' : modo === 'pesaje' ? 'bg-green-900/20 border-green-800' : 'bg-blue-900/20 border-blue-800'}`}>
+          <div className={`rounded-xl p-4 border ${modo === 'venta' ? 'bg-amber-900/20 border-amber-800' : modo === 'muerte' ? 'bg-red-900/20 border-red-800' : 'bg-blue-900/20 border-blue-800'}`}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap gap-4 text-sm">
                 <div>
@@ -1881,27 +1803,19 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
                     <span className="ml-1 font-bold text-red-400">{muerteForm.causa}</span>
                   </div>
                 )}
-                {modo === 'pesaje' && (
-                  <div>
-                    <span className="text-gray-400">Total Kg:</span>
-                    <span className="ml-1 font-bold text-gray-100">{totalKg.toLocaleString('es-CO')}</span>
-                  </div>
-                )}
               </div>
               <button
-                onClick={modo === 'venta' ? handleSaveVenta : modo === 'traslado' ? handleSaveTraslado : modo === 'muerte' ? handleSaveMuerte : handleSavePesaje}
+                onClick={modo === 'venta' ? handleSaveVenta : modo === 'traslado' ? handleSaveTraslado : handleSaveMuerte}
                 disabled={saving || !isOnline}
                 className={`px-6 py-3 rounded-xl font-medium text-sm text-white flex items-center gap-2 transition-all ${
                   modo === 'venta' ? 'bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-600/20' :
                   modo === 'muerte' ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/20' :
-                  modo === 'pesaje' ? 'bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20' :
                   'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'
                 } disabled:opacity-40 disabled:cursor-not-allowed`}>
                 {saving ? <><Loader2 size={16} className="animate-spin" /> Guardando...</> :
                   modo === 'venta' ? <><Check size={16} /> Registrar Venta</> :
                   modo === 'traslado' ? <><Truck size={16} /> Registrar Traslado</> :
-                  modo === 'muerte' ? <><Skull size={16} /> Registrar Muerte</> :
-                  <><Scale size={16} /> Registrar Pesaje</>}
+                  <><Skull size={16} /> Registrar Muerte</>}
               </button>
             </div>
           </div>
@@ -1913,7 +1827,7 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
           <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
             <Clock size={18} className="text-gray-400" />
-            {modo === 'venta' ? 'Últimas Ventas Individuales' : modo === 'traslado' ? 'Últimos Traslados' : modo === 'muerte' ? 'Animales Muertos' : 'Últimos Pesajes'} ({historialReciente.length})
+            {modo === 'venta' ? 'Últimas Ventas Individuales' : modo === 'traslado' ? 'Últimos Traslados' : 'Animales Muertos'} ({historialReciente.length})
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -1942,20 +1856,12 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
                       <th className="text-left py-2 px-2">Detalle</th>
                     </>
                   )}
-                  {modo === 'pesaje' && (
-                    <>
-                      <th className="text-left py-2 px-2">Finca</th>
-                      <th className="text-right py-2 px-2">Peso</th>
-                      <th className="text-right py-2 px-2">Edad (m)</th>
-                      <th className="text-right py-2 px-2">GDP Vida</th>
-                    </>
-                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800/50">
                 {historialReciente.map((r, i) => (
                   <tr key={i} className="hover:bg-gray-800/50">
-                    <td className="py-2 px-2 text-gray-300">{formatDate(modo === 'pesaje' ? r.fecha_pesaje : r.fecha)}</td>
+                    <td className="py-2 px-2 text-gray-300">{formatDate(r.fecha)}</td>
                     <td className="py-2 px-2">
                       <AnimalLink id={modo === 'muerte' ? r.cria : r.animal} onAnimalClick={onAnimalClick} className="text-green-400 font-bold text-sm" />
                     </td>
@@ -1978,14 +1884,6 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
                     {modo === 'muerte' && (
                       <td className="py-2 px-2 text-gray-400 text-xs">{r.comentario || '—'}</td>
                     )}
-                    {modo === 'pesaje' && (
-                      <>
-                        <td className="py-2 px-2"><span className={`text-xs ${r.finca === 'La Vega' ? 'text-green-500' : 'text-blue-500'}`}>{r.finca}</span></td>
-                        <td className="py-2 px-2 text-right text-gray-200 font-medium">{r.peso ? `${Math.round(r.peso)} kg` : '—'}</td>
-                        <td className="py-2 px-2 text-right text-gray-400">{r.edad_meses ? r.edad_meses.toFixed(1) : '—'}</td>
-                        <td className="py-2 px-2 text-right text-gray-400">{r.gdp_vida ? `${Math.round(r.gdp_vida)} g/d` : '—'}</td>
-                      </>
-                    )}
                   </tr>
                 ))}
               </tbody>
@@ -1998,7 +1896,7 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, v
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, palpaciones, setPalpaciones, servicios, setServicios, destetes, lluvias, setLluvias, userEmail, isOnline, onAnimalClick }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, setPesajes, palpaciones, setPalpaciones, servicios, setServicios, destetes, lluvias, setLluvias, userEmail, isOnline, onAnimalClick }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
   const esTodos = añoSel === 'todos';
@@ -2326,6 +2224,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
           { key: 'kpis', label: esTodos ? '📈 Tendencias' : '🎯 KPIs', icon: Target },
           { key: 'hato', label: '🐄 Hato', icon: Search, hide: esTodos },
           { key: 'lluvias', label: '🌧️ Lluvias', icon: Activity, hide: esTodos },
+          { key: 'pesajes', label: '⚖️ Pesajes', icon: Scale, hide: esTodos },
           { key: 'palpaciones', label: '🔬 Palpaciones', icon: Activity, hide: esTodos || finca !== 'La Vega' },
           { key: 'servicios', label: '🧬 IA/TE', icon: Activity, hide: esTodos || finca !== 'La Vega' },
         ].filter(t => !t.hide).map(tab => (
@@ -2710,6 +2609,10 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
         <LluviasView finca={finca} lluvias={lluvias} setLluvias={setLluvias} userEmail={userEmail} añoSel={añoSel} />
       )}
 
+      {!esTodos && subView === 'pesajes' && (
+        <PesajesManualView finca={finca} pesajes={pesajes} setPesajes={setPesajes} nacimientos={nacimientos} userEmail={userEmail} isOnline={isOnline} onAnimalClick={onAnimalClick} />
+      )}
+
       {!esTodos && subView === 'palpaciones' && finca === 'La Vega' && (
         <PalpacionesView palpaciones={palpaciones} setPalpaciones={setPalpaciones} userEmail={userEmail} nacimientos={nacimientos} onAnimalClick={onAnimalClick} />
       )}
@@ -2718,6 +2621,279 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
         <ServiciosView servicios={servicios} setServicios={setServicios} userEmail={userEmail} nacimientos={nacimientos} isOnline={isOnline} onAnimalClick={onAnimalClick} />
       )}
 
+    </div>
+  );
+}
+
+// ==================== COMPONENTE PESAJES MANUAL ====================
+function PesajesManualView({ finca, pesajes, setPesajes, nacimientos, userEmail, isOnline, onAnimalClick }) {
+  const [saving, setSaving] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [busqueda, setBusqueda] = useState('');
+  const [showList, setShowList] = useState(false);
+  const [selectedAnimals, setSelectedAnimals] = useState([]); // [{id, ...}]
+  const [pesos, setPesos] = useState({}); // {animalId: peso}
+
+  // Animales activos de esta finca
+  const animalesFinca = useMemo(() => {
+    const mapa = {};
+    (nacimientos || []).forEach(n => {
+      if (!n.cria || n.estado !== 'Activo') return;
+      const id = String(n.cria).trim();
+      if (!esAnimalValido(id)) return;
+      const f = n.fincaDB || 'La Vega';
+      if (f !== finca) return;
+      mapa[id] = { id, finca: f, sexo: n.sexo, fechaNac: n.fecha, pesoNacer: n.pesoNacer || n.peso_nacer };
+    });
+    // Bariloche animals from pesajes
+    if (finca === 'Bariloche') {
+      (pesajes || []).filter(p => p.finca === 'Bariloche' && p.animal && esAnimalValido(p.animal)).forEach(p => {
+        const id = String(p.animal).trim();
+        const nacReg = (nacimientos || []).find(n => String(n.cria).trim() === id);
+        if (nacReg && nacReg.estado !== 'Activo') return;
+        if (!mapa[id]) mapa[id] = { id, finca: 'Bariloche', sexo: nacReg?.sexo, fechaNac: nacReg?.fecha, pesoNacer: nacReg?.pesoNacer || nacReg?.peso_nacer };
+      });
+    }
+    return Object.values(mapa).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+  }, [nacimientos, pesajes, finca]);
+
+  const filtrados = useMemo(() => {
+    if (!busqueda) return animalesFinca.slice(0, 30);
+    const q = busqueda.toLowerCase();
+    return animalesFinca.filter(a => a.id.toLowerCase().includes(q)).slice(0, 30);
+  }, [animalesFinca, busqueda]);
+
+  const addAnimal = (animal) => {
+    if (selectedAnimals.find(a => a.id === animal.id)) return;
+    setSelectedAnimals(prev => [...prev, animal]);
+    // Pre-fill with last known weight
+    const lastPesaje = (pesajes || []).filter(p => String(p.animal).trim() === animal.id).sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || ''))[0];
+    if (lastPesaje?.peso) setPesos(prev => ({ ...prev, [animal.id]: '' })); // leave empty for manual input
+    setBusqueda('');
+    setShowList(false);
+  };
+
+  const removeAnimal = (id) => {
+    setSelectedAnimals(prev => prev.filter(a => a.id !== id));
+    setPesos(prev => { const n = { ...prev }; delete n[id]; return n; });
+  };
+
+  // Get last pesaje info for each selected animal
+  const getLastPesaje = (animalId) => {
+    return (pesajes || []).filter(p => String(p.animal).trim() === animalId && p.finca === finca)
+      .sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || ''))[0] || null;
+  };
+
+  const handleSave = async () => {
+    if (selectedAnimals.length === 0) return alert('Selecciona al menos un animal');
+    if (!fecha) return alert('Selecciona la fecha');
+    const sinPeso = selectedAnimals.filter(a => !pesos[a.id] || parseFloat(pesos[a.id]) <= 0);
+    if (sinPeso.length > 0) return alert(`Falta el peso de: ${sinPeso.map(a => a.id).join(', ')}`);
+
+    setSaving(true);
+    try {
+      const registros = selectedAnimals.map(a => {
+        const pesoActual = parseFloat(pesos[a.id]);
+        const fechaNac = a.fechaNac;
+        let edadMeses = null;
+        let gdpVida = null;
+
+        if (fechaNac && fechaNac !== '1900-01-01') {
+          const nacDate = new Date(fechaNac + 'T00:00:00');
+          const pesDate = new Date(fecha + 'T00:00:00');
+          const diffDias = Math.round((pesDate - nacDate) / (1000 * 60 * 60 * 24));
+          edadMeses = diffDias > 0 ? Math.round((diffDias / 30.44) * 10) / 10 : null;
+          const pesoNacer = a.pesoNacer || 0;
+          if (diffDias > 0 && pesoActual > pesoNacer) {
+            gdpVida = Math.round(((pesoActual - pesoNacer) / diffDias) * 1000);
+          }
+        }
+
+        return {
+          animal: a.id,
+          fecha_pesaje: fecha,
+          peso: pesoActual,
+          finca: finca,
+          edad_meses: edadMeses,
+          gdp_vida: gdpVida
+        };
+      });
+
+      await db.insertPesajesBatch(registros);
+      setPesajes(prev => [...registros, ...prev]);
+
+      setSuccessMsg(`✅ ${selectedAnimals.length} pesaje(s) registrado(s) — ${fecha}`);
+      setSelectedAnimals([]);
+      setPesos({});
+      setTimeout(() => setSuccessMsg(''), 5000);
+    } catch (e) {
+      console.error('Error registrando pesajes:', e);
+      alert('Error al registrar pesajes: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Pesajes recientes de esta finca
+  const pesajesRecientes = useMemo(() => {
+    return (pesajes || []).filter(p => p.finca === finca).sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || '')).slice(0, 30);
+  }, [pesajes, finca]);
+
+  return (
+    <div className="space-y-6">
+      {successMsg && (
+        <div className="bg-green-900/30 border border-green-700 rounded-xl p-4 text-green-400 text-sm font-medium">{successMsg}</div>
+      )}
+
+      {/* Formulario */}
+      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 space-y-5">
+        <h3 className="text-lg font-semibold text-gray-100 flex items-center gap-2">⚖️ Registrar Pesaje — {finca}</h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1">Fecha del Pesaje</label>
+            <input type="date" value={fecha} onChange={e => setFecha(e.target.value)}
+              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1">Buscar Animal</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+              <input type="text" value={busqueda}
+                onChange={e => { setBusqueda(e.target.value); setShowList(true); }}
+                onFocus={() => setShowList(true)}
+                placeholder="Número del animal..."
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm placeholder-gray-500" />
+              {showList && (
+                <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl max-h-60 overflow-y-auto shadow-2xl">
+                  {filtrados.length === 0 && <p className="px-4 py-3 text-sm text-gray-500">No se encontró</p>}
+                  {filtrados.map(a => {
+                    const isSel = selectedAnimals.find(s => s.id === a.id);
+                    const lastP = getLastPesaje(a.id);
+                    return (
+                      <button key={a.id} type="button" disabled={!!isSel}
+                        onClick={() => addAnimal(a)}
+                        className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${isSel ? 'bg-green-900/20 text-green-400' : 'text-gray-200 hover:bg-gray-700'}`}>
+                        <span className="font-bold text-green-400">{a.id}</span>
+                        <span className="text-xs text-gray-500">{lastP ? `Últ: ${Math.round(lastP.peso)} kg (${formatDate(lastP.fecha_pesaje)})` : 'Sin pesajes'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            {showList && <div className="fixed inset-0 z-40" onClick={() => setShowList(false)} />}
+          </div>
+        </div>
+
+        {/* Animales seleccionados con peso y ganancia */}
+        {selectedAnimals.length > 0 && (
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">Animales a pesar ({selectedAnimals.length})</label>
+            <div className="space-y-2">
+              {selectedAnimals.map(a => {
+                const lastP = getLastPesaje(a.id);
+                const pesoActual = parseFloat(pesos[a.id]) || 0;
+                const pesoAnterior = lastP?.peso || 0;
+                const gananciaKg = pesoActual > 0 && pesoAnterior > 0 ? pesoActual - pesoAnterior : null;
+                // Días entre pesajes
+                let gananciaGDia = null;
+                if (gananciaKg !== null && lastP?.fecha_pesaje && fecha) {
+                  const dias = Math.round((new Date(fecha + 'T00:00:00') - new Date(lastP.fecha_pesaje + 'T00:00:00')) / (1000 * 60 * 60 * 24));
+                  if (dias > 0) gananciaGDia = Math.round((gananciaKg / dias) * 1000);
+                }
+                // GDP vida
+                let gdpVida = null;
+                if (a.fechaNac && a.fechaNac !== '1900-01-01' && pesoActual > 0) {
+                  const diasVida = Math.round((new Date(fecha + 'T00:00:00') - new Date(a.fechaNac + 'T00:00:00')) / (1000 * 60 * 60 * 24));
+                  const pesoNacer = a.pesoNacer || 0;
+                  if (diasVida > 0 && pesoActual > pesoNacer) gdpVida = Math.round(((pesoActual - pesoNacer) / diasVida) * 1000);
+                }
+
+                return (
+                  <div key={a.id} className="bg-gray-800 rounded-xl p-3 border border-gray-700">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <button onClick={() => removeAnimal(a.id)} className="p-1 text-red-400 hover:bg-red-900/30 rounded-lg"><X size={16} /></button>
+                      <span className="font-bold text-green-400 text-sm w-16">{a.id}</span>
+                      {lastP && <span className="text-xs text-gray-500">Anterior: {Math.round(pesoAnterior)} kg ({formatDate(lastP.fecha_pesaje)})</span>}
+                      <div className="flex items-center gap-2 ml-auto">
+                        <input type="number" step="1"
+                          value={pesos[a.id] || ''}
+                          onChange={e => setPesos(prev => ({ ...prev, [a.id]: e.target.value }))}
+                          placeholder="Peso kg"
+                          className="w-28 px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 text-sm text-right" />
+                        <span className="text-xs text-gray-500">kg</span>
+                      </div>
+                    </div>
+                    {/* Indicadores automáticos */}
+                    {pesoActual > 0 && (
+                      <div className="flex flex-wrap gap-4 mt-2 pl-8 text-xs">
+                        {gananciaKg !== null && (
+                          <span className={gananciaKg >= 0 ? 'text-green-400' : 'text-red-400'}>
+                            {gananciaKg >= 0 ? '+' : ''}{Math.round(gananciaKg)} kg vs anterior
+                          </span>
+                        )}
+                        {gananciaGDia !== null && (
+                          <span className={gananciaGDia >= 500 ? 'text-green-400' : gananciaGDia >= 300 ? 'text-amber-400' : 'text-red-400'}>
+                            📈 {gananciaGDia} g/día entre pesajes
+                          </span>
+                        )}
+                        {gdpVida !== null && (
+                          <span className={gdpVida >= 600 ? 'text-green-400' : gdpVida >= 400 ? 'text-amber-400' : 'text-red-400'}>
+                            🐂 GDP vida: {gdpVida} g/día
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Save button */}
+            <div className="flex justify-end mt-4">
+              <button onClick={handleSave} disabled={saving || !isOnline}
+                className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-green-600/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                {saving ? <><Loader2 size={16} className="animate-spin" /> Guardando...</> : <><Check size={16} /> Registrar Pesaje(s)</>}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Historial reciente */}
+      {pesajesRecientes.length > 0 && (
+        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
+          <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+            <Clock size={18} className="text-gray-400" /> Pesajes Recientes — {finca} ({pesajesRecientes.length})
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-800 text-gray-500 text-xs">
+                  <th className="text-left py-2 px-2">Fecha</th>
+                  <th className="text-left py-2 px-2">Animal</th>
+                  <th className="text-right py-2 px-2">Peso</th>
+                  <th className="text-right py-2 px-2">Edad (m)</th>
+                  <th className="text-right py-2 px-2">GDP Vida</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-800/50">
+                {pesajesRecientes.map((r, i) => (
+                  <tr key={i} className="hover:bg-gray-800/50">
+                    <td className="py-2 px-2 text-gray-300">{formatDate(r.fecha_pesaje)}</td>
+                    <td className="py-2 px-2"><AnimalLink id={r.animal} onAnimalClick={onAnimalClick} className="text-green-400 font-bold text-sm" /></td>
+                    <td className="py-2 px-2 text-right text-gray-200 font-medium">{r.peso ? `${Math.round(r.peso)} kg` : '—'}</td>
+                    <td className="py-2 px-2 text-right text-gray-400">{r.edad_meses ? r.edad_meses.toFixed(1) : '—'}</td>
+                    <td className="py-2 px-2 text-right"><span className={r.gdp_vida ? (r.gdp_vida >= 600 ? 'text-green-400' : r.gdp_vida >= 400 ? 'text-amber-400' : 'text-red-400') : 'text-gray-500'}>{r.gdp_vida ? `${Math.round(r.gdp_vida)} g/d` : '—'}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
