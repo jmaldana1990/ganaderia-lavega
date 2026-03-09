@@ -2648,6 +2648,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
   const [fichaId, setFichaId] = useState(null); // para ver ficha completa
   const [successMsg, setSuccessMsg] = useState('');
   const [pdfFile, setPdfFile] = useState(null); // PDF to upload with form
+  const [showHatoList, setShowHatoList] = useState(false);
   const RAZAS = ['BON', 'Angus', 'Red Angus', 'Brangus'];
   const RAZA_COLORS = {
     'BON': 'bg-amber-900/40 text-amber-400',
@@ -2700,6 +2701,25 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
       conPdf: all.filter(g => g.pdf_url).length
     };
   }, [genealogia]);
+
+  // Animals list for hato linking
+  const animalesHato = useMemo(() => {
+    const list = [];
+    (nacimientos || []).forEach(n => {
+      if (!n.cria || !esAnimalValido(n.cria)) return;
+      const id = String(n.cria).trim();
+      const finca = n.fincaDB || 'La Vega';
+      if (finca !== 'La Vega') return;
+      list.push({ id, sexo: n.sexo, estado: n.estado || 'Activo', madre: n.madre, padre: n.padre });
+    });
+    return list.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+  }, [nacimientos]);
+
+  const animalesHatoFiltrados = useMemo(() => {
+    if (!form.animal_hato_id) return animalesHato.filter(a => a.estado === 'Activo').slice(0, 20);
+    const q = form.animal_hato_id.toLowerCase();
+    return animalesHato.filter(a => a.id.toLowerCase().includes(q)).slice(0, 20);
+  }, [animalesHato, form.animal_hato_id]);
 
   const openEdit = (reg) => {
     const extras = reg.datos_extras || {};
@@ -3154,10 +3174,34 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
               </div>
 
               {/* Vincular con hato */}
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">Vincular con Animal del Hato (número)</label>
-                <input type="text" value={form.animal_hato_id} onChange={e => setForm({ ...form, animal_hato_id: e.target.value })}
-                  placeholder="Ej: 09-4 (si el animal existe en nacimientos)" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              <div className="relative">
+                <label className="block text-xs text-gray-400 mb-1">Vincular con Animal del Hato</label>
+                <input type="text" value={form.animal_hato_id}
+                  onChange={e => { setForm({ ...form, animal_hato_id: e.target.value }); setShowHatoList(true); }}
+                  onFocus={() => setShowHatoList(true)}
+                  onBlur={() => setTimeout(() => setShowHatoList(false), 200)}
+                  placeholder="Buscar por número..."
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                {form.animal_hato_id && animalesHato.find(a => a.id === form.animal_hato_id) && (
+                  <span className="absolute right-3 top-7 text-green-400 text-xs">✓ Vinculado</span>
+                )}
+                {showHatoList && (
+                  <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg max-h-48 overflow-y-auto shadow-2xl">
+                    {animalesHatoFiltrados.length === 0 && <p className="px-3 py-2 text-xs text-gray-500">No se encontraron animales</p>}
+                    {animalesHatoFiltrados.map(a => (
+                      <button key={a.id} type="button"
+                        onClick={() => { setForm({ ...form, animal_hato_id: a.id }); setShowHatoList(false); }}
+                        className="w-full text-left px-3 py-2 text-sm flex items-center justify-between hover:bg-gray-700 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-green-400">{a.id}</span>
+                          <span className="text-xs text-gray-500">{a.sexo === 'M' ? '♂' : '♀'}</span>
+                          <span className={`text-xs ${a.estado === 'Activo' ? 'text-green-500' : 'text-gray-500'}`}>{a.estado}</span>
+                        </div>
+                        <span className="text-xs text-gray-600">{a.madre ? `M:${a.madre}` : ''}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
