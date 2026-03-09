@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle, ArrowRightLeft, Truck } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 import { NACIMIENTOS_LA_VEGA } from './nacimientos-lavega';
@@ -423,6 +423,7 @@ export default function GanaderiaApp() {
   const [palpaciones, setPalpaciones] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [destetes, setDestetes] = useState([]);
+  const [traslados, setTraslados] = useState([]);
   const [lluvias, setLluvias] = useState([]);
 
   // UI
@@ -493,11 +494,11 @@ export default function GanaderiaApp() {
     setSyncing(true);
     try {
       const safeCall = (fn, fallback = []) => { try { const r = fn(); return r && r.catch ? r.catch(() => fallback) : Promise.resolve(fallback); } catch(e) { return Promise.resolve(fallback); } };
-      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData, lluvData] = await Promise.all([
+      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData, lluvData, trasData] = await Promise.all([
         safeCall(() => db.getNacimientos()), safeCall(() => db.getCostos()), safeCall(() => db.getInventario()), safeCall(() => db.getVentas(), null),
         safeCall(() => db.getPesajes()), safeCall(() => db.getPalpaciones()),
         safeCall(() => db.getServicios()), safeCall(() => db.getDestetes()),
-        safeCall(() => db.getLluvias())
+        safeCall(() => db.getLluvias()), safeCall(() => db.getTraslados())
       ]);
       if (nacData?.length > 0) {
         setNacimientos(nacData);
@@ -530,6 +531,10 @@ export default function GanaderiaApp() {
       if (lluvData?.length > 0) {
         setLluvias(lluvData);
         try { localStorage.setItem('cache_lluvias', JSON.stringify(lluvData)); } catch(e) {}
+      }
+      if (trasData?.length > 0) {
+        setTraslados(trasData);
+        try { localStorage.setItem('cache_traslados', JSON.stringify(trasData)); } catch(e) {}
       }
       // Inventario: combinar nube + local, deduplicando por finca+periodo
       if (invData?.length > 0) {
@@ -572,6 +577,8 @@ export default function GanaderiaApp() {
       if (cachedServ) setServicios(JSON.parse(cachedServ));
       if (cachedDest) setDestetes(JSON.parse(cachedDest));
       if (cachedLluv) setLluvias(JSON.parse(cachedLluv));
+      const cachedTras = localStorage.getItem('cache_traslados');
+      if (cachedTras) setTraslados(JSON.parse(cachedTras));
       const ts = localStorage.getItem('cache_timestamp');
       if (ts) setDataSource('cache');
       console.log('[Offline] Datos cargados desde caché local', ts ? `(${ts})` : '');
@@ -707,6 +714,7 @@ export default function GanaderiaApp() {
     { id: 'lavega', icon: MapPin, label: 'Finca La Vega', accent: 'text-green-500', roles: ['admin'] },
     { id: 'bariloche', icon: MapPin, label: 'Finca Bariloche', accent: 'text-blue-500', roles: ['admin'] },
     { id: 'hato-general', icon: Beef, label: 'Hato General', roles: ['admin'] },
+    { id: 'venta-traslado', icon: ArrowRightLeft, label: 'Venta / Traslado', accent: 'text-amber-500', roles: ['admin'] },
     { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500', roles: ['admin'] },
     { id: 'costos', icon: Receipt, label: 'Costos y Gastos', roles: ['admin'] },
     { id: 'contabilidad', icon: FileText, label: 'Contabilidad', accent: 'text-amber-400', roles: ['admin', 'contadora'] },
@@ -800,6 +808,7 @@ export default function GanaderiaApp() {
               lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
           {view === 'hato-general' && <HatoGeneral nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} onAnimalClick={setAnimalModalId} isOnline={isOnline} />}
+          {view === 'venta-traslado' && <VentaTrasladoView nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} ventas={ventas} setVentas={setVentas} traslados={traslados} setTraslados={setTraslados} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />}
           {view === 'ventas' && <VentasTotales ventas={ventas} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
@@ -1221,6 +1230,546 @@ function VentasTotales({ ventas: ventasData }) {
           </table>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ==================== COMPONENTE VENTA / TRASLADO ====================
+function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVentas, traslados, setTraslados, userEmail, isOnline, onAnimalClick }) {
+  const [modo, setModo] = useState('venta'); // 'venta' | 'traslado'
+  const [saving, setSaving] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [busqueda, setBusqueda] = useState('');
+  const [showAnimalList, setShowAnimalList] = useState(false);
+  const [selectedAnimals, setSelectedAnimals] = useState([]); // [{id, finca, categoria, peso, sexo}]
+
+  // Venta fields
+  const [ventaForm, setVentaForm] = useState({
+    fecha: new Date().toISOString().split('T')[0],
+    precio: '',
+    comprador: '',
+    tipo: '',
+    observaciones: ''
+  });
+
+  // Traslado fields
+  const [trasladoForm, setTrasladoForm] = useState({
+    fecha: new Date().toISOString().split('T')[0],
+    fincaDestino: '',
+    observaciones: ''
+  });
+
+  // Per-animal weight overrides for batch sales
+  const [pesosPorAnimal, setPesosPorAnimal] = useState({}); // {animalId: peso}
+
+  // Build animal list (only active)
+  const animalesActivos = useMemo(() => {
+    const mapa = {};
+    (nacimientos || []).forEach(n => {
+      if (!n.cria || n.estado !== 'Activo') return;
+      const id = String(n.cria).trim();
+      if (!esAnimalValido(id)) return;
+      const finca = n.fincaDB || 'La Vega';
+      mapa[id] = { id, finca, sexo: n.sexo, fechaNac: n.fecha, madre: n.madre, padre: n.padre };
+    });
+    // Add Bariloche animals from pesajes
+    (pesajes || []).filter(p => p.finca === 'Bariloche' && p.animal && esAnimalValido(p.animal)).forEach(p => {
+      const id = String(p.animal).trim();
+      const nacReg = (nacimientos || []).find(n => String(n.cria).trim() === id);
+      if (nacReg && nacReg.estado !== 'Activo') return;
+      if (!mapa[id]) mapa[id] = { id, finca: 'Bariloche', sexo: nacReg?.sexo };
+      const a = mapa[id];
+      if (!a.ultimoPeso || (p.fecha_pesaje || '') > (a.ultimoPesoFecha || '')) {
+        a.ultimoPeso = p.peso;
+        a.ultimoPesoFecha = p.fecha_pesaje;
+        a.categoriaBar = p.categoria;
+      }
+    });
+    // Add La Vega pesajes for peso data
+    (pesajes || []).filter(p => p.finca === 'La Vega' && p.animal && esAnimalValido(p.animal)).forEach(p => {
+      const id = String(p.animal).trim();
+      if (!mapa[id]) return;
+      const a = mapa[id];
+      if (!a.ultimoPeso || (p.fecha_pesaje || '') > (a.ultimoPesoFecha || '')) {
+        a.ultimoPeso = p.peso;
+        a.ultimoPesoFecha = p.fecha_pesaje;
+      }
+    });
+    // Calculate category
+    Object.values(mapa).forEach(a => {
+      const nacReg = (nacimientos || []).find(n => String(n.cria).trim() === a.id);
+      const catDB = nacReg?.categoriaActual || nacReg?.categoria_actual;
+      if (a.categoriaBar) {
+        a.categoria = a.categoriaBar;
+      } else if (catDB) {
+        a.categoria = catDB;
+      } else if (a.sexo === 'M') {
+        a.categoria = 'CM';
+      } else if (a.sexo === 'H') {
+        a.categoria = 'CH';
+      } else {
+        a.categoria = '?';
+      }
+    });
+    return Object.values(mapa).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+  }, [nacimientos, pesajes]);
+
+  // Filtered animal list for search
+  const animalesFiltrados = useMemo(() => {
+    if (!busqueda) return animalesActivos.slice(0, 30);
+    const q = busqueda.toLowerCase();
+    return animalesActivos.filter(a => a.id.toLowerCase().includes(q) || (a.categoria || '').toLowerCase().includes(q) || (a.finca || '').toLowerCase().includes(q)).slice(0, 30);
+  }, [animalesActivos, busqueda]);
+
+  const addAnimal = (animal) => {
+    if (selectedAnimals.find(a => a.id === animal.id)) return;
+    setSelectedAnimals(prev => [...prev, animal]);
+    // Pre-fill weight if available
+    if (animal.ultimoPeso) {
+      setPesosPorAnimal(prev => ({ ...prev, [animal.id]: Math.round(animal.ultimoPeso) }));
+    }
+    setBusqueda('');
+    setShowAnimalList(false);
+  };
+
+  const removeAnimal = (id) => {
+    setSelectedAnimals(prev => prev.filter(a => a.id !== id));
+    setPesosPorAnimal(prev => { const n = { ...prev }; delete n[id]; return n; });
+  };
+
+  const totalKg = useMemo(() => {
+    return selectedAnimals.reduce((s, a) => s + (parseFloat(pesosPorAnimal[a.id]) || 0), 0);
+  }, [selectedAnimals, pesosPorAnimal]);
+
+  const precioKg = parseFloat(ventaForm.precio) || 0;
+  const valorTotal = totalKg * precioKg;
+
+  // Auto-detect tipo from selected animals
+  const tipoAutoDetect = useMemo(() => {
+    if (selectedAnimals.length === 0) return '';
+    const cats = [...new Set(selectedAnimals.map(a => a.categoria))];
+    if (cats.length === 1) return cats[0];
+    return 'MIXTO';
+  }, [selectedAnimals]);
+
+  // Auto-detect finca from selected animals (for traslado)
+  const fincaOrigen = useMemo(() => {
+    if (selectedAnimals.length === 0) return '';
+    const fincas = [...new Set(selectedAnimals.map(a => a.finca))];
+    if (fincas.length === 1) return fincas[0];
+    return 'Mixta';
+  }, [selectedAnimals]);
+
+  const handleSaveVenta = async () => {
+    if (selectedAnimals.length === 0) return alert('Selecciona al menos un animal');
+    if (!ventaForm.fecha) return alert('Selecciona la fecha de venta');
+    if (totalKg <= 0) return alert('Ingresa el peso de cada animal');
+    if (precioKg <= 0) return alert('Ingresa el precio por kg');
+
+    setSaving(true);
+    try {
+      const tipo = ventaForm.tipo || tipoAutoDetect;
+      // Insert venta record for each animal
+      for (const animal of selectedAnimals) {
+        const pesoAnimal = parseFloat(pesosPorAnimal[animal.id]) || 0;
+        const valorAnimal = pesoAnimal * precioKg;
+        const ventaRecord = {
+          fecha: ventaForm.fecha,
+          año: parseInt(ventaForm.fecha.split('-')[0]),
+          mes: parseInt(ventaForm.fecha.split('-')[1]),
+          animal: animal.id,
+          tipo: tipo,
+          kg: pesoAnimal,
+          precio: precioKg,
+          valor: valorAnimal,
+          cliente: ventaForm.comprador || null,
+          finca: animal.finca,
+          observaciones: ventaForm.observaciones || null,
+          registrado_por: userEmail || null
+        };
+        await db.insertVentaAnimal(ventaRecord);
+
+        // Update animal estado to "Vendido" in nacimientos
+        const nacReg = (nacimientos || []).find(n => String(n.cria).trim() === animal.id);
+        if (nacReg) {
+          await db.updateNacimiento(nacReg.id, { estado: 'Vendido', comentario: `Vendido ${ventaForm.fecha} - ${ventaForm.comprador || 'N/A'} - ${pesoAnimal}kg @ ${formatCurrency(precioKg)}/kg` });
+          // Update local state
+          setNacimientos(prev => prev.map(n => n.id === nacReg.id ? { ...n, estado: 'Vendido' } : n));
+        }
+      }
+
+      // Add to local ventas state
+      const newVentas = selectedAnimals.map(a => ({
+        fecha: ventaForm.fecha,
+        año: parseInt(ventaForm.fecha.split('-')[0]),
+        mes: parseInt(ventaForm.fecha.split('-')[1]),
+        animal: a.id,
+        tipo: tipo,
+        kg: parseFloat(pesosPorAnimal[a.id]) || 0,
+        precio: precioKg,
+        valor: (parseFloat(pesosPorAnimal[a.id]) || 0) * precioKg,
+        cliente: ventaForm.comprador,
+        finca: a.finca
+      }));
+      setVentas(prev => [...newVentas, ...prev]);
+
+      setSuccessMsg(`✅ ${selectedAnimals.length} animal(es) vendido(s) exitosamente — ${totalKg} kg × ${formatCurrency(precioKg)}/kg = ${formatCurrency(valorTotal)}`);
+      setSelectedAnimals([]);
+      setPesosPorAnimal({});
+      setVentaForm({ fecha: new Date().toISOString().split('T')[0], precio: '', comprador: '', tipo: '', observaciones: '' });
+      setTimeout(() => setSuccessMsg(''), 5000);
+    } catch (e) {
+      console.error('Error registrando venta:', e);
+      alert('Error al registrar la venta: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveTraslado = async () => {
+    if (selectedAnimals.length === 0) return alert('Selecciona al menos un animal');
+    if (!trasladoForm.fecha) return alert('Selecciona la fecha del traslado');
+    if (!trasladoForm.fincaDestino) return alert('Selecciona la finca destino');
+    // Validate: no animal should already be in the destination
+    const yaSonDestino = selectedAnimals.filter(a => a.finca === trasladoForm.fincaDestino);
+    if (yaSonDestino.length > 0) {
+      const ids = yaSonDestino.map(a => a.id).join(', ');
+      return alert(`Los siguientes animales ya están en ${trasladoForm.fincaDestino}: ${ids}`);
+    }
+
+    setSaving(true);
+    try {
+      for (const animal of selectedAnimals) {
+        // Insert traslado record
+        await db.insertTraslado({
+          animal: animal.id,
+          fecha: trasladoForm.fecha,
+          finca_origen: animal.finca,
+          finca_destino: trasladoForm.fincaDestino,
+          observaciones: trasladoForm.observaciones || null,
+          registrado_por: userEmail || null
+        });
+
+        // Update finca in nacimientos
+        const nacReg = (nacimientos || []).find(n => String(n.cria).trim() === animal.id);
+        if (nacReg) {
+          await db.updateNacimiento(nacReg.id, { finca: trasladoForm.fincaDestino });
+          setNacimientos(prev => prev.map(n => n.id === nacReg.id ? { ...n, fincaDB: trasladoForm.fincaDestino } : n));
+        }
+      }
+
+      // Add to local traslados state
+      const newTraslados = selectedAnimals.map(a => ({
+        animal: a.id,
+        fecha: trasladoForm.fecha,
+        finca_origen: a.finca,
+        finca_destino: trasladoForm.fincaDestino,
+        observaciones: trasladoForm.observaciones,
+        registrado_por: userEmail
+      }));
+      setTraslados(prev => [...newTraslados, ...prev]);
+
+      setSuccessMsg(`✅ ${selectedAnimals.length} animal(es) trasladado(s) de ${fincaOrigen} → ${trasladoForm.fincaDestino}`);
+      setSelectedAnimals([]);
+      setPesosPorAnimal({});
+      setTrasladoForm({ fecha: new Date().toISOString().split('T')[0], fincaDestino: '', observaciones: '' });
+      setTimeout(() => setSuccessMsg(''), 5000);
+    } catch (e) {
+      console.error('Error registrando traslado:', e);
+      alert('Error al registrar el traslado: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const CAT_COLORS = { VP: 'bg-green-500/20 text-green-400', VS: 'bg-orange-500/20 text-orange-400', NV: 'bg-purple-500/20 text-purple-400', HL: 'bg-teal-500/20 text-teal-400', ML: 'bg-amber-500/20 text-amber-400', CM: 'bg-blue-500/20 text-blue-400', CH: 'bg-pink-500/20 text-pink-400', TR: 'bg-red-500/20 text-red-400', LEV: 'bg-amber-500/20 text-amber-400' };
+
+  // Recent history
+  const historialReciente = useMemo(() => {
+    if (modo === 'venta') {
+      return (ventas || []).filter(v => v.animal).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 20);
+    }
+    return (traslados || []).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 20);
+  }, [modo, ventas, traslados]);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
+            <ArrowRightLeft size={28} className="text-amber-500" /> Venta / Traslado
+          </h2>
+          <p className="text-gray-400 text-sm">Registrar venta o traslado de animales</p>
+        </div>
+      </div>
+
+      {/* Success message */}
+      {successMsg && (
+        <div className="bg-green-900/30 border border-green-700 rounded-xl p-4 text-green-400 text-sm font-medium">
+          {successMsg}
+        </div>
+      )}
+
+      {/* Mode Toggle */}
+      <div className="flex gap-2">
+        <button onClick={() => { setModo('venta'); setSelectedAnimals([]); setPesosPorAnimal({}); }}
+          className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${modo === 'venta' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+          <ShoppingCart size={18} /> Venta
+        </button>
+        <button onClick={() => { setModo('traslado'); setSelectedAnimals([]); setPesosPorAnimal({}); }}
+          className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${modo === 'traslado' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+          <Truck size={18} /> Traslado
+        </button>
+      </div>
+
+      {/* Formulario */}
+      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 space-y-5">
+        <h3 className="text-lg font-semibold text-gray-100 flex items-center gap-2">
+          {modo === 'venta' ? '🏷️ Registrar Venta' : '🚚 Registrar Traslado'}
+        </h3>
+
+        {/* Animal Search */}
+        <div>
+          <label className="block text-xs font-medium text-gray-400 mb-2">Seleccionar Animal(es)</label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+            <input type="text" value={busqueda}
+              onChange={e => { setBusqueda(e.target.value); setShowAnimalList(true); }}
+              onFocus={() => setShowAnimalList(true)}
+              placeholder="Buscar por número, categoría o finca..."
+              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm placeholder-gray-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/30" />
+            {showAnimalList && (
+              <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-xl max-h-60 overflow-y-auto shadow-2xl">
+                {animalesFiltrados.length === 0 && <p className="px-4 py-3 text-sm text-gray-500">No se encontraron animales activos</p>}
+                {animalesFiltrados.map(a => {
+                  const isSelected = selectedAnimals.find(s => s.id === a.id);
+                  return (
+                    <button key={a.id} type="button" disabled={!!isSelected}
+                      onClick={() => addAnimal(a)}
+                      className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors ${isSelected ? 'bg-green-900/20 text-green-400 cursor-not-allowed' : 'text-gray-200 hover:bg-gray-700'}`}>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-green-400">{a.id}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${CAT_COLORS[a.categoria] || 'bg-gray-600 text-gray-300'}`}>{a.categoria}</span>
+                        <span className={`text-xs ${a.finca === 'La Vega' ? 'text-green-500' : 'text-blue-500'}`}>{a.finca}</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {a.ultimoPeso ? `${Math.round(a.ultimoPeso)} kg` : '—'}
+                        {isSelected && <span className="ml-2 text-green-400">✓</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          {/* Click outside to close */}
+          {showAnimalList && <div className="fixed inset-0 z-40" onClick={() => setShowAnimalList(false)} />}
+        </div>
+
+        {/* Selected Animals */}
+        {selectedAnimals.length > 0 && (
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">Animales seleccionados ({selectedAnimals.length})</label>
+            <div className="space-y-2">
+              {selectedAnimals.map(a => (
+                <div key={a.id} className="flex items-center gap-3 bg-gray-800 rounded-xl p-3 border border-gray-700">
+                  <button onClick={() => removeAnimal(a.id)} className="p-1 text-red-400 hover:bg-red-900/30 rounded-lg"><X size={16} /></button>
+                  <span className="font-bold text-green-400 text-sm w-20">{a.id}</span>
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${CAT_COLORS[a.categoria] || 'bg-gray-600 text-gray-300'}`}>{a.categoria}</span>
+                  <span className={`text-xs ${a.finca === 'La Vega' ? 'text-green-500' : 'text-blue-500'}`}>{a.finca}</span>
+                  {modo === 'venta' && (
+                    <div className="flex items-center gap-2 ml-auto">
+                      <label className="text-xs text-gray-500">Peso:</label>
+                      <input type="number" step="1"
+                        value={pesosPorAnimal[a.id] || ''}
+                        onChange={e => setPesosPorAnimal(prev => ({ ...prev, [a.id]: e.target.value }))}
+                        placeholder="kg"
+                        className="w-24 px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 text-sm text-right" />
+                      <span className="text-xs text-gray-500">kg</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Venta-specific fields */}
+        {modo === 'venta' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Fecha de Venta</label>
+              <input type="date" value={ventaForm.fecha} onChange={e => setVentaForm({ ...ventaForm, fecha: e.target.value })}
+                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Precio por kg (COP)</label>
+              <input type="number" step="100" value={ventaForm.precio} onChange={e => setVentaForm({ ...ventaForm, precio: e.target.value })}
+                placeholder="Ej: 8500" className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Comprador</label>
+              <input type="text" value={ventaForm.comprador} onChange={e => setVentaForm({ ...ventaForm, comprador: e.target.value })}
+                placeholder="Nombre del comprador" className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Tipo de Animal</label>
+              <select value={ventaForm.tipo || tipoAutoDetect} onChange={e => setVentaForm({ ...ventaForm, tipo: e.target.value })}
+                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm">
+                <option value="">Auto-detectar ({tipoAutoDetect || '—'})</option>
+                <option value="ML">ML - Macho Levante</option>
+                <option value="HL">HL - Hembra Levante</option>
+                <option value="VP">VP - Vaca Parida</option>
+                <option value="VS">VS - Vaca Seca</option>
+                <option value="NV">NV - Novilla Vientre</option>
+                <option value="TR">TR - Toro</option>
+                <option value="VD">VD - Vaca Descarte</option>
+                <option value="CM">CM - Cría Macho</option>
+                <option value="CH">CH - Cría Hembra</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-gray-400 mb-1">Observaciones</label>
+              <input type="text" value={ventaForm.observaciones} onChange={e => setVentaForm({ ...ventaForm, observaciones: e.target.value })}
+                placeholder="Notas adicionales..." className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+          </div>
+        )}
+
+        {/* Traslado-specific fields */}
+        {modo === 'traslado' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Fecha del Traslado</label>
+              <input type="date" value={trasladoForm.fecha} onChange={e => setTrasladoForm({ ...trasladoForm, fecha: e.target.value })}
+                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Finca Origen</label>
+              <div className="w-full px-3 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl text-gray-400 text-sm">
+                {fincaOrigen || 'Selecciona animales'}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Finca Destino</label>
+              <select value={trasladoForm.fincaDestino} onChange={e => setTrasladoForm({ ...trasladoForm, fincaDestino: e.target.value })}
+                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm">
+                <option value="">Seleccionar finca destino...</option>
+                <option value="La Vega">La Vega</option>
+                <option value="Bariloche">Bariloche</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className="block text-xs font-medium text-gray-400 mb-1">Observaciones</label>
+              <input type="text" value={trasladoForm.observaciones} onChange={e => setTrasladoForm({ ...trasladoForm, observaciones: e.target.value })}
+                placeholder="Notas adicionales..." className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+          </div>
+        )}
+
+        {/* Summary & Save */}
+        {selectedAnimals.length > 0 && (
+          <div className={`rounded-xl p-4 border ${modo === 'venta' ? 'bg-amber-900/20 border-amber-800' : 'bg-blue-900/20 border-blue-800'}`}>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div>
+                  <span className="text-gray-400">Animales:</span>
+                  <span className="ml-1 font-bold text-gray-100">{selectedAnimals.length}</span>
+                </div>
+                {modo === 'venta' && (
+                  <>
+                    <div>
+                      <span className="text-gray-400">Total Kg:</span>
+                      <span className="ml-1 font-bold text-gray-100">{totalKg.toLocaleString('es-CO')}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Precio/kg:</span>
+                      <span className="ml-1 font-bold text-gray-100">{precioKg > 0 ? formatCurrency(precioKg) : '—'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Valor Total:</span>
+                      <span className="ml-1 font-bold text-amber-400 text-lg">{valorTotal > 0 ? formatCurrency(valorTotal) : '—'}</span>
+                    </div>
+                  </>
+                )}
+                {modo === 'traslado' && trasladoForm.fincaDestino && (
+                  <div>
+                    <span className="text-gray-400">Destino:</span>
+                    <span className={`ml-1 font-bold ${trasladoForm.fincaDestino === 'La Vega' ? 'text-green-400' : 'text-blue-400'}`}>{trasladoForm.fincaDestino}</span>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={modo === 'venta' ? handleSaveVenta : handleSaveTraslado}
+                disabled={saving || !isOnline}
+                className={`px-6 py-3 rounded-xl font-medium text-sm text-white flex items-center gap-2 transition-all ${modo === 'venta' ? 'bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'} disabled:opacity-40 disabled:cursor-not-allowed`}>
+                {saving ? <><Loader2 size={16} className="animate-spin" /> Guardando...</> : modo === 'venta' ? <><Check size={16} /> Registrar Venta</> : <><Truck size={16} /> Registrar Traslado</>}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Historial Reciente */}
+      {historialReciente.length > 0 && (
+        <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
+          <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+            <Clock size={18} className="text-gray-400" />
+            {modo === 'venta' ? 'Últimas Ventas Individuales' : 'Últimos Traslados'} ({historialReciente.length})
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-800 text-gray-500 text-xs">
+                  <th className="text-left py-2 px-2">Fecha</th>
+                  <th className="text-left py-2 px-2">Animal</th>
+                  {modo === 'venta' ? (
+                    <>
+                      <th className="text-left py-2 px-2">Tipo</th>
+                      <th className="text-right py-2 px-2">Kg</th>
+                      <th className="text-right py-2 px-2">$/kg</th>
+                      <th className="text-right py-2 px-2">Valor</th>
+                      <th className="text-left py-2 px-2">Comprador</th>
+                    </>
+                  ) : (
+                    <>
+                      <th className="text-left py-2 px-2">Origen</th>
+                      <th className="text-left py-2 px-2">Destino</th>
+                      <th className="text-left py-2 px-2">Observaciones</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-800/50">
+                {historialReciente.map((r, i) => (
+                  <tr key={i} className="hover:bg-gray-800/50">
+                    <td className="py-2 px-2 text-gray-300">{formatDate(r.fecha)}</td>
+                    <td className="py-2 px-2">
+                      <AnimalLink id={r.animal} onAnimalClick={onAnimalClick} className="text-green-400 font-bold text-sm" />
+                    </td>
+                    {modo === 'venta' ? (
+                      <>
+                        <td className="py-2 px-2"><span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${CAT_COLORS[r.tipo] || 'bg-gray-600 text-gray-300'}`}>{r.tipo}</span></td>
+                        <td className="py-2 px-2 text-right text-gray-300">{r.kg ? Math.round(r.kg).toLocaleString('es-CO') : '—'}</td>
+                        <td className="py-2 px-2 text-right text-gray-300">{r.precio ? formatCurrency(r.precio) : '—'}</td>
+                        <td className="py-2 px-2 text-right font-medium text-amber-400">{r.valor ? formatCurrency(r.valor) : '—'}</td>
+                        <td className="py-2 px-2 text-gray-400 truncate max-w-[120px]">{r.cliente || '—'}</td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="py-2 px-2"><span className={`text-xs ${r.finca_origen === 'La Vega' ? 'text-green-500' : 'text-blue-500'}`}>{r.finca_origen}</span></td>
+                        <td className="py-2 px-2"><span className={`text-xs font-medium ${r.finca_destino === 'La Vega' ? 'text-green-400' : 'text-blue-400'}`}>→ {r.finca_destino}</span></td>
+                        <td className="py-2 px-2 text-gray-500 truncate max-w-[200px]">{r.observaciones || '—'}</td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

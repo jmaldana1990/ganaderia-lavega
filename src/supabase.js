@@ -299,6 +299,38 @@ export async function getDestetes() {
   return data
 }
 
+// ==================== VENTA INDIVIDUAL DE ANIMAL ====================
+export async function insertVentaAnimal(registro) {
+  const { data, error } = await supabase
+    .from('ventas')
+    .insert(registro)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+// ==================== TRASLADOS ====================
+export async function getTraslados() {
+  const { data, error } = await supabase
+    .from('traslados')
+    .select('*')
+    .order('fecha', { ascending: false })
+    .limit(3000)
+  if (error) throw error
+  return data || []
+}
+
+export async function insertTraslado(registro) {
+  const { data, error } = await supabase
+    .from('traslados')
+    .insert(registro)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 // ==================== LOG DE CARGAS ====================
 export async function logCarga(tipo, nombre, procesados, nuevos, actualizados, email) {
   const { error } = await supabase
