@@ -776,15 +776,6 @@ export default function GanaderiaApp() {
               </button>
             ))}
           </nav>
-          <div className="p-4 border-t">
-            <p className="text-xs text-gray-400 mb-2">Fuente: {dataSource === 'cloud' ? '☁️ Nube' : dataSource === 'cache' ? '📦 Caché offline' : '💾 Local'}</p>
-            <div className="space-y-1 text-sm text-gray-400">
-              <p>📋 {nacimientos.length} nacimientos</p>
-              <p>💰 {gastos.length} costos</p>
-              <p>📊 {inventario.length} inventarios</p>
-              <p>🛒 {ventas.length} ventas</p>
-            </div>
-          </div>
         </aside>
 
         {/* Main content */}
