@@ -2647,7 +2647,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
   const [busqueda, setBusqueda] = useState('');
   const [fichaId, setFichaId] = useState(null); // para ver ficha completa
   const [successMsg, setSuccessMsg] = useState('');
-
+  const [pdfFile, setPdfFile] = useState(null); // PDF to upload with form
   const RAZAS = ['BON', 'Angus', 'Red Angus', 'Brangus'];
   const RAZA_COLORS = {
     'BON': 'bg-amber-900/40 text-amber-400',
@@ -2719,6 +2719,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
       peso_nacimiento: extras.performance?.bw || '', peso_205: extras.performance?.ww || '', peso_365: extras.performance?.yw || ''
     });
     setEditando(reg);
+    setPdfFile(null);
     setShowForm(true);
   };
 
@@ -2767,16 +2768,32 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
         datos_extras, registrado_por: userEmail || null
       };
 
+      let savedId;
       if (editando) {
-        const updated = await db.updateGenealogia(editando.id, record);
+        await db.updateGenealogia(editando.id, record);
+        savedId = editando.id;
         setGenealogia(prev => prev.map(g => g.id === editando.id ? { ...g, ...record, id: editando.id } : g));
         setSuccessMsg('✅ Registro actualizado');
       } else {
         const newRec = await db.insertGenealogia(record);
+        savedId = newRec.id;
         setGenealogia(prev => [newRec, ...prev]);
         setSuccessMsg('✅ Registro genealógico creado');
       }
-      setShowForm(false); setEditando(null); setForm(initForm);
+
+      // Upload PDF if selected
+      if (pdfFile && savedId) {
+        try {
+          const url = await db.uploadRegistroPDF(savedId, pdfFile);
+          setGenealogia(prev => prev.map(g => g.id === savedId ? { ...g, pdf_url: url, pdf_nombre: pdfFile.name } : g));
+          setSuccessMsg(prev => prev + ' • PDF subido');
+        } catch (pdfErr) {
+          console.error('Error subiendo PDF:', pdfErr);
+          setSuccessMsg(prev => prev + ' • ⚠️ Error subiendo PDF');
+        }
+      }
+
+      setShowForm(false); setEditando(null); setForm(initForm); setPdfFile(null);
       setTimeout(() => setSuccessMsg(''), 4000);
     } catch (e) {
       console.error('Error:', e);
@@ -2808,7 +2825,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
           <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">📋 Registros Genealógicos</h3>
           <p className="text-gray-400 text-sm">{stats.total} animales registrados • {stats.machos} machos • {stats.hembras} hembras • {stats.conPdf} con PDF</p>
         </div>
-        <button onClick={() => { setForm(initForm); setEditando(null); setShowForm(true); }}
+        <button onClick={() => { setForm(initForm); setEditando(null); setPdfFile(null); setShowForm(true); }}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-lg">
           <PlusCircle size={18} /> Nuevo Registro
         </button>
@@ -3004,6 +3021,34 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
               <h3 className="text-lg font-bold text-gray-100">{editando ? '✏️ Editar Registro' : '📋 Nuevo Registro Genealógico'}</h3>
             </div>
             <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* PDF Upload */}
+              <div className="bg-gray-800/50 rounded-xl p-4 border border-dashed border-gray-600">
+                <p className="text-xs text-gray-500 font-semibold uppercase mb-2">📄 Certificado de Registro (PDF)</p>
+                {pdfFile ? (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-green-400">✅</span>
+                      <span className="text-gray-300">{pdfFile.name}</span>
+                      <span className="text-gray-500 text-xs">({(pdfFile.size / 1024).toFixed(0)} KB)</span>
+                    </div>
+                    <button onClick={() => setPdfFile(null)} className="text-red-400 hover:text-red-300 text-xs">Quitar</button>
+                  </div>
+                ) : editando?.pdf_url ? (
+                  <div className="flex items-center justify-between">
+                    <a href={editando.pdf_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm underline">{editando.pdf_nombre || 'Ver PDF actual'}</a>
+                    <label className="text-xs text-gray-400 hover:text-gray-300 cursor-pointer">
+                      Reemplazar
+                      <input type="file" accept=".pdf" className="hidden" onChange={e => { if (e.target.files[0]) setPdfFile(e.target.files[0]); }} />
+                    </label>
+                  </div>
+                ) : (
+                  <label className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-700/50 hover:bg-gray-700 rounded-lg text-sm text-gray-400 hover:text-gray-300 cursor-pointer transition-colors border border-gray-600/50">
+                    <Upload size={16} /> Seleccionar archivo PDF del registro
+                    <input type="file" accept=".pdf" className="hidden" onChange={e => { if (e.target.files[0]) setPdfFile(e.target.files[0]); }} />
+                  </label>
+                )}
+              </div>
+
               {/* Datos básicos */}
               <p className="text-xs text-gray-500 font-semibold uppercase">Datos del Animal</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -3117,7 +3162,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
             </div>
 
             <div className="p-5 border-t border-gray-800 flex justify-end gap-3">
-              <button onClick={() => { setShowForm(false); setEditando(null); }} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
+              <button onClick={() => { setShowForm(false); setEditando(null); setPdfFile(null); }} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
               <button onClick={handleSave} disabled={saving}
                 className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-40">
                 {saving ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> {editando ? 'Actualizar' : 'Guardar'}</>}
