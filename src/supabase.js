@@ -318,6 +318,60 @@ export async function getDestetes() {
   return data
 }
 
+// ==================== GENEALOGÍA ====================
+export async function getGenealogia(finca = null) {
+  let query = supabase
+    .from('genealogia')
+    .select('*')
+    .order('raza', { ascending: true })
+    .order('nombre', { ascending: true })
+
+  if (finca) query = query.eq('finca', finca)
+
+  const { data, error } = await query
+  if (error) throw error
+  return data || []
+}
+
+export async function insertGenealogia(registro) {
+  const { data, error } = await supabase
+    .from('genealogia')
+    .insert(registro)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateGenealogia(id, updates) {
+  const { data, error } = await supabase
+    .from('genealogia')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteGenealogia(id) {
+  const { error } = await supabase
+    .from('genealogia')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function uploadRegistroPDF(genId, file) {
+  const ext = file.name.split('.').pop()
+  const path = `genealogia/${genId}_${Date.now()}.${ext}`
+  const { error: upErr } = await supabase.storage.from('facturas').upload(path, file, { upsert: true })
+  if (upErr) throw upErr
+  const { data: urlData } = supabase.storage.from('facturas').getPublicUrl(path)
+  await updateGenealogia(genId, { pdf_url: urlData.publicUrl, pdf_nombre: file.name })
+  return urlData.publicUrl
+}
+
 // ==================== VENTA INDIVIDUAL DE ANIMAL ====================
 export async function insertVentaAnimal(registro) {
   const { data, error } = await supabase

@@ -424,6 +424,7 @@ export default function GanaderiaApp() {
   const [servicios, setServicios] = useState([]);
   const [destetes, setDestetes] = useState([]);
   const [traslados, setTraslados] = useState([]);
+  const [genealogia, setGenealogia] = useState([]);
   const [lluvias, setLluvias] = useState([]);
 
   // UI
@@ -494,11 +495,12 @@ export default function GanaderiaApp() {
     setSyncing(true);
     try {
       const safeCall = (fn, fallback = []) => { try { const r = fn(); return r && r.catch ? r.catch(() => fallback) : Promise.resolve(fallback); } catch(e) { return Promise.resolve(fallback); } };
-      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData, lluvData, trasData] = await Promise.all([
+      const [nacData, costosData, invData, ventasData, pesData, palpData, servData, destData, lluvData, trasData, genData] = await Promise.all([
         safeCall(() => db.getNacimientos()), safeCall(() => db.getCostos()), safeCall(() => db.getInventario()), safeCall(() => db.getVentas(), null),
         safeCall(() => db.getPesajes()), safeCall(() => db.getPalpaciones()),
         safeCall(() => db.getServicios()), safeCall(() => db.getDestetes()),
-        safeCall(() => db.getLluvias()), safeCall(() => db.getTraslados())
+        safeCall(() => db.getLluvias()), safeCall(() => db.getTraslados()),
+        safeCall(() => db.getGenealogia())
       ]);
       if (nacData?.length > 0) {
         setNacimientos(nacData);
@@ -535,6 +537,10 @@ export default function GanaderiaApp() {
       if (trasData?.length > 0) {
         setTraslados(trasData);
         try { localStorage.setItem('cache_traslados', JSON.stringify(trasData)); } catch(e) {}
+      }
+      if (genData?.length > 0) {
+        setGenealogia(genData);
+        try { localStorage.setItem('cache_genealogia', JSON.stringify(genData)); } catch(e) {}
       }
       // Inventario: combinar nube + local, deduplicando por finca+periodo
       if (invData?.length > 0) {
@@ -579,6 +585,8 @@ export default function GanaderiaApp() {
       if (cachedLluv) setLluvias(JSON.parse(cachedLluv));
       const cachedTras = localStorage.getItem('cache_traslados');
       if (cachedTras) setTraslados(JSON.parse(cachedTras));
+      const cachedGen = localStorage.getItem('cache_genealogia');
+      if (cachedGen) setGenealogia(JSON.parse(cachedGen));
       const ts = localStorage.getItem('cache_timestamp');
       if (ts) setDataSource('cache');
       console.log('[Offline] Datos cargados desde caché local', ts ? `(${ts})` : '');
@@ -790,7 +798,7 @@ export default function GanaderiaApp() {
             <FincaView finca="La Vega" subtitulo="Finca de Cría" color="green"
               inventario={inventario} nacimientos={nacimientos} setNacimientos={setNacimientos} gastos={gastos} años={años}
               pesajes={pesajes} setPesajes={setPesajes} palpaciones={palpaciones} setPalpaciones={setPalpaciones} servicios={servicios} setServicios={setServicios} destetes={destetes}
-              lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
+              lluvias={lluvias} setLluvias={setLluvias} genealogia={genealogia} setGenealogia={setGenealogia} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
           {view === 'bariloche' && (
             <FincaView finca="Bariloche" subtitulo="Finca de Levante" color="blue"
@@ -1896,7 +1904,7 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
 }
 
 // ==================== COMPONENTE FINCA (reutilizable) ====================
-function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, setPesajes, palpaciones, setPalpaciones, servicios, setServicios, destetes, lluvias, setLluvias, userEmail, isOnline, onAnimalClick }) {
+function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimientos, gastos, años, pesajes, setPesajes, palpaciones, setPalpaciones, servicios, setServicios, destetes, lluvias, setLluvias, genealogia, setGenealogia, userEmail, isOnline, onAnimalClick }) {
   const [añoSel, setAñoSel] = useState(new Date().getFullYear().toString());
   const [subView, setSubView] = useState('resumen');
   const esTodos = añoSel === 'todos';
@@ -2227,6 +2235,7 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
           { key: 'pesajes', label: '⚖️ Pesajes', icon: Scale, hide: esTodos },
           { key: 'palpaciones', label: '🔬 Palpaciones', icon: Activity, hide: esTodos || finca !== 'La Vega' },
           { key: 'servicios', label: '🧬 IA/TE', icon: Activity, hide: esTodos || finca !== 'La Vega' },
+          { key: 'registros', label: '📋 Registros', icon: FileText, hide: esTodos || finca !== 'La Vega' },
         ].filter(t => !t.hide).map(tab => (
           <button key={tab.key} onClick={() => setSubView(tab.key)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${subView === tab.key || (esTodos && tab.key === 'kpis') ? 'bg-gray-900 shadow text-gray-100' : 'text-gray-400 hover:text-gray-300'}`}>
@@ -2621,6 +2630,502 @@ function FincaView({ finca, subtitulo, color, inventario, nacimientos, setNacimi
         <ServiciosView servicios={servicios} setServicios={setServicios} userEmail={userEmail} nacimientos={nacimientos} isOnline={isOnline} onAnimalClick={onAnimalClick} />
       )}
 
+      {!esTodos && subView === 'registros' && finca === 'La Vega' && (
+        <RegistrosGenealogiaView genealogia={genealogia} setGenealogia={setGenealogia} nacimientos={nacimientos} userEmail={userEmail} isOnline={isOnline} onAnimalClick={onAnimalClick} />
+      )}
+
+    </div>
+  );
+}
+
+// ==================== COMPONENTE REGISTROS GENEALÓGICOS ====================
+function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userEmail, isOnline, onAnimalClick }) {
+  const [showForm, setShowForm] = useState(false);
+  const [editando, setEditando] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [filtroRaza, setFiltroRaza] = useState('');
+  const [busqueda, setBusqueda] = useState('');
+  const [fichaId, setFichaId] = useState(null); // para ver ficha completa
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const RAZAS = ['BON', 'Angus', 'Red Angus', 'Brangus'];
+  const RAZA_COLORS = {
+    'BON': 'bg-amber-900/40 text-amber-400',
+    'Angus': 'bg-gray-700 text-gray-200',
+    'Red Angus': 'bg-red-900/40 text-red-400',
+    'Brangus': 'bg-purple-900/40 text-purple-400'
+  };
+
+  const initForm = {
+    numero: '', nombre: '', raza: 'BON', sexo: 'M', color: '', fecha_nacimiento: '',
+    registro_num: '', registro_fecha: '', asociacion: '',
+    padre_nombre: '', padre_registro: '', madre_nombre: '', madre_registro: '',
+    criador: '', propietario: 'Inversiones Empresariales A&C', marca: '',
+    animal_hato_id: '',
+    // Pedigree extendido
+    abuelo_p: '', abuela_p: '', abuelo_m: '', abuela_m: '',
+    // EPDs (Angus)
+    epd_ced: '', epd_bw: '', epd_ww: '', epd_yw: '', epd_milk: '', epd_marb: '', epd_rea: '', epd_cw: '',
+    // Performance
+    peso_nacimiento: '', peso_205: '', peso_365: ''
+  };
+  const [form, setForm] = useState(initForm);
+
+  // Auto-set asociacion
+  const handleRazaChange = (raza) => {
+    const asoc = { 'BON': 'ASOCRIOLLO', 'Brangus': 'Angus & Brangus Colombia', 'Angus': 'RAAA', 'Red Angus': 'RAAA' }[raza] || '';
+    setForm(prev => ({ ...prev, raza, asociacion: asoc }));
+  };
+
+  const filtrados = useMemo(() => {
+    let list = genealogia || [];
+    if (filtroRaza) list = list.filter(g => g.raza === filtroRaza);
+    if (busqueda) {
+      const q = busqueda.toLowerCase();
+      list = list.filter(g => (g.nombre || '').toLowerCase().includes(q) || (g.numero || '').toLowerCase().includes(q) || (g.padre_nombre || '').toLowerCase().includes(q) || (g.madre_nombre || '').toLowerCase().includes(q));
+    }
+    return list;
+  }, [genealogia, filtroRaza, busqueda]);
+
+  // Stats
+  const stats = useMemo(() => {
+    const all = genealogia || [];
+    return {
+      total: all.length,
+      bon: all.filter(g => g.raza === 'BON').length,
+      angus: all.filter(g => g.raza === 'Angus' || g.raza === 'Red Angus').length,
+      brangus: all.filter(g => g.raza === 'Brangus').length,
+      machos: all.filter(g => g.sexo === 'M').length,
+      hembras: all.filter(g => g.sexo === 'H').length,
+      conPdf: all.filter(g => g.pdf_url).length
+    };
+  }, [genealogia]);
+
+  const openEdit = (reg) => {
+    const extras = reg.datos_extras || {};
+    setForm({
+      numero: reg.numero || '', nombre: reg.nombre || '', raza: reg.raza || 'BON',
+      sexo: reg.sexo || 'M', color: reg.color || '', fecha_nacimiento: reg.fecha_nacimiento || '',
+      registro_num: reg.registro_num || '', registro_fecha: reg.registro_fecha || '', asociacion: reg.asociacion || '',
+      padre_nombre: reg.padre_nombre || '', padre_registro: reg.padre_registro || '',
+      madre_nombre: reg.madre_nombre || '', madre_registro: reg.madre_registro || '',
+      criador: reg.criador || '', propietario: reg.propietario || '', marca: reg.marca || '',
+      animal_hato_id: reg.animal_hato_id || '',
+      abuelo_p: extras.abuelo_p || '', abuela_p: extras.abuela_p || '',
+      abuelo_m: extras.abuelo_m || '', abuela_m: extras.abuela_m || '',
+      epd_ced: extras.epds?.CED || '', epd_bw: extras.epds?.BW || '', epd_ww: extras.epds?.WW || '',
+      epd_yw: extras.epds?.YW || '', epd_milk: extras.epds?.MILK || '', epd_marb: extras.epds?.MARB || '',
+      epd_rea: extras.epds?.REA || '', epd_cw: extras.epds?.CW || '',
+      peso_nacimiento: extras.performance?.bw || '', peso_205: extras.performance?.ww || '', peso_365: extras.performance?.yw || ''
+    });
+    setEditando(reg);
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.numero) return alert('El número del animal es obligatorio');
+    if (!form.raza) return alert('Selecciona la raza');
+    setSaving(true);
+    try {
+      const datos_extras = {};
+      // Pedigree extendido
+      if (form.abuelo_p || form.abuela_p || form.abuelo_m || form.abuela_m) {
+        datos_extras.abuelo_p = form.abuelo_p; datos_extras.abuela_p = form.abuela_p;
+        datos_extras.abuelo_m = form.abuelo_m; datos_extras.abuela_m = form.abuela_m;
+      }
+      // EPDs (Angus/Red Angus)
+      if (form.raza === 'Angus' || form.raza === 'Red Angus') {
+        const epds = {};
+        if (form.epd_ced) epds.CED = parseFloat(form.epd_ced);
+        if (form.epd_bw) epds.BW = parseFloat(form.epd_bw);
+        if (form.epd_ww) epds.WW = parseFloat(form.epd_ww);
+        if (form.epd_yw) epds.YW = parseFloat(form.epd_yw);
+        if (form.epd_milk) epds.MILK = parseFloat(form.epd_milk);
+        if (form.epd_marb) epds.MARB = parseFloat(form.epd_marb);
+        if (form.epd_rea) epds.REA = parseFloat(form.epd_rea);
+        if (form.epd_cw) epds.CW = parseFloat(form.epd_cw);
+        if (Object.keys(epds).length > 0) datos_extras.epds = epds;
+      }
+      // Performance
+      if (form.peso_nacimiento || form.peso_205 || form.peso_365) {
+        datos_extras.performance = {};
+        if (form.peso_nacimiento) datos_extras.performance.bw = form.peso_nacimiento;
+        if (form.peso_205) datos_extras.performance.ww = form.peso_205;
+        if (form.peso_365) datos_extras.performance.yw = form.peso_365;
+      }
+
+      const record = {
+        numero: form.numero.trim(), nombre: form.nombre.trim() || null,
+        raza: form.raza, sexo: form.sexo, color: form.color || null,
+        fecha_nacimiento: form.fecha_nacimiento || null, finca: 'La Vega',
+        registro_num: form.registro_num || null, registro_fecha: form.registro_fecha || null,
+        asociacion: form.asociacion || null,
+        padre_nombre: form.padre_nombre || null, padre_registro: form.padre_registro || null,
+        madre_nombre: form.madre_nombre || null, madre_registro: form.madre_registro || null,
+        criador: form.criador || null, propietario: form.propietario || null, marca: form.marca || null,
+        animal_hato_id: form.animal_hato_id || null,
+        datos_extras, registrado_por: userEmail || null
+      };
+
+      if (editando) {
+        const updated = await db.updateGenealogia(editando.id, record);
+        setGenealogia(prev => prev.map(g => g.id === editando.id ? { ...g, ...record, id: editando.id } : g));
+        setSuccessMsg('✅ Registro actualizado');
+      } else {
+        const newRec = await db.insertGenealogia(record);
+        setGenealogia(prev => [newRec, ...prev]);
+        setSuccessMsg('✅ Registro genealógico creado');
+      }
+      setShowForm(false); setEditando(null); setForm(initForm);
+      setTimeout(() => setSuccessMsg(''), 4000);
+    } catch (e) {
+      console.error('Error:', e);
+      alert('Error: ' + e.message);
+    } finally { setSaving(false); }
+  };
+
+  const handleUploadPdf = async (regId, file) => {
+    try {
+      const url = await db.uploadRegistroPDF(regId, file);
+      setGenealogia(prev => prev.map(g => g.id === regId ? { ...g, pdf_url: url, pdf_nombre: file.name } : g));
+      setSuccessMsg('✅ PDF subido correctamente');
+      setTimeout(() => setSuccessMsg(''), 3000);
+    } catch (e) {
+      alert('Error subiendo PDF: ' + e.message);
+    }
+  };
+
+  // Ficha detallada
+  const fichaReg = fichaId ? (genealogia || []).find(g => g.id === fichaId) : null;
+
+  return (
+    <div className="space-y-6">
+      {successMsg && <div className="bg-green-900/30 border border-green-700 rounded-xl p-4 text-green-400 text-sm font-medium">{successMsg}</div>}
+
+      {/* Header + Stats */}
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">📋 Registros Genealógicos</h3>
+          <p className="text-gray-400 text-sm">{stats.total} animales registrados • {stats.machos} machos • {stats.hembras} hembras • {stats.conPdf} con PDF</p>
+        </div>
+        <button onClick={() => { setForm(initForm); setEditando(null); setShowForm(true); }}
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-lg">
+          <PlusCircle size={18} /> Nuevo Registro
+        </button>
+      </div>
+
+      {/* Stats por raza */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[{ label: 'BON', count: stats.bon, color: 'border-amber-800' }, { label: 'Angus', count: stats.angus, color: 'border-gray-600' }, { label: 'Brangus', count: stats.brangus, color: 'border-purple-800' }, { label: 'Total', count: stats.total, color: 'border-green-800' }].map(s => (
+          <div key={s.label} className={`bg-gray-800 rounded-xl p-3 border ${s.color}`}>
+            <p className="text-xs text-gray-500">{s.label}</p>
+            <p className="text-2xl font-bold text-gray-100">{s.count}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-3">
+        <select value={filtroRaza} onChange={e => setFiltroRaza(e.target.value)}
+          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm">
+          <option value="">Todas las razas</option>
+          {RAZAS.map(r => <option key={r} value={r}>{r}</option>)}
+        </select>
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+          <input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)}
+            placeholder="Buscar por nombre, número, padre o madre..."
+            className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm placeholder-gray-500" />
+        </div>
+      </div>
+
+      {/* Tabla */}
+      <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-800/50 border-b border-gray-700">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Número</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Nombre</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Raza</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">Sexo</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Padre</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Madre</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400">Registro</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400">PDF</th>
+                <th className="px-2 py-3"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-800/50">
+              {filtrados.map(g => (
+                <tr key={g.id} className="hover:bg-gray-800/50 cursor-pointer" onClick={() => setFichaId(g.id)}>
+                  <td className="px-4 py-3 font-bold text-green-400">{g.numero}</td>
+                  <td className="px-4 py-3 text-gray-200 truncate max-w-[200px]">{g.nombre || '—'}</td>
+                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${RAZA_COLORS[g.raza] || 'bg-gray-700 text-gray-300'}`}>{g.raza}</span></td>
+                  <td className="px-4 py-3 text-center">{g.sexo === 'M' ? <span className="text-blue-400">♂</span> : <span className="text-pink-400">♀</span>}</td>
+                  <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-[150px]">{g.padre_nombre || '—'}</td>
+                  <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-[150px]">{g.madre_nombre || '—'}</td>
+                  <td className="px-4 py-3 text-gray-500 text-xs">{g.registro_num || '—'}</td>
+                  <td className="px-4 py-3 text-center">{g.pdf_url ? <a href={g.pdf_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-400 hover:text-blue-300">📄</a> : <span className="text-gray-600">—</span>}</td>
+                  <td className="px-2 py-3 text-center">
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(g); }} className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-gray-700 rounded-lg"><Edit2 size={14} /></button>
+                  </td>
+                </tr>
+              ))}
+              {filtrados.length === 0 && <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-500">No se encontraron registros genealógicos</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Ficha modal */}
+      {fichaReg && (
+        <div className="fixed inset-0 bg-black/70 flex items-start justify-center z-[60] p-4 overflow-y-auto" onClick={() => setFichaId(null)}>
+          <div className="bg-gray-900 rounded-2xl w-full max-w-2xl border border-gray-700 my-8 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-gray-800">
+              <div>
+                <h3 className="text-xl font-bold text-gray-100">{fichaReg.nombre || fichaReg.numero}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${RAZA_COLORS[fichaReg.raza]}`}>{fichaReg.raza}</span>
+                  <span className="text-xs text-gray-500">{fichaReg.sexo === 'M' ? '♂ Macho' : '♀ Hembra'}</span>
+                  {fichaReg.color && <span className="text-xs text-gray-500">• {fichaReg.color}</span>}
+                  {fichaReg.registro_num && <span className="text-xs text-gray-400">• Reg: {fichaReg.registro_num}</span>}
+                </div>
+              </div>
+              <button onClick={() => setFichaId(null)} className="p-2 hover:bg-gray-800 rounded-lg text-gray-400"><X size={20} /></button>
+            </div>
+            <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* Datos básicos */}
+              <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Datos del Animal</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                  <div><span className="text-gray-500">Número</span><p className="text-gray-200 font-medium">{fichaReg.numero}</p></div>
+                  {fichaReg.fecha_nacimiento && <div><span className="text-gray-500">Nacimiento</span><p className="text-gray-200">{formatDate(fichaReg.fecha_nacimiento)}</p></div>}
+                  {fichaReg.asociacion && <div><span className="text-gray-500">Asociación</span><p className="text-gray-200">{fichaReg.asociacion}</p></div>}
+                  {fichaReg.criador && <div><span className="text-gray-500">Criador</span><p className="text-gray-200">{fichaReg.criador}</p></div>}
+                  {fichaReg.propietario && <div><span className="text-gray-500">Propietario</span><p className="text-gray-200">{fichaReg.propietario}</p></div>}
+                  {fichaReg.animal_hato_id && <div><span className="text-gray-500">Animal Hato</span><p><AnimalLink id={fichaReg.animal_hato_id} onAnimalClick={onAnimalClick} /></p></div>}
+                </div>
+              </div>
+
+              {/* Árbol de pedigree */}
+              <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">🌳 Pedigree</h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-20 text-right text-gray-500 text-xs font-medium">Padre</div>
+                    <div className="flex-1 bg-blue-900/20 border border-blue-800/50 rounded-lg px-3 py-2">
+                      <p className="text-blue-300 font-medium">{fichaReg.padre_nombre || '—'}</p>
+                      {fichaReg.padre_registro && <p className="text-blue-400/60 text-xs">Reg: {fichaReg.padre_registro}</p>}
+                    </div>
+                  </div>
+                  {(fichaReg.datos_extras?.abuelo_p || fichaReg.datos_extras?.abuela_p) && (
+                    <div className="flex items-center gap-3 pl-12">
+                      <div className="w-8 text-right text-gray-600 text-[10px]">AP</div>
+                      <div className="flex-1 bg-gray-700/50 rounded px-2 py-1 text-xs text-gray-400">{fichaReg.datos_extras.abuelo_p || '—'}</div>
+                      <div className="w-8 text-right text-gray-600 text-[10px]">AM-P</div>
+                      <div className="flex-1 bg-gray-700/50 rounded px-2 py-1 text-xs text-gray-400">{fichaReg.datos_extras.abuela_p || '—'}</div>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <div className="w-20 text-right text-gray-500 text-xs font-medium">Madre</div>
+                    <div className="flex-1 bg-pink-900/20 border border-pink-800/50 rounded-lg px-3 py-2">
+                      <p className="text-pink-300 font-medium">{fichaReg.madre_nombre || '—'}</p>
+                      {fichaReg.madre_registro && <p className="text-pink-400/60 text-xs">Reg: {fichaReg.madre_registro}</p>}
+                    </div>
+                  </div>
+                  {(fichaReg.datos_extras?.abuelo_m || fichaReg.datos_extras?.abuela_m) && (
+                    <div className="flex items-center gap-3 pl-12">
+                      <div className="w-8 text-right text-gray-600 text-[10px]">AP-M</div>
+                      <div className="flex-1 bg-gray-700/50 rounded px-2 py-1 text-xs text-gray-400">{fichaReg.datos_extras.abuelo_m || '—'}</div>
+                      <div className="w-8 text-right text-gray-600 text-[10px]">AM</div>
+                      <div className="flex-1 bg-gray-700/50 rounded px-2 py-1 text-xs text-gray-400">{fichaReg.datos_extras.abuela_m || '—'}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* EPDs (solo Angus) */}
+              {fichaReg.datos_extras?.epds && Object.keys(fichaReg.datos_extras.epds).length > 0 && (
+                <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">📊 EPDs</h4>
+                  <div className="grid grid-cols-4 gap-2">
+                    {Object.entries(fichaReg.datos_extras.epds).map(([k, v]) => (
+                      <div key={k} className="bg-gray-700/50 rounded-lg p-2 text-center">
+                        <p className="text-[10px] text-gray-500 uppercase">{k}</p>
+                        <p className="text-sm font-bold text-gray-200">{typeof v === 'number' ? (v >= 0 ? '+' : '') + v : v}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Performance */}
+              {fichaReg.datos_extras?.performance && (
+                <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">⚖️ Performance</h4>
+                  <div className="flex gap-4 text-sm">
+                    {fichaReg.datos_extras.performance.bw && <div><span className="text-gray-500">Peso Nacer</span><p className="text-gray-200 font-medium">{fichaReg.datos_extras.performance.bw}</p></div>}
+                    {fichaReg.datos_extras.performance.ww && <div><span className="text-gray-500">Peso 205d</span><p className="text-gray-200 font-medium">{fichaReg.datos_extras.performance.ww}</p></div>}
+                    {fichaReg.datos_extras.performance.yw && <div><span className="text-gray-500">Peso 365d</span><p className="text-gray-200 font-medium">{fichaReg.datos_extras.performance.yw}</p></div>}
+                  </div>
+                </div>
+              )}
+
+              {/* PDF */}
+              <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">📄 Registro PDF</h4>
+                {fichaReg.pdf_url ? (
+                  <a href={fichaReg.pdf_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm underline">{fichaReg.pdf_nombre || 'Ver PDF'}</a>
+                ) : (
+                  <div>
+                    <p className="text-gray-500 text-sm mb-2">Sin PDF adjunto</p>
+                    <label className="inline-flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-gray-300 cursor-pointer transition-colors">
+                      <Upload size={14} /> Subir PDF
+                      <input type="file" accept=".pdf" className="hidden" onChange={e => { if (e.target.files[0]) handleUploadPdf(fichaReg.id, e.target.files[0]); }} />
+                    </label>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-800 flex justify-between">
+              <button onClick={() => { openEdit(fichaReg); setFichaId(null); }} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"><Edit2 size={14} className="inline mr-1" />Editar</button>
+              <button onClick={() => setFichaId(null)} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/70 flex items-start justify-center z-[60] p-4 overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="bg-gray-900 rounded-2xl w-full max-w-2xl border border-gray-700 my-8 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-gray-800">
+              <h3 className="text-lg font-bold text-gray-100">{editando ? '✏️ Editar Registro' : '📋 Nuevo Registro Genealógico'}</h3>
+            </div>
+            <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* Datos básicos */}
+              <p className="text-xs text-gray-500 font-semibold uppercase">Datos del Animal</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Número *</label>
+                  <input type="text" value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })}
+                    placeholder="Ej: M477-18" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs text-gray-400 mb-1">Nombre Completo</label>
+                  <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })}
+                    placeholder="Ej: HATOVIEJO SANTERO M477-18 T.E" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Raza *</label>
+                  <select value={form.raza} onChange={e => handleRazaChange(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                    {RAZAS.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Sexo</label>
+                  <select value={form.sexo} onChange={e => setForm({ ...form, sexo: e.target.value })}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                    <option value="M">♂ Macho</option><option value="H">♀ Hembra</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Color</label>
+                  <input type="text" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })}
+                    placeholder="Negro, Rojo..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Fecha Nacimiento</label>
+                  <input type="date" value={form.fecha_nacimiento} onChange={e => setForm({ ...form, fecha_nacimiento: e.target.value })}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1"># Registro</label>
+                  <input type="text" value={form.registro_num} onChange={e => setForm({ ...form, registro_num: e.target.value })}
+                    placeholder="BON-018065" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Asociación</label>
+                  <input type="text" value={form.asociacion} onChange={e => setForm({ ...form, asociacion: e.target.value })}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                </div>
+              </div>
+
+              {/* Genealogía */}
+              <p className="text-xs text-gray-500 font-semibold uppercase mt-4">Genealogía</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-xs text-gray-400 mb-1">Padre — Nombre</label>
+                  <input type="text" value={form.padre_nombre} onChange={e => setForm({ ...form, padre_nombre: e.target.value })} placeholder="Nombre del padre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                <div><label className="block text-xs text-gray-400 mb-1">Padre — Registro</label>
+                  <input type="text" value={form.padre_registro} onChange={e => setForm({ ...form, padre_registro: e.target.value })} placeholder="# registro" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                <div><label className="block text-xs text-gray-400 mb-1">Madre — Nombre</label>
+                  <input type="text" value={form.madre_nombre} onChange={e => setForm({ ...form, madre_nombre: e.target.value })} placeholder="Nombre de la madre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                <div><label className="block text-xs text-gray-400 mb-1">Madre — Registro</label>
+                  <input type="text" value={form.madre_registro} onChange={e => setForm({ ...form, madre_registro: e.target.value })} placeholder="# registro" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+              </div>
+
+              {/* Abuelos */}
+              <p className="text-xs text-gray-500 font-semibold uppercase mt-2">Abuelos (opcional)</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-xs text-gray-400 mb-1">Abuelo Paterno</label>
+                  <input type="text" value={form.abuelo_p} onChange={e => setForm({ ...form, abuelo_p: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                <div><label className="block text-xs text-gray-400 mb-1">Abuela Paterna</label>
+                  <input type="text" value={form.abuela_p} onChange={e => setForm({ ...form, abuela_p: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                <div><label className="block text-xs text-gray-400 mb-1">Abuelo Materno</label>
+                  <input type="text" value={form.abuelo_m} onChange={e => setForm({ ...form, abuelo_m: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                <div><label className="block text-xs text-gray-400 mb-1">Abuela Materna</label>
+                  <input type="text" value={form.abuela_m} onChange={e => setForm({ ...form, abuela_m: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+              </div>
+
+              {/* EPDs — solo Angus/Red Angus */}
+              {(form.raza === 'Angus' || form.raza === 'Red Angus') && (<>
+                <p className="text-xs text-gray-500 font-semibold uppercase mt-4">EPDs (Angus)</p>
+                <div className="grid grid-cols-4 gap-3">
+                  {[['CED','epd_ced'], ['BW','epd_bw'], ['WW','epd_ww'], ['YW','epd_yw'], ['MILK','epd_milk'], ['MARB','epd_marb'], ['REA','epd_rea'], ['CW','epd_cw']].map(([label, key]) => (
+                    <div key={key}><label className="block text-[10px] text-gray-400 mb-1">{label}</label>
+                      <input type="text" value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} className="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm text-center" /></div>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 font-semibold uppercase mt-2">Performance</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div><label className="block text-xs text-gray-400 mb-1">Peso Nacer</label>
+                    <input type="text" value={form.peso_nacimiento} onChange={e => setForm({ ...form, peso_nacimiento: e.target.value })} placeholder="85 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Peso 205d</label>
+                    <input type="text" value={form.peso_205} onChange={e => setForm({ ...form, peso_205: e.target.value })} placeholder="825 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Peso 365d</label>
+                    <input type="text" value={form.peso_365} onChange={e => setForm({ ...form, peso_365: e.target.value })} placeholder="1265 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                </div>
+              </>)}
+
+              {/* Criador / Propietario */}
+              <p className="text-xs text-gray-500 font-semibold uppercase mt-4">Propiedad</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-xs text-gray-400 mb-1">Criador</label>
+                  <input type="text" value={form.criador} onChange={e => setForm({ ...form, criador: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                <div><label className="block text-xs text-gray-400 mb-1">Propietario</label>
+                  <input type="text" value={form.propietario} onChange={e => setForm({ ...form, propietario: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+              </div>
+
+              {/* Vincular con hato */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Vincular con Animal del Hato (número)</label>
+                <input type="text" value={form.animal_hato_id} onChange={e => setForm({ ...form, animal_hato_id: e.target.value })}
+                  placeholder="Ej: 09-4 (si el animal existe en nacimientos)" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+              </div>
+            </div>
+
+            <div className="p-5 border-t border-gray-800 flex justify-end gap-3">
+              <button onClick={() => { setShowForm(false); setEditando(null); }} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
+              <button onClick={handleSave} disabled={saving}
+                className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-40">
+                {saving ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> {editando ? 'Actualizar' : 'Guardar'}</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
