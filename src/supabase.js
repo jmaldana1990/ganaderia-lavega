@@ -208,6 +208,25 @@ export async function getPesajes() {
   return data
 }
 
+export async function insertPesaje(registro) {
+  const { data, error } = await supabase
+    .from('pesajes')
+    .insert(registro)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function insertPesajesBatch(registros) {
+  const { data, error } = await supabase
+    .from('pesajes')
+    .insert(registros)
+    .select()
+  if (error) throw error
+  return data
+}
+
 // ==================== PALPACIONES ====================
 export async function getPalpaciones() {
   const { data, error } = await supabase

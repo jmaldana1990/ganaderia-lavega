@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle, ArrowRightLeft, Truck } from 'lucide-react';
+import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle, ArrowRightLeft, Truck, Skull } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 import { NACIMIENTOS_LA_VEGA } from './nacimientos-lavega';
@@ -799,8 +799,8 @@ export default function GanaderiaApp() {
               lluvias={lluvias} setLluvias={setLluvias} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />
           )}
           {view === 'hato-general' && <HatoGeneral nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} palpaciones={palpaciones} servicios={servicios} destetes={destetes} onAnimalClick={setAnimalModalId} isOnline={isOnline} />}
-          {view === 'venta-traslado' && <VentaTrasladoView nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} ventas={ventas} setVentas={setVentas} traslados={traslados} setTraslados={setTraslados} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />}
-          {view === 'ventas' && <VentasTotales ventas={ventas} />}
+          {view === 'venta-traslado' && <VentaTrasladoView nacimientos={nacimientos} setNacimientos={setNacimientos} pesajes={pesajes} setPesajes={setPesajes} ventas={ventas} setVentas={setVentas} traslados={traslados} setTraslados={setTraslados} userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId} />}
+          {view === 'ventas' && <VentasTotales ventas={ventas} gastos={gastos} />}
           {view === 'costos' && (
             <Costos gastos={paginated} total={filtered.length} totales={totales}
               filtros={filtros} setFiltros={updateFiltros} onNew={() => setShowForm(true)}
@@ -997,9 +997,10 @@ function Dashboard({ totales, promedioMes, porCategoria, porCentro, pendientes, 
 }
 
 // ==================== COMPONENTE VENTAS TOTALES ====================
-function VentasTotales({ ventas: ventasData }) {
+function VentasTotales({ ventas: ventasData, gastos: gastosData }) {
   const [añoSel, setAñoSel] = useState('');
   const allVentas = ventasData || VENTAS_GANADO;
+  const allGastos = gastosData || [];
   const añosDisponibles = useMemo(() => 
     [...new Set(allVentas.map(v => v.año))].sort((a, b) => b - a).map(String), 
     [allVentas]);
@@ -1019,12 +1020,24 @@ function VentasTotales({ ventas: ventasData }) {
     return allVentas.filter(v => v.año === parseInt(añoSel));
   }, [añoSel, allVentas]);
 
+  // Costos filtrados por el mismo periodo
+  const costosFiltrados = useMemo(() => {
+    if (!añoSel) return allGastos;
+    return allGastos.filter(g => {
+      const gAño = g.año || (g.fecha ? parseInt(g.fecha.split('-')[0]) : null);
+      return gAño === parseInt(añoSel);
+    });
+  }, [añoSel, allGastos]);
+
+  const totalCostos = useMemo(() => costosFiltrados.reduce((s, g) => s + (g.monto || 0), 0), [costosFiltrados]);
+
   // Totales globales
   const totalGlobal = useMemo(() => {
     const total = ventasFiltradas.reduce((s, v) => s + (v.valor || 0), 0);
     const kg = ventasFiltradas.reduce((s, v) => s + (v.kg || 0), 0);
-    return { total, kg, precioPromedio: kg > 0 ? Math.round(total / kg) : 0, transacciones: ventasFiltradas.length };
-  }, [ventasFiltradas]);
+    const costoKg = kg > 0 ? Math.round(totalCostos / kg) : 0;
+    return { total, kg, precioPromedio: kg > 0 ? Math.round(total / kg) : 0, costoKg, transacciones: ventasFiltradas.length };
+  }, [ventasFiltradas, totalCostos]);
 
   // Por tipo de animal
   const porTipo = useMemo(() => {
@@ -1052,6 +1065,12 @@ function VentasTotales({ ventas: ventasData }) {
       const totalKg = ventasAño.reduce((s, v) => s + (v.kg || 0), 0);
       const ingresosTotales = ventasAño.reduce((s, v) => s + (v.valor || 0), 0);
       const precioPromedio = totalKg > 0 ? Math.round(ingresosTotales / totalKg) : 0;
+      // Costos del año
+      const costosAño = allGastos.filter(g => {
+        const gAño = g.año || (g.fecha ? parseInt(g.fecha.split('-')[0]) : null);
+        return gAño === año;
+      }).reduce((s, g) => s + (g.monto || 0), 0);
+      const costoKg = totalKg > 0 ? Math.round(costosAño / totalKg) : 0;
       // Tipos por año
       const tipos = {};
       ventasAño.forEach(v => {
@@ -1060,9 +1079,9 @@ function VentasTotales({ ventas: ventasData }) {
         tipos[v.tipo].valor += v.valor || 0;
       });
       Object.values(tipos).forEach(t => { t.precio = t.kg > 0 ? Math.round(t.valor / t.kg) : 0; });
-      return { año, totalKg, precioPromedio, ingresosTotales, tipos };
+      return { año, totalKg, precioPromedio, ingresosTotales, costosAño, costoKg, tipos };
     });
-  }, [allVentas, añosDisponibles]);
+  }, [allVentas, allGastos, añosDisponibles]);
 
   // Transacciones del periodo
   const transacciones = useMemo(() => {
@@ -1082,11 +1101,12 @@ function VentasTotales({ ventas: ventasData }) {
       </div>
 
       {/* Cards resumen */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card title="Ingresos Totales" value={formatCurrency(totalGlobal.total)} icon={DollarSign} color="from-amber-500 to-amber-600" />
         <Card title="Total Kg" value={totalGlobal.kg.toLocaleString('es-CO')} icon={Scale} color="from-blue-500 to-blue-600" sub="kg vendidos" />
-        <Card title="Precio Prom/kg" value={formatCurrency(totalGlobal.precioPromedio)} icon={TrendingUp} color="from-green-500 to-green-600" sub="$/kg" />
-        <Card title="Transacciones" value={totalGlobal.transacciones} icon={FileText} color="from-purple-500 to-purple-600" sub="ventas realizadas" />
+        <Card title="Precio Prom/kg" value={formatCurrency(totalGlobal.precioPromedio)} icon={TrendingUp} color="from-green-500 to-green-600" sub="$/kg venta" />
+        <Card title="Costo Prom/kg" value={totalGlobal.costoKg > 0 ? formatCurrency(totalGlobal.costoKg) : '—'} icon={Receipt} color="from-red-500 to-red-600" sub="$/kg costo" />
+        <Card title="Utilidad/kg" value={totalGlobal.costoKg > 0 && totalGlobal.precioPromedio > 0 ? formatCurrency(totalGlobal.precioPromedio - totalGlobal.costoKg) : '—'} icon={TrendingUp} color="from-emerald-500 to-emerald-600" sub={totalGlobal.costoKg > 0 && totalGlobal.precioPromedio > 0 ? `${Math.round(((totalGlobal.precioPromedio - totalGlobal.costoKg) / totalGlobal.costoKg) * 100)}% margen` : ''} />
       </div>
 
       {/* Desglose por tipo de animal */}
@@ -1123,17 +1143,23 @@ function VentasTotales({ ventas: ventasData }) {
               <tr className="border-b border-gray-800">
                 <th className="text-left py-3 px-2 font-semibold text-gray-400">Año</th>
                 <th className="text-right py-3 px-2 font-semibold text-gray-400">Kg Totales</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-400">Precio Prom/kg</th>
-                <th className="text-right py-3 px-2 font-semibold text-gray-400">Ingresos Totales</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Precio/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Costo/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Utilidad/kg</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Ingresos</th>
+                <th className="text-right py-3 px-2 font-semibold text-gray-400">Costos</th>
               </tr>
             </thead>
             <tbody>
-              {porAño.map(({ año, totalKg, precioPromedio, ingresosTotales }) => (
+              {porAño.map(({ año, totalKg, precioPromedio, ingresosTotales, costosAño, costoKg }) => (
                 <tr key={año} className={`border-b border-gray-800 hover:bg-amber-900/20 ${añoSel && parseInt(añoSel) === año ? 'bg-amber-900/20 font-semibold' : ''}`}>
                   <td className="py-3 px-2 font-medium">{año}</td>
                   <td className="py-3 px-2 text-right">{totalKg.toLocaleString('es-CO')}</td>
-                  <td className="py-3 px-2 text-right">{formatCurrency(precioPromedio)}</td>
+                  <td className="py-3 px-2 text-right text-green-400">{formatCurrency(precioPromedio)}</td>
+                  <td className="py-3 px-2 text-right text-red-400">{costoKg > 0 ? formatCurrency(costoKg) : '—'}</td>
+                  <td className="py-3 px-2 text-right font-medium">{costoKg > 0 ? <span className={precioPromedio - costoKg >= 0 ? 'text-emerald-400' : 'text-red-400'}>{formatCurrency(precioPromedio - costoKg)}</span> : '—'}</td>
                   <td className="py-3 px-2 text-right font-medium text-amber-400">{formatCurrency(ingresosTotales)}</td>
+                  <td className="py-3 px-2 text-right text-red-400/70">{costosAño > 0 ? formatCurrency(costosAño) : '—'}</td>
                 </tr>
               ))}
             </tbody>
@@ -1141,8 +1167,11 @@ function VentasTotales({ ventas: ventasData }) {
               <tr className="border-t-2 font-bold">
                 <td className="py-3 px-2">Total</td>
                 <td className="py-3 px-2 text-right">{porAño.reduce((s, r) => s + r.totalKg, 0).toLocaleString('es-CO')}</td>
-                <td className="py-3 px-2 text-right">{formatCurrency(Math.round(porAño.reduce((s, r) => s + r.ingresosTotales, 0) / porAño.reduce((s, r) => s + r.totalKg, 0)))}</td>
+                <td className="py-3 px-2 text-right text-green-400">{formatCurrency(Math.round(porAño.reduce((s, r) => s + r.ingresosTotales, 0) / Math.max(porAño.reduce((s, r) => s + r.totalKg, 0), 1)))}</td>
+                <td className="py-3 px-2 text-right text-red-400">{(() => { const tKg = porAño.reduce((s, r) => s + r.totalKg, 0); const tC = porAño.reduce((s, r) => s + r.costosAño, 0); return tKg > 0 ? formatCurrency(Math.round(tC / tKg)) : '—'; })()}</td>
+                <td className="py-3 px-2 text-right">{(() => { const tKg = porAño.reduce((s, r) => s + r.totalKg, 0); const tI = porAño.reduce((s, r) => s + r.ingresosTotales, 0); const tC = porAño.reduce((s, r) => s + r.costosAño, 0); if (tKg <= 0) return '—'; const u = Math.round(tI / tKg) - Math.round(tC / tKg); return <span className={u >= 0 ? 'text-emerald-400' : 'text-red-400'}>{formatCurrency(u)}</span>; })()}</td>
                 <td className="py-3 px-2 text-right text-amber-400">{formatCurrency(porAño.reduce((s, r) => s + r.ingresosTotales, 0))}</td>
+                <td className="py-3 px-2 text-right text-red-400/70">{formatCurrency(porAño.reduce((s, r) => s + r.costosAño, 0))}</td>
               </tr>
             </tfoot>
           </table>
@@ -1226,8 +1255,8 @@ function VentasTotales({ ventas: ventasData }) {
 }
 
 // ==================== COMPONENTE VENTA / TRASLADO ====================
-function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVentas, traslados, setTraslados, userEmail, isOnline, onAnimalClick }) {
-  const [modo, setModo] = useState('venta'); // 'venta' | 'traslado'
+function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, setPesajes, ventas, setVentas, traslados, setTraslados, userEmail, isOnline, onAnimalClick }) {
+  const [modo, setModo] = useState('venta'); // 'venta' | 'traslado' | 'muerte' | 'pesaje'
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [busqueda, setBusqueda] = useState('');
@@ -1248,6 +1277,18 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
     fecha: new Date().toISOString().split('T')[0],
     fincaDestino: '',
     observaciones: ''
+  });
+
+  // Muerte fields
+  const [muerteForm, setMuerteForm] = useState({
+    fecha: new Date().toISOString().split('T')[0],
+    causa: '',
+    observaciones: ''
+  });
+
+  // Pesaje fields
+  const [pesajeForm, setPesajeForm] = useState({
+    fecha: new Date().toISOString().split('T')[0]
   });
 
   // Per-animal weight overrides for batch sales
@@ -1473,6 +1514,89 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
     }
   };
 
+  const handleSaveMuerte = async () => {
+    if (selectedAnimals.length === 0) return alert('Selecciona al menos un animal');
+    if (!muerteForm.fecha) return alert('Selecciona la fecha');
+    if (!muerteForm.causa) return alert('Selecciona la causa de muerte');
+
+    setSaving(true);
+    try {
+      for (const animal of selectedAnimals) {
+        const nacReg = (nacimientos || []).find(n => String(n.cria).trim() === animal.id);
+        if (nacReg) {
+          await db.updateNacimiento(nacReg.id, {
+            estado: 'Muerto',
+            comentario: `Muerte ${muerteForm.fecha} - Causa: ${muerteForm.causa}${muerteForm.observaciones ? ' - ' + muerteForm.observaciones : ''}`
+          });
+          setNacimientos(prev => prev.map(n => n.id === nacReg.id ? { ...n, estado: 'Muerto', comentario: `Muerte ${muerteForm.fecha} - Causa: ${muerteForm.causa}` } : n));
+        }
+      }
+      setSuccessMsg(`✅ ${selectedAnimals.length} animal(es) registrado(s) como muerto(s) — Causa: ${muerteForm.causa}`);
+      setSelectedAnimals([]);
+      setPesosPorAnimal({});
+      setMuerteForm({ fecha: new Date().toISOString().split('T')[0], causa: '', observaciones: '' });
+      setTimeout(() => setSuccessMsg(''), 5000);
+    } catch (e) {
+      console.error('Error registrando muerte:', e);
+      alert('Error al registrar la muerte: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSavePesaje = async () => {
+    if (selectedAnimals.length === 0) return alert('Selecciona al menos un animal');
+    if (!pesajeForm.fecha) return alert('Selecciona la fecha del pesaje');
+    const sinPeso = selectedAnimals.filter(a => !pesosPorAnimal[a.id] || parseFloat(pesosPorAnimal[a.id]) <= 0);
+    if (sinPeso.length > 0) return alert(`Falta el peso de: ${sinPeso.map(a => a.id).join(', ')}`);
+
+    setSaving(true);
+    try {
+      const registros = selectedAnimals.map(a => {
+        const nacReg = (nacimientos || []).find(n => String(n.cria).trim() === a.id);
+        const fechaNac = nacReg?.fecha;
+        let edadMeses = null;
+        let gdpVida = null;
+        const pesoAnimal = parseFloat(pesosPorAnimal[a.id]);
+        if (fechaNac && fechaNac !== '1900-01-01') {
+          const nacDate = new Date(fechaNac + 'T00:00:00');
+          const pesDate = new Date(pesajeForm.fecha + 'T00:00:00');
+          const diffDias = Math.round((pesDate - nacDate) / (1000 * 60 * 60 * 24));
+          edadMeses = diffDias > 0 ? Math.round((diffDias / 30.44) * 10) / 10 : null;
+          const pesoNacer = nacReg?.pesoNacer || nacReg?.peso_nacer || 0;
+          if (diffDias > 0 && pesoAnimal > pesoNacer) {
+            gdpVida = Math.round(((pesoAnimal - pesoNacer) / diffDias) * 1000);
+          }
+        }
+        return {
+          animal: a.id,
+          fecha_pesaje: pesajeForm.fecha,
+          peso: pesoAnimal,
+          finca: a.finca,
+          categoria: a.categoria,
+          edad_meses: edadMeses,
+          gdp_vida: gdpVida
+        };
+      });
+
+      await db.insertPesajesBatch(registros);
+
+      // Update local pesajes state
+      setPesajes(prev => [...registros, ...prev]);
+
+      setSuccessMsg(`✅ ${selectedAnimals.length} pesaje(s) registrado(s) exitosamente`);
+      setSelectedAnimals([]);
+      setPesosPorAnimal({});
+      setPesajeForm({ fecha: new Date().toISOString().split('T')[0] });
+      setTimeout(() => setSuccessMsg(''), 5000);
+    } catch (e) {
+      console.error('Error registrando pesajes:', e);
+      alert('Error al registrar pesajes: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const CAT_COLORS = { VP: 'bg-green-500/20 text-green-400', VS: 'bg-orange-500/20 text-orange-400', NV: 'bg-purple-500/20 text-purple-400', HL: 'bg-teal-500/20 text-teal-400', ML: 'bg-amber-500/20 text-amber-400', CM: 'bg-blue-500/20 text-blue-400', CH: 'bg-pink-500/20 text-pink-400', TR: 'bg-red-500/20 text-red-400', LEV: 'bg-amber-500/20 text-amber-400' };
 
   // Recent history
@@ -1480,8 +1604,15 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
     if (modo === 'venta') {
       return (ventas || []).filter(v => v.animal).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 20);
     }
-    return (traslados || []).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 20);
-  }, [modo, ventas, traslados]);
+    if (modo === 'traslado') {
+      return (traslados || []).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 20);
+    }
+    if (modo === 'pesaje') {
+      return (pesajes || []).sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || '')).slice(0, 30);
+    }
+    // muerte: show dead animals from nacimientos
+    return (nacimientos || []).filter(n => n.estado === 'Muerto').sort((a, b) => (b.comentario || '').localeCompare(a.comentario || '')).slice(0, 20);
+  }, [modo, ventas, traslados, pesajes, nacimientos]);
 
   return (
     <div className="space-y-6">
@@ -1503,7 +1634,7 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
       )}
 
       {/* Mode Toggle */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button onClick={() => { setModo('venta'); setSelectedAnimals([]); setPesosPorAnimal({}); }}
           className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${modo === 'venta' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
           <ShoppingCart size={18} /> Venta
@@ -1512,12 +1643,20 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
           className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${modo === 'traslado' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
           <Truck size={18} /> Traslado
         </button>
+        <button onClick={() => { setModo('muerte'); setSelectedAnimals([]); setPesosPorAnimal({}); }}
+          className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${modo === 'muerte' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+          <Skull size={18} /> Muerte
+        </button>
+        <button onClick={() => { setModo('pesaje'); setSelectedAnimals([]); setPesosPorAnimal({}); }}
+          className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${modo === 'pesaje' ? 'bg-green-600 text-white shadow-lg shadow-green-600/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+          <Scale size={18} /> Pesaje
+        </button>
       </div>
 
       {/* Formulario */}
       <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 space-y-5">
         <h3 className="text-lg font-semibold text-gray-100 flex items-center gap-2">
-          {modo === 'venta' ? '🏷️ Registrar Venta' : '🚚 Registrar Traslado'}
+          {modo === 'venta' ? '🏷️ Registrar Venta' : modo === 'traslado' ? '🚚 Registrar Traslado' : modo === 'muerte' ? '☠️ Registrar Muerte' : '⚖️ Registrar Pesaje'}
         </h3>
 
         {/* Animal Search */}
@@ -1569,7 +1708,7 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
                   <span className="font-bold text-green-400 text-sm w-20">{a.id}</span>
                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${CAT_COLORS[a.categoria] || 'bg-gray-600 text-gray-300'}`}>{a.categoria}</span>
                   <span className={`text-xs ${a.finca === 'La Vega' ? 'text-green-500' : 'text-blue-500'}`}>{a.finca}</span>
-                  {modo === 'venta' && (
+                  {(modo === 'venta' || modo === 'pesaje') && (
                     <div className="flex items-center gap-2 ml-auto">
                       <label className="text-xs text-gray-500">Peso:</label>
                       <input type="number" step="1"
@@ -1659,9 +1798,55 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
           </div>
         )}
 
+        {/* Muerte-specific fields */}
+        {modo === 'muerte' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Fecha de Muerte</label>
+              <input type="date" value={muerteForm.fecha} onChange={e => setMuerteForm({ ...muerteForm, fecha: e.target.value })}
+                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Causa de Muerte</label>
+              <select value={muerteForm.causa} onChange={e => setMuerteForm({ ...muerteForm, causa: e.target.value })}
+                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm">
+                <option value="">Seleccionar causa...</option>
+                <option value="Enfermedad">Enfermedad</option>
+                <option value="Accidente">Accidente</option>
+                <option value="Parto">Complicación de Parto</option>
+                <option value="Depredador">Depredador</option>
+                <option value="Desnutrición">Desnutrición</option>
+                <option value="Rayo">Rayo</option>
+                <option value="Mordedura serpiente">Mordedura de serpiente</option>
+                <option value="Desconocida">Desconocida</option>
+                <option value="Otra">Otra</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-1">
+              <label className="block text-xs font-medium text-gray-400 mb-1">Observaciones</label>
+              <input type="text" value={muerteForm.observaciones} onChange={e => setMuerteForm({ ...muerteForm, observaciones: e.target.value })}
+                placeholder="Detalles adicionales..." className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+          </div>
+        )}
+
+        {/* Pesaje-specific fields */}
+        {modo === 'pesaje' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1">Fecha del Pesaje</label>
+              <input type="date" value={pesajeForm.fecha} onChange={e => setPesajeForm({ ...pesajeForm, fecha: e.target.value })}
+                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 text-sm" />
+            </div>
+            <div className="flex items-end">
+              <p className="text-xs text-gray-500 pb-2">Ingresa el peso de cada animal en la lista de arriba. Se calculará automáticamente la edad y GDP vida.</p>
+            </div>
+          </div>
+        )}
+
         {/* Summary & Save */}
         {selectedAnimals.length > 0 && (
-          <div className={`rounded-xl p-4 border ${modo === 'venta' ? 'bg-amber-900/20 border-amber-800' : 'bg-blue-900/20 border-blue-800'}`}>
+          <div className={`rounded-xl p-4 border ${modo === 'venta' ? 'bg-amber-900/20 border-amber-800' : modo === 'muerte' ? 'bg-red-900/20 border-red-800' : modo === 'pesaje' ? 'bg-green-900/20 border-green-800' : 'bg-blue-900/20 border-blue-800'}`}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap gap-4 text-sm">
                 <div>
@@ -1690,12 +1875,33 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
                     <span className={`ml-1 font-bold ${trasladoForm.fincaDestino === 'La Vega' ? 'text-green-400' : 'text-blue-400'}`}>{trasladoForm.fincaDestino}</span>
                   </div>
                 )}
+                {modo === 'muerte' && muerteForm.causa && (
+                  <div>
+                    <span className="text-gray-400">Causa:</span>
+                    <span className="ml-1 font-bold text-red-400">{muerteForm.causa}</span>
+                  </div>
+                )}
+                {modo === 'pesaje' && (
+                  <div>
+                    <span className="text-gray-400">Total Kg:</span>
+                    <span className="ml-1 font-bold text-gray-100">{totalKg.toLocaleString('es-CO')}</span>
+                  </div>
+                )}
               </div>
               <button
-                onClick={modo === 'venta' ? handleSaveVenta : handleSaveTraslado}
+                onClick={modo === 'venta' ? handleSaveVenta : modo === 'traslado' ? handleSaveTraslado : modo === 'muerte' ? handleSaveMuerte : handleSavePesaje}
                 disabled={saving || !isOnline}
-                className={`px-6 py-3 rounded-xl font-medium text-sm text-white flex items-center gap-2 transition-all ${modo === 'venta' ? 'bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-600/20' : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'} disabled:opacity-40 disabled:cursor-not-allowed`}>
-                {saving ? <><Loader2 size={16} className="animate-spin" /> Guardando...</> : modo === 'venta' ? <><Check size={16} /> Registrar Venta</> : <><Truck size={16} /> Registrar Traslado</>}
+                className={`px-6 py-3 rounded-xl font-medium text-sm text-white flex items-center gap-2 transition-all ${
+                  modo === 'venta' ? 'bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-600/20' :
+                  modo === 'muerte' ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/20' :
+                  modo === 'pesaje' ? 'bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20' :
+                  'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'
+                } disabled:opacity-40 disabled:cursor-not-allowed`}>
+                {saving ? <><Loader2 size={16} className="animate-spin" /> Guardando...</> :
+                  modo === 'venta' ? <><Check size={16} /> Registrar Venta</> :
+                  modo === 'traslado' ? <><Truck size={16} /> Registrar Traslado</> :
+                  modo === 'muerte' ? <><Skull size={16} /> Registrar Muerte</> :
+                  <><Scale size={16} /> Registrar Pesaje</>}
               </button>
             </div>
           </div>
@@ -1707,7 +1913,7 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
           <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
             <Clock size={18} className="text-gray-400" />
-            {modo === 'venta' ? 'Últimas Ventas Individuales' : 'Últimos Traslados'} ({historialReciente.length})
+            {modo === 'venta' ? 'Últimas Ventas Individuales' : modo === 'traslado' ? 'Últimos Traslados' : modo === 'muerte' ? 'Animales Muertos' : 'Últimos Pesajes'} ({historialReciente.length})
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -1715,7 +1921,7 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
                 <tr className="border-b border-gray-800 text-gray-500 text-xs">
                   <th className="text-left py-2 px-2">Fecha</th>
                   <th className="text-left py-2 px-2">Animal</th>
-                  {modo === 'venta' ? (
+                  {modo === 'venta' && (
                     <>
                       <th className="text-left py-2 px-2">Tipo</th>
                       <th className="text-right py-2 px-2">Kg</th>
@@ -1723,11 +1929,25 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
                       <th className="text-right py-2 px-2">Valor</th>
                       <th className="text-left py-2 px-2">Comprador</th>
                     </>
-                  ) : (
+                  )}
+                  {modo === 'traslado' && (
                     <>
                       <th className="text-left py-2 px-2">Origen</th>
                       <th className="text-left py-2 px-2">Destino</th>
                       <th className="text-left py-2 px-2">Observaciones</th>
+                    </>
+                  )}
+                  {modo === 'muerte' && (
+                    <>
+                      <th className="text-left py-2 px-2">Detalle</th>
+                    </>
+                  )}
+                  {modo === 'pesaje' && (
+                    <>
+                      <th className="text-left py-2 px-2">Finca</th>
+                      <th className="text-right py-2 px-2">Peso</th>
+                      <th className="text-right py-2 px-2">Edad (m)</th>
+                      <th className="text-right py-2 px-2">GDP Vida</th>
                     </>
                   )}
                 </tr>
@@ -1735,11 +1955,11 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
               <tbody className="divide-y divide-gray-800/50">
                 {historialReciente.map((r, i) => (
                   <tr key={i} className="hover:bg-gray-800/50">
-                    <td className="py-2 px-2 text-gray-300">{formatDate(r.fecha)}</td>
+                    <td className="py-2 px-2 text-gray-300">{formatDate(modo === 'pesaje' ? r.fecha_pesaje : r.fecha)}</td>
                     <td className="py-2 px-2">
-                      <AnimalLink id={r.animal} onAnimalClick={onAnimalClick} className="text-green-400 font-bold text-sm" />
+                      <AnimalLink id={modo === 'muerte' ? r.cria : r.animal} onAnimalClick={onAnimalClick} className="text-green-400 font-bold text-sm" />
                     </td>
-                    {modo === 'venta' ? (
+                    {modo === 'venta' && (
                       <>
                         <td className="py-2 px-2"><span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${CAT_COLORS[r.tipo] || 'bg-gray-600 text-gray-300'}`}>{r.tipo}</span></td>
                         <td className="py-2 px-2 text-right text-gray-300">{r.kg ? Math.round(r.kg).toLocaleString('es-CO') : '—'}</td>
@@ -1747,11 +1967,23 @@ function VentaTrasladoView({ nacimientos, setNacimientos, pesajes, ventas, setVe
                         <td className="py-2 px-2 text-right font-medium text-amber-400">{r.valor ? formatCurrency(r.valor) : '—'}</td>
                         <td className="py-2 px-2 text-gray-400 truncate max-w-[120px]">{r.cliente || '—'}</td>
                       </>
-                    ) : (
+                    )}
+                    {modo === 'traslado' && (
                       <>
                         <td className="py-2 px-2"><span className={`text-xs ${r.finca_origen === 'La Vega' ? 'text-green-500' : 'text-blue-500'}`}>{r.finca_origen}</span></td>
                         <td className="py-2 px-2"><span className={`text-xs font-medium ${r.finca_destino === 'La Vega' ? 'text-green-400' : 'text-blue-400'}`}>→ {r.finca_destino}</span></td>
                         <td className="py-2 px-2 text-gray-500 truncate max-w-[200px]">{r.observaciones || '—'}</td>
+                      </>
+                    )}
+                    {modo === 'muerte' && (
+                      <td className="py-2 px-2 text-gray-400 text-xs">{r.comentario || '—'}</td>
+                    )}
+                    {modo === 'pesaje' && (
+                      <>
+                        <td className="py-2 px-2"><span className={`text-xs ${r.finca === 'La Vega' ? 'text-green-500' : 'text-blue-500'}`}>{r.finca}</span></td>
+                        <td className="py-2 px-2 text-right text-gray-200 font-medium">{r.peso ? `${Math.round(r.peso)} kg` : '—'}</td>
+                        <td className="py-2 px-2 text-right text-gray-400">{r.edad_meses ? r.edad_meses.toFixed(1) : '—'}</td>
+                        <td className="py-2 px-2 text-right text-gray-400">{r.gdp_vida ? `${Math.round(r.gdp_vida)} g/d` : '—'}</td>
                       </>
                     )}
                   </tr>
