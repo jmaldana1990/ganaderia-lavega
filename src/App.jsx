@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle, ArrowRightLeft, Truck, Skull } from 'lucide-react';
+import { PlusCircle, Search, TrendingUp, DollarSign, FileText, Check, X, Edit2, Trash2, BarChart3, PieChart, Menu, Home, Receipt, Beef, ChevronLeft, ChevronRight, Baby, Scale, Users, Upload, LogOut, Loader2, Wifi, WifiOff, RefreshCw, MapPin, ShoppingCart, Target, Activity, Clock, AlertTriangle, ArrowRightLeft, Truck, Skull, Sparkles } from 'lucide-react';
 import { CATEGORIAS, CENTROS_COSTOS, PROVEEDORES_CONOCIDOS } from './datos';
 import { GASTOS_HISTORICOS } from './gastos-historicos';
 import { NACIMIENTOS_LA_VEGA } from './nacimientos-lavega';
@@ -10,6 +10,7 @@ import CargaArchivos from './CargaArchivos';
 import KPITrends from './KPITrends';
 import Contabilidad from './Contabilidad';
 import { VENTAS_GANADO, TIPO_ANIMAL_LABELS } from './ventas-ganado';
+import AIAssistant from './AIAssistant';
 
 // ==================== HELPERS ====================
 const formatCurrency = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v);
@@ -726,6 +727,7 @@ export default function GanaderiaApp() {
     { id: 'ventas', icon: ShoppingCart, label: 'Ventas Totales', accent: 'text-amber-500', roles: ['admin'] },
     { id: 'costos', icon: Receipt, label: 'Costos y Gastos', roles: ['admin'] },
     { id: 'contabilidad', icon: FileText, label: 'Contabilidad', accent: 'text-amber-400', roles: ['admin', 'contadora'] },
+    { id: 'ai-assistant', icon: Sparkles, label: 'Asistente AI', accent: 'text-green-400', roles: ['admin'] },
   ];
   const menuItems = allMenuItems.filter(item => item.roles.includes(userRole));
 
@@ -821,6 +823,15 @@ export default function GanaderiaApp() {
               setGastos(g);
             }} userRole={userRole} userEmail={user?.email} />
           )}
+          {view === 'ai-assistant' && (
+            <AIAssistant inline={true}
+              nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones}
+              servicios={servicios} ventas={ventas} gastos={gastos} inventario={inventario}
+              destetes={destetes} traslados={traslados} genealogia={genealogia}
+              userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId}
+              setNacimientos={setNacimientos} setVentas={setVentas} setPesajes={setPesajes} setTraslados={setTraslados}
+            />
+          )}
         </main>
       </div>
 
@@ -833,6 +844,17 @@ export default function GanaderiaApp() {
           nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones}
           servicios={servicios} ventas={ventas} destetes={destetes}
           onAnimalClick={(id) => setAnimalModalId(id)} />
+      )}
+
+      {/* AI Assistant (floating — hidden when in inline view) */}
+      {user && view !== 'ai-assistant' && (
+        <AIAssistant
+          nacimientos={nacimientos} pesajes={pesajes} palpaciones={palpaciones}
+          servicios={servicios} ventas={ventas} gastos={gastos} inventario={inventario}
+          destetes={destetes} traslados={traslados} genealogia={genealogia}
+          userEmail={user?.email} isOnline={isOnline} onAnimalClick={setAnimalModalId}
+          setNacimientos={setNacimientos} setVentas={setVentas} setPesajes={setPesajes} setTraslados={setTraslados}
+        />
       )}
     </div>
   );
