@@ -2649,7 +2649,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
   const [successMsg, setSuccessMsg] = useState('');
   const [pdfFile, setPdfFile] = useState(null); // PDF to upload with form
   const [showHatoList, setShowHatoList] = useState(false);
-  const [formMode, setFormMode] = useState('choose'); // 'choose' | 'pdf-upload' | 'pdf-review' | 'manual'
+  const [formMode, setFormMode] = useState('choose'); // 'choose' | 'pdf-upload' | 'pdf-review' | 'pdf-scanned' | 'manual'
   const [extracting, setExtracting] = useState(false);
 
   // Load pdf.js dynamically and extract text
@@ -2740,61 +2740,69 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
       if (madreMatch) data.madre_nombre = madreMatch[1].trim();
     }
 
-    // Angus / Red Angus format
+    // Angus / Red Angus format (from ABS web printout)
     if (data.raza === 'Angus' || data.raza === 'Red Angus') {
-      const nameMatch = t.match(/BIEBER\s+\w+\s+\w+/i);
-      if (nameMatch) data.nombre = nameMatch[0];
+      // Name: BIEBER SPARTAN E639
+      const nameMatch = t.match(/(?:BULL:?\s*)?(?:BIEBER\s+\w+\s+\w+)/i);
+      if (nameMatch) data.nombre = nameMatch[0].replace(/^BULL:?\s*/i, '').trim();
+      // Registration
       const regMatch = t.match(/RAAA\s+(\d+)/i);
       if (regMatch) data.registro_num = 'RAAA ' + regMatch[1];
-      const nacMatch = t.match(/Fecha\s+de\s+Nac(?:imento|imiento):?\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+      // Birth date (US format M/D/YYYY)
+      const nacMatch = t.match(/(?:Fecha\s+de\s+Nac\w*:?\s*|Nacimento:?\s*)(\d{1,2}\/\d{1,2}\/\d{4})/i);
       if (nacMatch) {
         const parts = nacMatch[1].split('/');
         if (parts.length === 3) data.fecha_nacimiento = `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
       }
-      // EPDs
-      const cedMatch = t.match(/CED\s+.*?EPD\s+\+?([-\d.,]+)/i);
-      const bwEpd = t.match(/BW\s+.*?(?:EPD\s+)?\+?([-\d.,]+)/i);
-      const wwEpd = t.match(/WW\s+.*?(?:\+)([\d]+)/);
-      const milkEpd = t.match(/MILK\s+.*?(?:\+)([\d]+)/);
-
-      // Try to extract EPDs from table pattern: EPD +10 -0.9 +79 +118 ...
-      const epdLine = t.match(/EPD\s+([\+\-\d.,\s]+)/g);
-      if (epdLine && epdLine.length > 0) {
-        const nums = epdLine[0].replace('EPD', '').trim().split(/\s+/);
-        if (nums.length >= 5) {
-          data.epd_ced = nums[0]?.replace('+', '') || '';
-          data.epd_bw = nums[1]?.replace('+', '') || '';
-          data.epd_ww = nums[2]?.replace('+', '') || '';
-          data.epd_yw = nums[3]?.replace('+', '') || '';
-          data.epd_milk = nums[5]?.replace('+', '') || '';
-        }
-        if (epdLine.length > 1) {
-          const nums2 = epdLine[1].replace('EPD', '').trim().split(/\s+/);
-          if (nums2.length >= 4) {
-            data.epd_marb = nums2[2]?.replace('+', '') || '';
-            data.epd_cw = nums2[4]?.replace('+', '') || '';
-            data.epd_rea = nums2[5]?.replace('+', '') || '';
-          }
+      // EPDs: find pattern CED...HPG then EPD followed by numbers
+      // pdf.js joins as: "CED BW WW YW ADG DMI MILK ME HPG EPD +10 -0,9 +79 +118 ..."
+      const epdBlock = t.match(/CED\s+BW\s+WW\s+YW\s+ADG\s+DMI\s+MILK\s+ME\s+HPG\s+EPD\s+([\+\-\d.,\s]+?)(?:ACC|$)/i);
+      if (epdBlock) {
+        const vals = epdBlock[1].trim().split(/\s+/);
+        if (vals.length >= 7) {
+          data.epd_ced = vals[0]?.replace('+','') || '';
+          data.epd_bw = vals[1]?.replace('+','') || '';
+          data.epd_ww = vals[2]?.replace('+','') || '';
+          data.epd_yw = vals[3]?.replace('+','') || '';
+          data.epd_milk = vals[6]?.replace('+','') || '';
         }
       }
-      // Pedigree
+      // Second EPD row: CEM STAY MARB YG CW REA FAT ...
+      const epd2Block = t.match(/CEM\s+STAY\s+MARB\s+YG\s+CW\s+REA\s+FAT\s+\w+\s+\w+\s+\w+\s+EPD\s+([\+\-\d.,\s]+?)(?:ACC|$)/i);
+      if (epd2Block) {
+        const vals = epd2Block[1].trim().split(/\s+/);
+        if (vals.length >= 6) {
+          data.epd_marb = vals[2]?.replace('+','') || '';
+          data.epd_cw = vals[4]?.replace('+','') || '';
+          data.epd_rea = vals[5]?.replace('+','') || '';
+        }
+      }
+      // Pedigree: BIEBER names in order
       const pedigreeNames = t.match(/BIEBER\s+\w+\s+\w+/gi);
-      if (pedigreeNames && pedigreeNames.length >= 3) {
+      if (pedigreeNames && pedigreeNames.length >= 4) {
+        // [0] = animal itself, [1] = sire's sire, [2] = sire, [3] = sire's dam...
+        data.padre_nombre = pedigreeNames[2] || '';
         data.abuelo_p = pedigreeNames[1] || '';
-        data.abuela_p = pedigreeNames[2] || '';
+        data.abuela_p = pedigreeNames[3] || '';
+      } else if (pedigreeNames && pedigreeNames.length >= 2) {
+        data.padre_nombre = pedigreeNames[1] || '';
       }
+      // Other pedigree names (VGW, OLC etc)
+      const vgwMatch = t.match(/(VGW\s+\w+\s+\w+)/i);
+      if (vgwMatch) data.madre_nombre = vgwMatch[1];
       // Performance
-      const bwMatch = t.match(/BW\s+(\d+)\s*Lbs/i);
-      if (bwMatch) data.peso_nacimiento = bwMatch[1] + ' Lbs';
-      const wwMatch = t.match(/205\s+(\d+)\s*Lbs/i);
-      if (wwMatch) data.peso_205 = wwMatch[1] + ' Lbs';
-      const ywMatch = t.match(/365\s+(\d+)\s*Lbs/i);
-      if (ywMatch) data.peso_365 = ywMatch[1] + ' Lbs';
-
+      const perfMatch = t.match(/BW\s+205\s+365[\s\S]*?(\d+)\s*Lbs\s+(\d+)\s*Lbs\s+(\d+)\s*Lbs/i);
+      if (perfMatch) {
+        data.peso_nacimiento = perfMatch[1] + ' Lbs';
+        data.peso_205 = perfMatch[2] + ' Lbs';
+        data.peso_365 = perfMatch[3] + ' Lbs';
+      }
+      // Derive numero from name
       if (!data.numero && data.nombre) {
         const parts = data.nombre.split(/\s+/);
         data.numero = parts[parts.length - 1] || '';
       }
+      data.sexo = 'M'; // Bulls from ABS are always male
     }
 
     data.propietario = data.propietario || 'Inversiones Empresariales A&C';
@@ -2806,14 +2814,29 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
     setExtracting(true);
     try {
       const text = await extractPdfText(file);
-      console.log('[PDF Extract]', text.substring(0, 500));
-      const parsed = parsePdfText(text);
-      setForm(parsed);
-      setFormMode('pdf-review');
+      console.log('[PDF Extract] Length:', text.length, 'Text:', text.substring(0, 300));
+      // Check if text is meaningful (scanned PDFs return empty or very short garbage)
+      const cleanText = text.replace(/\s+/g, ' ').trim();
+      if (cleanText.length < 30) {
+        // Scanned PDF — no extractable text
+        setForm({ ...initForm, propietario: 'Inversiones Empresariales A&C' });
+        setFormMode('pdf-scanned');
+      } else {
+        const parsed = parsePdfText(text);
+        // Check if parsing actually found anything useful
+        const hasData = parsed.numero || parsed.nombre || parsed.padre_nombre || parsed.registro_num;
+        if (hasData) {
+          setForm(parsed);
+          setFormMode('pdf-review');
+        } else {
+          setForm({ ...initForm, propietario: 'Inversiones Empresariales A&C' });
+          setFormMode('pdf-scanned');
+        }
+      }
     } catch (e) {
       console.error('Error extrayendo PDF:', e);
-      alert('No se pudo leer el PDF automáticamente. Se abrirá el formulario manual.');
-      setFormMode('manual');
+      setForm({ ...initForm, propietario: 'Inversiones Empresariales A&C' });
+      setFormMode('pdf-scanned');
     } finally {
       setExtracting(false);
     }
@@ -3123,7 +3146,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
                     <div className="w-20 text-right text-gray-500 text-xs font-medium">Padre</div>
                     <div className="flex-1 bg-blue-900/20 border border-blue-800/50 rounded-lg px-3 py-2">
                       <p className="text-blue-300 font-medium">{fichaReg.padre_nombre || '—'}</p>
-                      {fichaReg.padre_registro && <p className="text-blue-400/60 text-xs">Reg: {fichaReg.padre_registro}</p>}
+                      {fichaReg.padre_registro && <p className="text-blue-400/60 text-xs"># {fichaReg.padre_registro}</p>}
                     </div>
                   </div>
                   {(fichaReg.datos_extras?.abuelo_p || fichaReg.datos_extras?.abuela_p) && (
@@ -3138,7 +3161,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
                     <div className="w-20 text-right text-gray-500 text-xs font-medium">Madre</div>
                     <div className="flex-1 bg-pink-900/20 border border-pink-800/50 rounded-lg px-3 py-2">
                       <p className="text-pink-300 font-medium">{fichaReg.madre_nombre || '—'}</p>
-                      {fichaReg.madre_registro && <p className="text-pink-400/60 text-xs">Reg: {fichaReg.madre_registro}</p>}
+                      {fichaReg.madre_registro && <p className="text-pink-400/60 text-xs"># {fichaReg.madre_registro}</p>}
                     </div>
                   </div>
                   {(fichaReg.datos_extras?.abuelo_m || fichaReg.datos_extras?.abuela_m) && (
@@ -3209,7 +3232,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
           <div className="bg-gray-900 rounded-2xl w-full max-w-2xl border border-gray-700 my-8 shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="p-5 border-b border-gray-800">
               <h3 className="text-lg font-bold text-gray-100">
-                {editando ? '✏️ Editar Registro' : formMode === 'choose' ? '📋 Nuevo Registro Genealógico' : formMode === 'pdf-upload' || formMode === 'pdf-review' ? '📄 Registrar desde PDF' : '✍️ Registro Manual'}
+                {editando ? '✏️ Editar Registro' : formMode === 'choose' ? '📋 Nuevo Registro Genealógico' : formMode === 'pdf-upload' ? '📄 Registrar desde PDF' : formMode === 'pdf-review' ? '📄 Datos extraídos del PDF' : formMode === 'pdf-scanned' ? '📄 PDF cargado — completar datos' : '✍️ Registro Manual'}
               </h3>
               {formMode !== 'choose' && !editando && (
                 <button onClick={() => setFormMode('choose')} className="text-xs text-gray-500 hover:text-gray-300 mt-1">← Volver a elegir método</button>
@@ -3267,7 +3290,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
               )}
 
               {/* STEP 2b: PDF Review (pre-filled form) or Manual form */}
-              {(formMode === 'pdf-review' || formMode === 'manual' || editando) && (<>
+              {(formMode === 'pdf-review' || formMode === 'pdf-scanned' || formMode === 'manual' || editando) && (<>
 
                 {/* PDF confirmation banner */}
                 {formMode === 'pdf-review' && pdfFile && (
@@ -3277,7 +3300,21 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
                       <span className="text-blue-300">{pdfFile.name}</span>
                       <span className="text-blue-400/60 text-xs">({(pdfFile.size / 1024).toFixed(0)} KB)</span>
                     </div>
-                    <span className="text-xs text-blue-400">Datos extraídos — revisa y confirma</span>
+                    <span className="text-xs text-blue-400">✅ Datos extraídos — revisa y confirma</span>
+                  </div>
+                )}
+
+                {/* Scanned PDF banner */}
+                {formMode === 'pdf-scanned' && pdfFile && (
+                  <div className="bg-amber-900/20 border border-amber-800 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-amber-400">📄</span>
+                        <span className="text-amber-300">{pdfFile.name}</span>
+                        <span className="text-amber-400/60 text-xs">({(pdfFile.size / 1024).toFixed(0)} KB)</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-amber-400/80">⚠️ Este PDF es una imagen escaneada. Los datos no se pudieron extraer automáticamente. Completa el formulario manualmente — el PDF quedará adjunto al registro.</p>
                   </div>
                 )}
 
@@ -3345,13 +3382,13 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
                 <p className="text-xs text-gray-500 font-semibold uppercase mt-4">Genealogía</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="block text-xs text-gray-400 mb-1">Nombre Padre</label>
-                    <input type="text" value={form.padre_nombre} onChange={e => setForm({ ...form, padre_nombre: e.target.value })} placeholder="Nombre del padre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                    <input type="text" value={form.padre_nombre} onChange={e => setForm({ ...form, padre_nombre: e.target.value })} placeholder="Ej: HATOVIEJO-REYSOL-T375-5" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
                   <div><label className="block text-xs text-gray-400 mb-1">Número Padre</label>
-                    <input type="text" value={form.padre_registro} onChange={e => setForm({ ...form, padre_registro: e.target.value })} placeholder="# registro padre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                    <input type="text" value={form.padre_registro} onChange={e => setForm({ ...form, padre_registro: e.target.value })} placeholder="Ej: T375-5 o 1426" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
                   <div><label className="block text-xs text-gray-400 mb-1">Nombre Madre</label>
-                    <input type="text" value={form.madre_nombre} onChange={e => setForm({ ...form, madre_nombre: e.target.value })} placeholder="Nombre de la madre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                    <input type="text" value={form.madre_nombre} onChange={e => setForm({ ...form, madre_nombre: e.target.value })} placeholder="Ej: HATOVIEJO GITANA V572" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
                   <div><label className="block text-xs text-gray-400 mb-1">Número Madre</label>
-                    <input type="text" value={form.madre_registro} onChange={e => setForm({ ...form, madre_registro: e.target.value })} placeholder="# registro madre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                    <input type="text" value={form.madre_registro} onChange={e => setForm({ ...form, madre_registro: e.target.value })} placeholder="Ej: V572 o 532-9" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
                 </div>
 
                 {/* Abuelos */}
