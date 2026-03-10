@@ -29,66 +29,153 @@ export default function AIAssistant({ nacimientos, pesajes, palpaciones, servici
   // Build context summary from current data
   const buildContext = useCallback(() => {
     const nac = nacimientos || [];
+    const hoy = new Date();
+    const hoyStr = hoy.toISOString().split('T')[0];
+    const year = hoy.getFullYear();
     const activos = nac.filter(n => n.estado === 'Activo');
     const laVega = activos.filter(n => (n.fincaDB || 'La Vega') === 'La Vega');
     const bariloche = activos.filter(n => (n.fincaDB || 'La Vega') === 'Bariloche');
-    const vendidos = nac.filter(n => n.estado === 'Vendido');
-    const muertos = nac.filter(n => n.estado === 'Muerto');
 
     // Category counts
     const cats = {};
-    activos.forEach(n => {
-      const cat = n.categoriaActual || n.categoria_actual || '?';
-      cats[cat] = (cats[cat] || 0) + 1;
+    activos.forEach(n => { const cat = n.categoriaActual || n.categoria_actual || '?'; cats[cat] = (cats[cat] || 0) + 1; });
+
+    // ======== VACAS MADRE — Días abiertos y estado reproductivo ========
+    const madreMap = {};
+    nac.forEach(n => {
+      if (!n.madre || n.estado === 'Muerto') return;
+      const mId = String(n.madre).trim();
+      if (!madreMap[mId]) madreMap[mId] = { id: mId, partos: [], finca: 'La Vega' };
+      madreMap[mId].partos.push({
+        cria: n.cria, fecha: n.fecha, sexo: n.sexo,
+        destetada: !!(n.pesoDestete || n.peso_destete || n.fechaDestete || n.fecha_destete),
+        pesoNacer: n.pesoNacer || n.peso_nacer
+      });
+    });
+    // Enrich with finca and estado from nacimientos (if madre is also a cria)
+    Object.values(madreMap).forEach(m => {
+      const nacMadre = nac.find(n => String(n.cria).trim() === m.id);
+      if (nacMadre) {
+        m.finca = nacMadre.fincaDB || 'La Vega';
+        m.estado = nacMadre.estado;
+      }
+      m.partos.sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+      const ultimo = m.partos[0];
+      if (ultimo?.fecha && ultimo.fecha !== '1900-01-01') {
+        const dias = Math.round((hoy - new Date(ultimo.fecha + 'T00:00:00')) / 86400000);
+        m.diasAbiertos = dias;
+        m.ultimoParto = ultimo.fecha;
+        m.ultimaCria = ultimo.cria;
+        m.ultimaCriaDestetada = ultimo.destetada;
+      }
+      m.numPartos = m.partos.length;
+      // VP if last cria not weaned, VS if weaned
+      m.categoria = (ultimo && !ultimo.destetada) ? 'VP' : 'VS';
+    });
+    const madres = Object.values(madreMap).filter(m => m.estado !== 'Vendido' && m.estado !== 'Muerto');
+    const madresOrdenadas = madres.filter(m => m.diasAbiertos != null).sort((a, b) => b.diasAbiertos - a.diasAbiertos);
+
+    // Top 20 vacas con más días abiertos
+    const topDiasAbiertos = madresOrdenadas.slice(0, 20).map(m =>
+      `${m.id}: ${m.diasAbiertos}d abiertos, ${m.categoria}, ${m.numPartos} partos, últ.parto ${m.ultimoParto}, cría ${m.ultimaCria}${m.ultimaCriaDestetada ? ' (destetada)' : ' (al pie)'}, finca ${m.finca}`
+    ).join('\n');
+
+    // Vacas con días abiertos > 120 (alerta)
+    const vacasAlerta = madresOrdenadas.filter(m => m.diasAbiertos > 120);
+
+    // ======== CRÍAS CANDIDATAS A DESTETE (>7 meses sin destetar) ========
+    const criasDestete = activos.filter(n => {
+      if (!n.fecha || n.fecha === '1900-01-01') return false;
+      if (n.pesoDestete || n.peso_destete || n.fechaDestete || n.fecha_destete) return false;
+      const dias = Math.round((hoy - new Date(n.fecha + 'T00:00:00')) / 86400000);
+      return dias >= 210 && (n.categoriaActual === 'CM' || n.categoriaActual === 'CH' || n.categoria_actual === 'CM' || n.categoria_actual === 'CH');
+    }).map(n => {
+      const dias = Math.round((hoy - new Date(n.fecha + 'T00:00:00')) / 86400000);
+      return `${n.cria}: ${dias} días, ${n.sexo}, madre ${n.madre || '?'}, finca ${n.fincaDB || 'La Vega'}`;
     });
 
-    // Recent births
-    const recentBirths = nac.filter(n => n.fecha && n.fecha > new Date(Date.now() - 90 * 86400000).toISOString().split('T')[0])
-      .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 5);
+    // ======== ANIMALES EN LEVANTE — últimos pesajes y GDP ========
+    const pesajesPorAnimal = {};
+    (pesajes || []).forEach(p => {
+      if (!p.animal) return;
+      const id = String(p.animal).trim();
+      if (!pesajesPorAnimal[id]) pesajesPorAnimal[id] = [];
+      pesajesPorAnimal[id].push(p);
+    });
+    Object.values(pesajesPorAnimal).forEach(arr => arr.sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || '')));
 
-    // Ventas del año
-    const year = new Date().getFullYear();
+    const levante = activos.filter(n => {
+      const cat = n.categoriaActual || n.categoria_actual;
+      return ['ML', 'HL', 'NV'].includes(cat);
+    }).map(n => {
+      const id = String(n.cria).trim();
+      const ps = pesajesPorAnimal[id];
+      const ultimo = ps?.[0];
+      return {
+        id, cat: n.categoriaActual || n.categoria_actual, sexo: n.sexo,
+        finca: n.fincaDB || 'La Vega',
+        pesoActual: ultimo?.peso ? Math.round(ultimo.peso) : null,
+        fechaPesaje: ultimo?.fecha_pesaje,
+        gdpVida: ultimo?.gdp_vida ? Math.round(ultimo.gdp_vida) : null
+      };
+    }).filter(a => a.pesoActual);
+    const levanteStr = levante.slice(0, 30).map(a =>
+      `${a.id}: ${a.cat}, ${a.pesoActual}kg (${a.fechaPesaje}), GDP ${a.gdpVida || '?'} g/d, ${a.finca}`
+    ).join('\n');
+
+    // ======== PALPACIONES RECIENTES ========
+    const palpStr = (palpaciones || []).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 15).map(p =>
+      `${p.hembra}: ${p.resultado}${p.dias_gestacion ? ', ' + p.dias_gestacion + 'd gest' : ''} (${p.fecha})`
+    ).join('\n');
+
+    // ======== SERVICIOS IA/TE RECIENTES ========
+    const servStr = (servicios || []).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 15).map(s =>
+      `${s.hembra}: ${s.tipo || 'IA'}, toro ${s.toro || '?'}${s.tecnico ? ', téc:' + s.tecnico : ''} (${s.fecha})`
+    ).join('\n');
+
+    // ======== VENTAS Y COSTOS ========
     const ventasAño = (ventas || []).filter(v => v.año === year);
     const totalVentasKg = ventasAño.reduce((s, v) => s + (v.kg || 0), 0);
     const totalVentasValor = ventasAño.reduce((s, v) => s + (v.valor || 0), 0);
-
-    // Costos del año
-    const costosAño = (gastos || []).filter(g => {
-      const gAño = g.año || (g.fecha ? parseInt(g.fecha.split('-')[0]) : null);
-      return gAño === year;
-    });
+    const costosAño = (gastos || []).filter(g => { const a = g.año || (g.fecha ? parseInt(g.fecha.split('-')[0]) : null); return a === year; });
     const totalCostos = costosAño.reduce((s, g) => s + (g.monto || 0), 0);
 
-    // Recent pesajes
-    const recentPesajes = (pesajes || []).sort((a, b) => (b.fecha_pesaje || '').localeCompare(a.fecha_pesaje || '')).slice(0, 5);
+    const ventasRecientes = (ventas || []).filter(v => v.animal).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 10).map(v =>
+      `${v.animal}: ${v.kg}kg × $${v.precio?.toLocaleString('es-CO')}/kg = $${v.valor?.toLocaleString('es-CO')}, ${v.cliente || '?'} (${v.fecha})`
+    ).join('\n');
 
-    // Servicios del año
-    const servAño = (servicios || []).filter(s => s.fecha && s.fecha.startsWith(String(year)));
-
-    // Palpaciones recientes
-    const palpRecientes = (palpaciones || []).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).slice(0, 5);
-
-    // Genealogia summary
-    const genCount = (genealogia || []).length;
-    const genRazas = {};
-    (genealogia || []).forEach(g => { genRazas[g.raza] = (genRazas[g.raza] || 0) + 1; });
-
-    const stats = `- Total animales activos: ${activos.length} (La Vega: ${laVega.length}, Bariloche: ${bariloche.length})
-- Vendidos: ${vendidos.length}, Muertos: ${muertos.length}
+    const stats = `### Inventario Actual
+- Total animales activos: ${activos.length} (La Vega: ${laVega.length}, Bariloche: ${bariloche.length})
 - Categorías: ${Object.entries(cats).map(([k, v]) => `${k}:${v}`).join(', ')}
-- Nacimientos registrados: ${nac.length}
-- Registros genealógicos: ${genCount} (${Object.entries(genRazas).map(([k, v]) => `${k}:${v}`).join(', ')})`;
+- Vendidos total: ${nac.filter(n => n.estado === 'Vendido').length}, Muertos total: ${nac.filter(n => n.estado === 'Muerto').length}
+- Total madres activas: ${madres.length} (VP:${madres.filter(m=>m.categoria==='VP').length}, VS:${madres.filter(m=>m.categoria==='VS').length})
+- Vacas con >120 días abiertos (ALERTA): ${vacasAlerta.length}
+- Promedio días abiertos: ${madresOrdenadas.length > 0 ? Math.round(madresOrdenadas.reduce((s,m)=>s+m.diasAbiertos,0)/madresOrdenadas.length) : '?'} días`;
 
-    const recentEvents = `- Últimos nacimientos: ${recentBirths.map(n => `${n.cria} (${n.fecha}, ${n.sexo}, madre:${n.madre || '?'})`).join('; ') || 'Ninguno reciente'}
-- Últimos pesajes: ${recentPesajes.map(p => `${p.animal} ${p.peso}kg (${p.fecha_pesaje}, ${p.finca})`).join('; ') || 'Ninguno'}
-- Servicios IA/TE ${year}: ${servAño.length} registrados
-- Palpaciones recientes: ${palpRecientes.map(p => `${p.hembra} ${p.resultado} (${p.fecha})`).join('; ') || 'Ninguna'}
-- Traslados: ${(traslados || []).slice(0, 3).map(t => `${t.animal} ${t.finca_origen}→${t.finca_destino} (${t.fecha})`).join('; ') || 'Ninguno'}`;
+    const recentEvents = `### Top 20 Vacas con Más Días Abiertos
+${topDiasAbiertos || 'Sin datos de partos'}
 
-    const kpis = `- Ventas ${year}: ${ventasAño.length} transacciones, ${totalVentasKg.toLocaleString('es-CO')} kg, $${totalVentasValor.toLocaleString('es-CO')} COP
-- Precio promedio/kg ${year}: $${totalVentasKg > 0 ? Math.round(totalVentasValor / totalVentasKg).toLocaleString('es-CO') : '—'} COP
-- Costos ${year}: $${totalCostos.toLocaleString('es-CO')} COP
-- Costo/kg vendido: $${totalVentasKg > 0 ? Math.round(totalCostos / totalVentasKg).toLocaleString('es-CO') : '—'} COP`;
+### Crías Candidatas a Destete (>210 días sin destetar)
+${criasDestete.length > 0 ? criasDestete.join('\n') : 'Ninguna pendiente'}
+
+### Animales en Levante (últimos pesajes)
+${levanteStr || 'Sin pesajes recientes'}
+
+### Últimas Palpaciones
+${palpStr || 'Ninguna'}
+
+### Últimos Servicios IA/TE
+${servStr || 'Ninguno'}
+
+### Ventas Individuales Recientes
+${ventasRecientes || 'Ninguna'}`;
+
+    const kpis = `### Indicadores ${year}
+- Ventas: ${ventasAño.length} transacciones, ${totalVentasKg.toLocaleString('es-CO')} kg, $${totalVentasValor.toLocaleString('es-CO')} COP
+- Precio prom/kg: $${totalVentasKg > 0 ? Math.round(totalVentasValor / totalVentasKg).toLocaleString('es-CO') : '—'}/kg
+- Costos totales: $${totalCostos.toLocaleString('es-CO')} COP
+- Costo/kg vendido: $${totalVentasKg > 0 ? Math.round(totalCostos / totalVentasKg).toLocaleString('es-CO') : '—'}/kg
+- Margen/kg: $${totalVentasKg > 0 ? (Math.round(totalVentasValor / totalVentasKg) - Math.round(totalCostos / totalVentasKg)).toLocaleString('es-CO') : '—'}/kg`;
 
     return { stats, recentEvents, kpis };
   }, [nacimientos, pesajes, palpaciones, servicios, ventas, gastos, traslados, genealogia]);
