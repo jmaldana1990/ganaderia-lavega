@@ -2649,6 +2649,175 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
   const [successMsg, setSuccessMsg] = useState('');
   const [pdfFile, setPdfFile] = useState(null); // PDF to upload with form
   const [showHatoList, setShowHatoList] = useState(false);
+  const [formMode, setFormMode] = useState('choose'); // 'choose' | 'pdf-upload' | 'pdf-review' | 'manual'
+  const [extracting, setExtracting] = useState(false);
+
+  // Load pdf.js dynamically and extract text
+  const extractPdfText = async (file) => {
+    if (!window.pdfjsLib) {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      document.head.appendChild(script);
+      await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      fullText += content.items.map(item => item.str).join(' ') + '\n';
+    }
+    return fullText;
+  };
+
+  // Parse extracted text into form fields
+  const parsePdfText = (text) => {
+    const data = { ...initForm };
+    const t = text.replace(/\s+/g, ' ');
+
+    // Detect raza
+    if (/BLANCO.?OREJINEGRO|ASOCRIOLLO|BON-/i.test(t)) {
+      data.raza = 'BON'; data.asociacion = 'ASOCRIOLLO';
+    } else if (/BRANGUS/i.test(t)) {
+      data.raza = 'Brangus'; data.asociacion = 'Angus & Brangus Colombia';
+    } else if (/RED\s*ANGUS|RAAA/i.test(t)) {
+      data.raza = 'Red Angus'; data.asociacion = 'RAAA';
+    } else if (/ANGUS|ABERDEEN/i.test(t)) {
+      data.raza = 'Angus'; data.asociacion = 'RAAA';
+    }
+
+    // Sexo
+    if (/SEXO:?\s*MACHO|MACHO\s*BRANGUS|Bull/i.test(t)) data.sexo = 'M';
+    else if (/SEXO:?\s*HEMBRA|HEMBRA|Cow|Heifer/i.test(t)) data.sexo = 'H';
+
+    // Color
+    const colorMatch = t.match(/Color\s+(\w+)|NEGRO|ROJO/i);
+    if (/NEGRO/i.test(t) && data.raza === 'Brangus') data.color = 'Negro';
+    if (/BLANCO.?OREJINEGRO/i.test(t)) data.color = 'Blanco Orejinegro';
+
+    // BON format
+    if (data.raza === 'BON') {
+      const regMatch = t.match(/REGISTRO:?\s*(BON-\d+)/i);
+      if (regMatch) data.registro_num = regMatch[1];
+      const numMatch = t.match(/N[UÚ]MERO:?\s*([A-Z0-9\-]+)/i);
+      if (numMatch) data.numero = numMatch[1];
+      const nameMatch = t.match(/NOMBRE:?\s*(HATOVIEJO[^,\n]*?)(?:\s+REGISTRO|\s+N[UÚ]MERO|\s+SEXO)/i);
+      if (nameMatch) data.nombre = nameMatch[1].trim();
+      const nacMatch = t.match(/NACIMIENTO:?\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+      if (nacMatch) {
+        const parts = nacMatch[1].split('/');
+        if (parts.length === 3) data.fecha_nacimiento = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+      }
+      const padreMatch = t.match(/PADRE\s+(BON-\d+)\s+([\w\s\-]+?)(?=\s+(?:MADRE|BON-))/i);
+      if (!padreMatch) {
+        const pm = t.match(/PADRE\s+([\w\-]+)\s+(BON-\d+)/i);
+        if (pm) { data.padre_nombre = pm[1]; data.padre_registro = pm[2]; }
+      } else { data.padre_registro = padreMatch[1]; data.padre_nombre = padreMatch[2].trim(); }
+      const madreMatch = t.match(/MADRE\s+(BON-\d+)\s+([\w\s\-]+?)(?=\s+(?:CRIADOR|La genealog|PROPIET))/i);
+      if (!madreMatch) {
+        const mm = t.match(/MADRE\s+([\w\-]+)\s+(BON-\d+)/i);
+        if (mm) { data.madre_nombre = mm[1]; data.madre_registro = mm[2]; }
+      } else { data.madre_registro = madreMatch[1]; data.madre_nombre = madreMatch[2].trim(); }
+      const criadorMatch = t.match(/CRIADOR\s+(.*?)(?=\s+PROPIETARIO)/i);
+      if (criadorMatch) data.criador = criadorMatch[1].trim();
+      const propMatch = t.match(/PROPIETARIO\s+(.*?)(?=\s+LA VEGA|\s+$)/i);
+      if (propMatch) data.propietario = propMatch[1].trim();
+    }
+
+    // Brangus format
+    if (data.raza === 'Brangus') {
+      const nameMatch = t.match(/Nombre\s+(LA CABA[ÑN]A[^0-9]*?)(?:\s+Naci[oó]|\s+Marca)/i);
+      if (nameMatch) data.nombre = nameMatch[1].trim();
+      const numMatch = t.match(/N[uú]mero\s+(\d[\d\-]+)/i);
+      if (numMatch) data.numero = numMatch[1];
+      const regMatch = t.match(/REG\.\s*(\.\d+)|F\.\s*Reg\.\s*(\d+)/i);
+      const nacMatch = t.match(/Naci[oó]\s+(\d{1,2}\s+de\s+\w+\s+de\s+\d{4})/i);
+      const padreMatch = t.match(/Padre\s+(RANCHO[^M]*?)(?=\s+Madre)/i);
+      if (padreMatch) data.padre_nombre = padreMatch[1].trim();
+      const madreMatch = t.match(/Madre\s+(LA CABA[ÑN]A[^C]*?)(?=\s+Criador|\s+La genealog)/i);
+      if (madreMatch) data.madre_nombre = madreMatch[1].trim();
+    }
+
+    // Angus / Red Angus format
+    if (data.raza === 'Angus' || data.raza === 'Red Angus') {
+      const nameMatch = t.match(/BIEBER\s+\w+\s+\w+/i);
+      if (nameMatch) data.nombre = nameMatch[0];
+      const regMatch = t.match(/RAAA\s+(\d+)/i);
+      if (regMatch) data.registro_num = 'RAAA ' + regMatch[1];
+      const nacMatch = t.match(/Fecha\s+de\s+Nac(?:imento|imiento):?\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+      if (nacMatch) {
+        const parts = nacMatch[1].split('/');
+        if (parts.length === 3) data.fecha_nacimiento = `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
+      }
+      // EPDs
+      const cedMatch = t.match(/CED\s+.*?EPD\s+\+?([-\d.,]+)/i);
+      const bwEpd = t.match(/BW\s+.*?(?:EPD\s+)?\+?([-\d.,]+)/i);
+      const wwEpd = t.match(/WW\s+.*?(?:\+)([\d]+)/);
+      const milkEpd = t.match(/MILK\s+.*?(?:\+)([\d]+)/);
+
+      // Try to extract EPDs from table pattern: EPD +10 -0.9 +79 +118 ...
+      const epdLine = t.match(/EPD\s+([\+\-\d.,\s]+)/g);
+      if (epdLine && epdLine.length > 0) {
+        const nums = epdLine[0].replace('EPD', '').trim().split(/\s+/);
+        if (nums.length >= 5) {
+          data.epd_ced = nums[0]?.replace('+', '') || '';
+          data.epd_bw = nums[1]?.replace('+', '') || '';
+          data.epd_ww = nums[2]?.replace('+', '') || '';
+          data.epd_yw = nums[3]?.replace('+', '') || '';
+          data.epd_milk = nums[5]?.replace('+', '') || '';
+        }
+        if (epdLine.length > 1) {
+          const nums2 = epdLine[1].replace('EPD', '').trim().split(/\s+/);
+          if (nums2.length >= 4) {
+            data.epd_marb = nums2[2]?.replace('+', '') || '';
+            data.epd_cw = nums2[4]?.replace('+', '') || '';
+            data.epd_rea = nums2[5]?.replace('+', '') || '';
+          }
+        }
+      }
+      // Pedigree
+      const pedigreeNames = t.match(/BIEBER\s+\w+\s+\w+/gi);
+      if (pedigreeNames && pedigreeNames.length >= 3) {
+        data.abuelo_p = pedigreeNames[1] || '';
+        data.abuela_p = pedigreeNames[2] || '';
+      }
+      // Performance
+      const bwMatch = t.match(/BW\s+(\d+)\s*Lbs/i);
+      if (bwMatch) data.peso_nacimiento = bwMatch[1] + ' Lbs';
+      const wwMatch = t.match(/205\s+(\d+)\s*Lbs/i);
+      if (wwMatch) data.peso_205 = wwMatch[1] + ' Lbs';
+      const ywMatch = t.match(/365\s+(\d+)\s*Lbs/i);
+      if (ywMatch) data.peso_365 = ywMatch[1] + ' Lbs';
+
+      if (!data.numero && data.nombre) {
+        const parts = data.nombre.split(/\s+/);
+        data.numero = parts[parts.length - 1] || '';
+      }
+    }
+
+    data.propietario = data.propietario || 'Inversiones Empresariales A&C';
+    return data;
+  };
+
+  const handlePdfUpload = async (file) => {
+    setPdfFile(file);
+    setExtracting(true);
+    try {
+      const text = await extractPdfText(file);
+      console.log('[PDF Extract]', text.substring(0, 500));
+      const parsed = parsePdfText(text);
+      setForm(parsed);
+      setFormMode('pdf-review');
+    } catch (e) {
+      console.error('Error extrayendo PDF:', e);
+      alert('No se pudo leer el PDF automáticamente. Se abrirá el formulario manual.');
+      setFormMode('manual');
+    } finally {
+      setExtracting(false);
+    }
+  };
   const RAZAS = ['BON', 'Angus', 'Red Angus', 'Brangus'];
   const RAZA_COLORS = {
     'BON': 'bg-amber-900/40 text-amber-400',
@@ -2740,6 +2909,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
     });
     setEditando(reg);
     setPdfFile(null);
+    setFormMode('manual');
     setShowForm(true);
   };
 
@@ -2845,7 +3015,7 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
           <h3 className="text-xl font-bold text-gray-100 flex items-center gap-2">📋 Registros Genealógicos</h3>
           <p className="text-gray-400 text-sm">{stats.total} animales registrados • {stats.machos} machos • {stats.hembras} hembras • {stats.conPdf} con PDF</p>
         </div>
-        <button onClick={() => { setForm(initForm); setEditando(null); setPdfFile(null); setShowForm(true); }}
+        <button onClick={() => { setForm(initForm); setEditando(null); setPdfFile(null); setFormMode('choose'); setShowForm(true); }}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-lg">
           <PlusCircle size={18} /> Nuevo Registro
         </button>
@@ -3038,180 +3208,242 @@ function RegistrosGenealogiaView({ genealogia, setGenealogia, nacimientos, userE
         <div className="fixed inset-0 bg-black/70 flex items-start justify-center z-[60] p-4 overflow-y-auto" onClick={() => setShowForm(false)}>
           <div className="bg-gray-900 rounded-2xl w-full max-w-2xl border border-gray-700 my-8 shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="p-5 border-b border-gray-800">
-              <h3 className="text-lg font-bold text-gray-100">{editando ? '✏️ Editar Registro' : '📋 Nuevo Registro Genealógico'}</h3>
+              <h3 className="text-lg font-bold text-gray-100">
+                {editando ? '✏️ Editar Registro' : formMode === 'choose' ? '📋 Nuevo Registro Genealógico' : formMode === 'pdf-upload' || formMode === 'pdf-review' ? '📄 Registrar desde PDF' : '✍️ Registro Manual'}
+              </h3>
+              {formMode !== 'choose' && !editando && (
+                <button onClick={() => setFormMode('choose')} className="text-xs text-gray-500 hover:text-gray-300 mt-1">← Volver a elegir método</button>
+              )}
             </div>
+
             <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-              {/* PDF Upload */}
-              <div className="bg-gray-800/50 rounded-xl p-4 border border-dashed border-gray-600">
-                <p className="text-xs text-gray-500 font-semibold uppercase mb-2">📄 Certificado de Registro (PDF)</p>
-                {pdfFile ? (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-green-400">✅</span>
-                      <span className="text-gray-300">{pdfFile.name}</span>
-                      <span className="text-gray-500 text-xs">({(pdfFile.size / 1024).toFixed(0)} KB)</span>
-                    </div>
-                    <button onClick={() => setPdfFile(null)} className="text-red-400 hover:text-red-300 text-xs">Quitar</button>
+
+              {/* STEP 1: Choose mode */}
+              {formMode === 'choose' && (
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-400">¿Cómo deseas registrar el animal?</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button onClick={() => setFormMode('pdf-upload')}
+                      className="flex flex-col items-center gap-3 p-6 bg-gray-800 hover:bg-gray-750 border-2 border-gray-700 hover:border-blue-500 rounded-2xl transition-all group">
+                      <div className="w-14 h-14 bg-blue-900/30 rounded-xl flex items-center justify-center group-hover:bg-blue-900/50 transition-colors">
+                        <Upload size={28} className="text-blue-400" />
+                      </div>
+                      <span className="text-gray-200 font-medium">Cargar PDF</span>
+                      <span className="text-xs text-gray-500 text-center">Sube el certificado de registro y la app extraerá los datos automáticamente</span>
+                    </button>
+                    <button onClick={() => setFormMode('manual')}
+                      className="flex flex-col items-center gap-3 p-6 bg-gray-800 hover:bg-gray-750 border-2 border-gray-700 hover:border-green-500 rounded-2xl transition-all group">
+                      <div className="w-14 h-14 bg-green-900/30 rounded-xl flex items-center justify-center group-hover:bg-green-900/50 transition-colors">
+                        <Edit2 size={28} className="text-green-400" />
+                      </div>
+                      <span className="text-gray-200 font-medium">Registro Manual</span>
+                      <span className="text-xs text-gray-500 text-center">Ingresa toda la información del animal manualmente</span>
+                    </button>
                   </div>
-                ) : editando?.pdf_url ? (
-                  <div className="flex items-center justify-between">
+                </div>
+              )}
+
+              {/* STEP 2a: PDF Upload */}
+              {formMode === 'pdf-upload' && (
+                <div className="space-y-4">
+                  {extracting ? (
+                    <div className="flex flex-col items-center gap-4 py-12">
+                      <Loader2 size={40} className="animate-spin text-blue-400" />
+                      <p className="text-gray-400">Leyendo datos del PDF...</p>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center gap-4 px-6 py-12 bg-gray-800/50 hover:bg-gray-800 border-2 border-dashed border-gray-600 hover:border-blue-500 rounded-2xl cursor-pointer transition-all">
+                      <div className="w-16 h-16 bg-blue-900/30 rounded-2xl flex items-center justify-center">
+                        <Upload size={32} className="text-blue-400" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-300 font-medium">Seleccionar PDF del registro</p>
+                        <p className="text-xs text-gray-500 mt-1">Formatos soportados: BON (ASOCRIOLLO), Brangus (ASOBRANGUS), Angus/Red Angus (RAAA)</p>
+                      </div>
+                      <input type="file" accept=".pdf" className="hidden" onChange={e => { if (e.target.files[0]) handlePdfUpload(e.target.files[0]); }} />
+                    </label>
+                  )}
+                </div>
+              )}
+
+              {/* STEP 2b: PDF Review (pre-filled form) or Manual form */}
+              {(formMode === 'pdf-review' || formMode === 'manual' || editando) && (<>
+
+                {/* PDF confirmation banner */}
+                {formMode === 'pdf-review' && pdfFile && (
+                  <div className="bg-blue-900/20 border border-blue-800 rounded-xl p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-blue-400">📄</span>
+                      <span className="text-blue-300">{pdfFile.name}</span>
+                      <span className="text-blue-400/60 text-xs">({(pdfFile.size / 1024).toFixed(0)} KB)</span>
+                    </div>
+                    <span className="text-xs text-blue-400">Datos extraídos — revisa y confirma</span>
+                  </div>
+                )}
+
+                {/* Existing PDF link when editing */}
+                {editando?.pdf_url && !pdfFile && (
+                  <div className="bg-gray-800/50 rounded-xl p-3 flex items-center justify-between">
                     <a href={editando.pdf_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm underline">{editando.pdf_nombre || 'Ver PDF actual'}</a>
                     <label className="text-xs text-gray-400 hover:text-gray-300 cursor-pointer">
-                      Reemplazar
+                      Reemplazar PDF
                       <input type="file" accept=".pdf" className="hidden" onChange={e => { if (e.target.files[0]) setPdfFile(e.target.files[0]); }} />
                     </label>
                   </div>
-                ) : (
-                  <label className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-700/50 hover:bg-gray-700 rounded-lg text-sm text-gray-400 hover:text-gray-300 cursor-pointer transition-colors border border-gray-600/50">
-                    <Upload size={16} /> Seleccionar archivo PDF del registro
-                    <input type="file" accept=".pdf" className="hidden" onChange={e => { if (e.target.files[0]) setPdfFile(e.target.files[0]); }} />
-                  </label>
                 )}
-              </div>
 
-              {/* Datos básicos */}
-              <p className="text-xs text-gray-500 font-semibold uppercase">Datos del Animal</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Número *</label>
-                  <input type="text" value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })}
-                    placeholder="Ej: M477-18" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                {/* Datos básicos */}
+                <p className="text-xs text-gray-500 font-semibold uppercase">Datos del Animal</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Número *</label>
+                    <input type="text" value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })}
+                      placeholder="Ej: M477-18" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs text-gray-400 mb-1">Nombre Completo</label>
+                    <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })}
+                      placeholder="Ej: HATOVIEJO SANTERO M477-18 T.E" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Raza *</label>
+                    <select value={form.raza} onChange={e => handleRazaChange(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                      {RAZAS.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Sexo</label>
+                    <select value={form.sexo} onChange={e => setForm({ ...form, sexo: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
+                      <option value="M">♂ Macho</option><option value="H">♀ Hembra</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Color</label>
+                    <input type="text" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })}
+                      placeholder="Negro, Rojo..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Fecha Nacimiento</label>
+                    <input type="date" value={form.fecha_nacimiento} onChange={e => setForm({ ...form, fecha_nacimiento: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1"># Registro</label>
+                    <input type="text" value={form.registro_num} onChange={e => setForm({ ...form, registro_num: e.target.value })}
+                      placeholder="BON-018065" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Asociación</label>
+                    <input type="text" value={form.asociacion} onChange={e => setForm({ ...form, asociacion: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                  </div>
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-xs text-gray-400 mb-1">Nombre Completo</label>
-                  <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })}
-                    placeholder="Ej: HATOVIEJO SANTERO M477-18 T.E" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Raza *</label>
-                  <select value={form.raza} onChange={e => handleRazaChange(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
-                    {RAZAS.map(r => <option key={r} value={r}>{r}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Sexo</label>
-                  <select value={form.sexo} onChange={e => setForm({ ...form, sexo: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm">
-                    <option value="M">♂ Macho</option><option value="H">♀ Hembra</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Color</label>
-                  <input type="text" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })}
-                    placeholder="Negro, Rojo..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Fecha Nacimiento</label>
-                  <input type="date" value={form.fecha_nacimiento} onChange={e => setForm({ ...form, fecha_nacimiento: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1"># Registro</label>
-                  <input type="text" value={form.registro_num} onChange={e => setForm({ ...form, registro_num: e.target.value })}
-                    placeholder="BON-018065" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1">Asociación</label>
-                  <input type="text" value={form.asociacion} onChange={e => setForm({ ...form, asociacion: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-                </div>
-              </div>
 
-              {/* Genealogía */}
-              <p className="text-xs text-gray-500 font-semibold uppercase mt-4">Genealogía</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-gray-400 mb-1">Padre — Nombre</label>
-                  <input type="text" value={form.padre_nombre} onChange={e => setForm({ ...form, padre_nombre: e.target.value })} placeholder="Nombre del padre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                <div><label className="block text-xs text-gray-400 mb-1">Padre — Registro</label>
-                  <input type="text" value={form.padre_registro} onChange={e => setForm({ ...form, padre_registro: e.target.value })} placeholder="# registro" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                <div><label className="block text-xs text-gray-400 mb-1">Madre — Nombre</label>
-                  <input type="text" value={form.madre_nombre} onChange={e => setForm({ ...form, madre_nombre: e.target.value })} placeholder="Nombre de la madre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                <div><label className="block text-xs text-gray-400 mb-1">Madre — Registro</label>
-                  <input type="text" value={form.madre_registro} onChange={e => setForm({ ...form, madre_registro: e.target.value })} placeholder="# registro" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-              </div>
-
-              {/* Abuelos */}
-              <p className="text-xs text-gray-500 font-semibold uppercase mt-2">Abuelos (opcional)</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-gray-400 mb-1">Abuelo Paterno</label>
-                  <input type="text" value={form.abuelo_p} onChange={e => setForm({ ...form, abuelo_p: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                <div><label className="block text-xs text-gray-400 mb-1">Abuela Paterna</label>
-                  <input type="text" value={form.abuela_p} onChange={e => setForm({ ...form, abuela_p: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                <div><label className="block text-xs text-gray-400 mb-1">Abuelo Materno</label>
-                  <input type="text" value={form.abuelo_m} onChange={e => setForm({ ...form, abuelo_m: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                <div><label className="block text-xs text-gray-400 mb-1">Abuela Materna</label>
-                  <input type="text" value={form.abuela_m} onChange={e => setForm({ ...form, abuela_m: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-              </div>
-
-              {/* EPDs — solo Angus/Red Angus */}
-              {(form.raza === 'Angus' || form.raza === 'Red Angus') && (<>
-                <p className="text-xs text-gray-500 font-semibold uppercase mt-4">EPDs (Angus)</p>
-                <div className="grid grid-cols-4 gap-3">
-                  {[['CED','epd_ced'], ['BW','epd_bw'], ['WW','epd_ww'], ['YW','epd_yw'], ['MILK','epd_milk'], ['MARB','epd_marb'], ['REA','epd_rea'], ['CW','epd_cw']].map(([label, key]) => (
-                    <div key={key}><label className="block text-[10px] text-gray-400 mb-1">{label}</label>
-                      <input type="text" value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} className="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm text-center" /></div>
-                  ))}
+                {/* Genealogía */}
+                <p className="text-xs text-gray-500 font-semibold uppercase mt-4">Genealogía</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="block text-xs text-gray-400 mb-1">Nombre Padre</label>
+                    <input type="text" value={form.padre_nombre} onChange={e => setForm({ ...form, padre_nombre: e.target.value })} placeholder="Nombre del padre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Número Padre</label>
+                    <input type="text" value={form.padre_registro} onChange={e => setForm({ ...form, padre_registro: e.target.value })} placeholder="# registro padre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Nombre Madre</label>
+                    <input type="text" value={form.madre_nombre} onChange={e => setForm({ ...form, madre_nombre: e.target.value })} placeholder="Nombre de la madre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Número Madre</label>
+                    <input type="text" value={form.madre_registro} onChange={e => setForm({ ...form, madre_registro: e.target.value })} placeholder="# registro madre" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
                 </div>
-                <p className="text-xs text-gray-500 font-semibold uppercase mt-2">Performance</p>
-                <div className="grid grid-cols-3 gap-3">
-                  <div><label className="block text-xs text-gray-400 mb-1">Peso Nacer</label>
-                    <input type="text" value={form.peso_nacimiento} onChange={e => setForm({ ...form, peso_nacimiento: e.target.value })} placeholder="85 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                  <div><label className="block text-xs text-gray-400 mb-1">Peso 205d</label>
-                    <input type="text" value={form.peso_205} onChange={e => setForm({ ...form, peso_205: e.target.value })} placeholder="825 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                  <div><label className="block text-xs text-gray-400 mb-1">Peso 365d</label>
-                    <input type="text" value={form.peso_365} onChange={e => setForm({ ...form, peso_365: e.target.value })} placeholder="1265 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+
+                {/* Abuelos */}
+                <p className="text-xs text-gray-500 font-semibold uppercase mt-2">Abuelos (opcional)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="block text-xs text-gray-400 mb-1">Abuelo Paterno</label>
+                    <input type="text" value={form.abuelo_p} onChange={e => setForm({ ...form, abuelo_p: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Abuela Paterna</label>
+                    <input type="text" value={form.abuela_p} onChange={e => setForm({ ...form, abuela_p: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Abuelo Materno</label>
+                    <input type="text" value={form.abuelo_m} onChange={e => setForm({ ...form, abuelo_m: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Abuela Materna</label>
+                    <input type="text" value={form.abuela_m} onChange={e => setForm({ ...form, abuela_m: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
                 </div>
-              </>)}
 
-              {/* Criador / Propietario */}
-              <p className="text-xs text-gray-500 font-semibold uppercase mt-4">Propiedad</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs text-gray-400 mb-1">Criador</label>
-                  <input type="text" value={form.criador} onChange={e => setForm({ ...form, criador: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-                <div><label className="block text-xs text-gray-400 mb-1">Propietario</label>
-                  <input type="text" value={form.propietario} onChange={e => setForm({ ...form, propietario: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
-              </div>
-
-              {/* Vincular con hato */}
-              <div className="relative">
-                <label className="block text-xs text-gray-400 mb-1">Vincular con Animal del Hato</label>
-                <input type="text" value={form.animal_hato_id}
-                  onChange={e => { setForm({ ...form, animal_hato_id: e.target.value }); setShowHatoList(true); }}
-                  onFocus={() => setShowHatoList(true)}
-                  onBlur={() => setTimeout(() => setShowHatoList(false), 200)}
-                  placeholder="Buscar por número..."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
-                {form.animal_hato_id && animalesHato.find(a => a.id === form.animal_hato_id) && (
-                  <span className="absolute right-3 top-7 text-green-400 text-xs">✓ Vinculado</span>
-                )}
-                {showHatoList && (
-                  <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg max-h-48 overflow-y-auto shadow-2xl">
-                    {animalesHatoFiltrados.length === 0 && <p className="px-3 py-2 text-xs text-gray-500">No se encontraron animales</p>}
-                    {animalesHatoFiltrados.map(a => (
-                      <button key={a.id} type="button"
-                        onClick={() => { setForm({ ...form, animal_hato_id: a.id }); setShowHatoList(false); }}
-                        className="w-full text-left px-3 py-2 text-sm flex items-center justify-between hover:bg-gray-700 transition-colors">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-green-400">{a.id}</span>
-                          <span className="text-xs text-gray-500">{a.sexo === 'M' ? '♂' : '♀'}</span>
-                          <span className={`text-xs ${a.estado === 'Activo' ? 'text-green-500' : 'text-gray-500'}`}>{a.estado}</span>
-                        </div>
-                        <span className="text-xs text-gray-600">{a.madre ? `M:${a.madre}` : ''}</span>
-                      </button>
+                {/* EPDs — solo Angus/Red Angus */}
+                {(form.raza === 'Angus' || form.raza === 'Red Angus') && (<>
+                  <p className="text-xs text-gray-500 font-semibold uppercase mt-4">EPDs (Angus)</p>
+                  <div className="grid grid-cols-4 gap-3">
+                    {[['CED','epd_ced'], ['BW','epd_bw'], ['WW','epd_ww'], ['YW','epd_yw'], ['MILK','epd_milk'], ['MARB','epd_marb'], ['REA','epd_rea'], ['CW','epd_cw']].map(([label, key]) => (
+                      <div key={key}><label className="block text-[10px] text-gray-400 mb-1">{label}</label>
+                        <input type="text" value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} className="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm text-center" /></div>
                     ))}
                   </div>
-                )}
-              </div>
+                  <p className="text-xs text-gray-500 font-semibold uppercase mt-2">Performance</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div><label className="block text-xs text-gray-400 mb-1">Peso Nacer</label>
+                      <input type="text" value={form.peso_nacimiento} onChange={e => setForm({ ...form, peso_nacimiento: e.target.value })} placeholder="85 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                    <div><label className="block text-xs text-gray-400 mb-1">Peso 205d</label>
+                      <input type="text" value={form.peso_205} onChange={e => setForm({ ...form, peso_205: e.target.value })} placeholder="825 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                    <div><label className="block text-xs text-gray-400 mb-1">Peso 365d</label>
+                      <input type="text" value={form.peso_365} onChange={e => setForm({ ...form, peso_365: e.target.value })} placeholder="1265 Lbs" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  </div>
+                </>)}
+
+                {/* Criador / Propietario */}
+                <p className="text-xs text-gray-500 font-semibold uppercase mt-4">Propiedad</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="block text-xs text-gray-400 mb-1">Criador</label>
+                    <input type="text" value={form.criador} onChange={e => setForm({ ...form, criador: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                  <div><label className="block text-xs text-gray-400 mb-1">Propietario</label>
+                    <input type="text" value={form.propietario} onChange={e => setForm({ ...form, propietario: e.target.value })} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" /></div>
+                </div>
+
+                {/* Vincular con hato */}
+                <div className="relative">
+                  <label className="block text-xs text-gray-400 mb-1">Vincular con Animal del Hato</label>
+                  <input type="text" value={form.animal_hato_id}
+                    onChange={e => { setForm({ ...form, animal_hato_id: e.target.value }); setShowHatoList(true); }}
+                    onFocus={() => setShowHatoList(true)}
+                    onBlur={() => setTimeout(() => setShowHatoList(false), 200)}
+                    placeholder="Buscar por número..."
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 text-sm" />
+                  {form.animal_hato_id && animalesHato.find(a => a.id === form.animal_hato_id) && (
+                    <span className="absolute right-3 top-7 text-green-400 text-xs">✓ Vinculado</span>
+                  )}
+                  {showHatoList && (
+                    <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg max-h-48 overflow-y-auto shadow-2xl">
+                      {animalesHatoFiltrados.length === 0 && <p className="px-3 py-2 text-xs text-gray-500">No se encontraron animales</p>}
+                      {animalesHatoFiltrados.map(a => (
+                        <button key={a.id} type="button"
+                          onClick={() => { setForm({ ...form, animal_hato_id: a.id }); setShowHatoList(false); }}
+                          className="w-full text-left px-3 py-2 text-sm flex items-center justify-between hover:bg-gray-700 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-green-400">{a.id}</span>
+                            <span className="text-xs text-gray-500">{a.sexo === 'M' ? '♂' : '♀'}</span>
+                            <span className={`text-xs ${a.estado === 'Activo' ? 'text-green-500' : 'text-gray-500'}`}>{a.estado}</span>
+                          </div>
+                          <span className="text-xs text-gray-600">{a.madre ? `M:${a.madre}` : ''}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>)}
             </div>
 
-            <div className="p-5 border-t border-gray-800 flex justify-end gap-3">
-              <button onClick={() => { setShowForm(false); setEditando(null); setPdfFile(null); }} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
-              <button onClick={handleSave} disabled={saving}
-                className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-40">
-                {saving ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> {editando ? 'Actualizar' : 'Guardar'}</>}
-              </button>
-            </div>
+            {/* Footer buttons */}
+            {formMode !== 'choose' && formMode !== 'pdf-upload' && (
+              <div className="p-5 border-t border-gray-800 flex justify-end gap-3">
+                <button onClick={() => { setShowForm(false); setEditando(null); setPdfFile(null); }} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
+                <button onClick={handleSave} disabled={saving}
+                  className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-40">
+                  {saving ? <><Loader2 size={14} className="animate-spin" /> Guardando...</> : <><Check size={14} /> {editando ? 'Actualizar' : 'Guardar'}</>}
+                </button>
+              </div>
+            )}
+            {formMode === 'choose' && (
+              <div className="p-5 border-t border-gray-800 flex justify-end">
+                <button onClick={() => { setShowForm(false); setPdfFile(null); }} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm">Cancelar</button>
+              </div>
+            )}
           </div>
         </div>
       )}
