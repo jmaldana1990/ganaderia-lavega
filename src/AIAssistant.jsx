@@ -41,9 +41,21 @@ export default function AIAssistant({ nacimientos, pesajes, palpaciones, servici
     activos.forEach(n => { const cat = n.categoriaActual || n.categoria_actual || '?'; cats[cat] = (cats[cat] || 0) + 1; });
 
     // ======== VACAS MADRE — Días abiertos y estado reproductivo ========
+    // First build a set of all known active animal IDs
+    const activeIds = new Set();
+    activos.forEach(n => { if (n.cria) activeIds.add(String(n.cria).trim()); });
+    // Also add mothers that appear in active crias (they're active even if not in nacimientos as cria)
+    activos.forEach(n => { if (n.madre) activeIds.add(String(n.madre).trim()); });
+
+    // Build set of confirmed inactive animals (vendidos + muertos)
+    const inactiveIds = new Set();
+    nac.filter(n => n.estado === 'Vendido' || n.estado === 'Muerto').forEach(n => {
+      if (n.cria) inactiveIds.add(String(n.cria).trim());
+    });
+
     const madreMap = {};
     nac.forEach(n => {
-      if (!n.madre || n.estado === 'Muerto') return;
+      if (!n.madre) return;
       const mId = String(n.madre).trim();
       if (!madreMap[mId]) madreMap[mId] = { id: mId, partos: [], finca: 'La Vega' };
       madreMap[mId].partos.push({
@@ -72,7 +84,19 @@ export default function AIAssistant({ nacimientos, pesajes, palpaciones, servici
       // VP if last cria not weaned, VS if weaned
       m.categoria = (ultimo && !ultimo.destetada) ? 'VP' : 'VS';
     });
-    const madres = Object.values(madreMap).filter(m => m.estado !== 'Vendido' && m.estado !== 'Muerto');
+    // ONLY include mothers that are confirmed active (not sold, not dead)
+    const madres = Object.values(madreMap).filter(m => {
+      // If explicitly marked inactive, exclude
+      if (m.estado === 'Vendido' || m.estado === 'Muerto' || m.estado === 'Inactivo') return false;
+      // If in the inactive set (sold/dead as cria), exclude
+      if (inactiveIds.has(m.id)) return false;
+      // If has estado=Activo, include
+      if (m.estado === 'Activo') return true;
+      // If no estado but is in activeIds (appears as madre of active crias), include
+      if (activeIds.has(m.id)) return true;
+      // No info — exclude to be safe (better to miss than show ghost animals)
+      return false;
+    });
     const madresOrdenadas = madres.filter(m => m.diasAbiertos != null).sort((a, b) => b.diasAbiertos - a.diasAbiertos);
 
     // Top 20 vacas con más días abiertos
